@@ -12,6 +12,7 @@ class StorageFields {
 
 class Collections {
   static const String users = 'users';
+  static const String sections = 'sections';
   static const String faqs = 'faqs';
   static const String modules = 'modules';
   static const String quizzes = 'quizzes';
@@ -37,4 +38,15 @@ class UserFields {
   static const String assignedSection = 'assignedSection';
   static const String idNumber = 'idNumber';
   static const String verificationImage = 'verificationImage';
+}
+
+class SectionFields {
+  static const String name = 'name';
+  static const String teacherIDs = 'teacherIDs';
+  static const String studentIDs = 'studentIDs';
+}
+
+class PathParamters {
+  static const sectionID = 'sectionID';
+  static const userID = 'userID';
 }

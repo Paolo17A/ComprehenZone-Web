@@ -4,6 +4,7 @@
 // ignore_for_file: unnecessary_cast
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:comprehenzone_web/providers/sections_provider.dart';
 import 'package:comprehenzone_web/providers/verification_image_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -133,7 +134,8 @@ Future registerNewUser(BuildContext context, WidgetRef ref,
       UserFields.userType: userType,
       UserFields.profileImageURL: '',
       UserFields.idNumber: idNumberController.text.trim(),
-      UserFields.isVerified: false
+      UserFields.isVerified: false,
+      UserFields.assignedSection: ''
     });
 
     final storageRef = FirebaseStorage.instance
@@ -272,6 +274,166 @@ Future denyThisUserRegistration(BuildContext context, WidgetRef ref,
   } catch (error) {
     scaffoldMessenger.showSnackBar(SnackBar(
         content: Text('Error denying this user\'s registration: $error')));
+    ref.read(loadingProvider).toggleLoading(false);
+  }
+}
+
+Future<List<DocumentSnapshot>> getSectionStudentDocs(String sectionID) async {
+  final students = await FirebaseFirestore.instance
+      .collection(Collections.users)
+      .where(UserFields.userType, isEqualTo: UserTypes.student)
+      .where(UserFields.assignedSection, isEqualTo: sectionID)
+      .get();
+  return students.docs.map((student) => student as DocumentSnapshot).toList();
+}
+
+Future<List<DocumentSnapshot>> getSectionTeacherDoc(String sectionID) async {
+  final teachers = await FirebaseFirestore.instance
+      .collection(Collections.users)
+      .where(UserFields.userType, isEqualTo: UserTypes.teacher)
+      .where(UserFields.assignedSection, isEqualTo: sectionID)
+      .get();
+  return teachers.docs.map((teacher) => teacher as DocumentSnapshot).toList();
+}
+
+Future<List<DocumentSnapshot>> getStudentsWithNoSectionDocs() async {
+  final students = await FirebaseFirestore.instance
+      .collection(Collections.users)
+      .where(UserFields.userType, isEqualTo: UserTypes.student)
+      .where(UserFields.assignedSection, isEqualTo: '')
+      .where(UserFields.isVerified, isEqualTo: true)
+      .get();
+  return students.docs.map((student) => student as DocumentSnapshot).toList();
+}
+
+Future<List<DocumentSnapshot>> getAvailableTeacherDocs() async {
+  final teachers = await FirebaseFirestore.instance
+      .collection(Collections.users)
+      .where(UserFields.userType, isEqualTo: UserTypes.teacher)
+      .where(UserFields.assignedSection, isEqualTo: '')
+      .where(UserFields.isVerified, isEqualTo: true)
+      .get();
+  return teachers.docs.map((student) => student as DocumentSnapshot).toList();
+}
+
+//==============================================================================
+//SECTIONS======================================================================
+//==============================================================================
+
+Future<List<DocumentSnapshot>> getAllSectionDocs() async {
+  final sections =
+      await FirebaseFirestore.instance.collection(Collections.sections).get();
+  return sections.docs.map((user) => user as DocumentSnapshot).toList();
+}
+
+Future<DocumentSnapshot> getThisSectionDoc(String sectionID) async {
+  return await FirebaseFirestore.instance
+      .collection(Collections.sections)
+      .doc(sectionID)
+      .get();
+}
+
+Future addNewSection(BuildContext context, WidgetRef ref,
+    {required TextEditingController nameController}) async {
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  final goRouter = GoRouter.of(context);
+  if (nameController.text.isEmpty || nameController.text.trim().length < 2) {
+    scaffoldMessenger.showSnackBar(const SnackBar(
+        content: Text(
+            'Please input a valid section name that is at least two characters long')));
+    return;
+  }
+  try {
+    ref.read(loadingProvider).toggleLoading(true);
+    goRouter.pop();
+    await FirebaseFirestore.instance
+        .collection(Collections.sections)
+        .add({SectionFields.name: nameController.text.trim()});
+    scaffoldMessenger.showSnackBar(
+        const SnackBar(content: Text('Successfully added new section.')));
+    ref.read(sectionsProvider).setSectionDocs(await getAllSectionDocs());
+    ref.read(loadingProvider).toggleLoading(false);
+  } catch (error) {
+    scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('Error adding new section: $error')));
+    ref.read(loadingProvider).toggleLoading(false);
+  }
+}
+
+Future editThisSection(BuildContext context, WidgetRef ref,
+    {required String sectionID,
+    required TextEditingController nameController}) async {
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  final goRouter = GoRouter.of(context);
+  if (nameController.text.isEmpty || nameController.text.trim().length < 2) {
+    scaffoldMessenger.showSnackBar(const SnackBar(
+        content: Text(
+            'Please input a valid section name that is at least two characters long')));
+    return;
+  }
+  try {
+    ref.read(loadingProvider).toggleLoading(true);
+    goRouter.pop();
+    await FirebaseFirestore.instance
+        .collection(Collections.sections)
+        .doc(sectionID)
+        .update({SectionFields.name: nameController.text.trim()});
+    scaffoldMessenger.showSnackBar(
+        const SnackBar(content: Text('Successfully edited this section.')));
+    ref.read(sectionsProvider).setSectionDocs(await getAllSectionDocs());
+    ref.read(loadingProvider).toggleLoading(false);
+  } catch (error) {
+    scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('Error editing this section: $error')));
+    ref.read(loadingProvider).toggleLoading(false);
+  }
+}
+
+Future assignUserToSection(BuildContext context, WidgetRef ref,
+    {required String sectionID, required userID}) async {
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  final goRouter = GoRouter.of(context);
+  try {
+    ref.read(loadingProvider).toggleLoading(true);
+    goRouter.pop();
+    List<DocumentSnapshot> sectionTeacher =
+        await getSectionTeacherDoc(sectionID);
+    if (sectionTeacher.isNotEmpty) {
+      final oldTeacherID = sectionTeacher.first.id;
+      await FirebaseFirestore.instance
+          .collection(Collections.users)
+          .doc(oldTeacherID)
+          .update({UserFields.assignedSection: ''});
+    }
+    await FirebaseFirestore.instance
+        .collection(Collections.users)
+        .doc(userID)
+        .update({UserFields.assignedSection: sectionID});
+    scaffoldMessenger.showSnackBar(const SnackBar(
+        content: Text('Successfully assigned user to this section')));
+
+    //  TEACHERS
+    final teachers = await getSectionTeacherDoc(sectionID);
+    if (teachers.isNotEmpty) {
+      final teacherData = teachers.first.data() as Map<dynamic, dynamic>;
+      ref.read(sectionsProvider).setAssignedTeacherName(
+          '${teacherData[UserFields.firstName]} ${teacherData[UserFields.lastName]}');
+    }
+    ref
+        .read(sectionsProvider)
+        .setAvailableTeacherDocs(await getAvailableTeacherDocs());
+
+    //  STUDENTS
+    ref
+        .read(sectionsProvider)
+        .setSectionStudentDocs(await getSectionStudentDocs(sectionID));
+    ref
+        .read(sectionsProvider)
+        .setStudentsWithNoSectionDocs(await getStudentsWithNoSectionDocs());
+    ref.read(loadingProvider).toggleLoading(false);
+  } catch (error) {
+    scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('Error assigning user to section: $error')));
     ref.read(loadingProvider).toggleLoading(false);
   }
 }

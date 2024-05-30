@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-import '../utils/color_util.dart';
 import '../utils/firebase_util.dart';
 import '../utils/go_router_util.dart';
 import '../widgets/custom_padding_widgets.dart';
@@ -42,6 +41,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ref.read(loadingProvider.notifier).toggleLoading(false);
           return;
         }
+        //  In case user refreshed the screen and the provider is reset
+        if (ref.read(userTypeProvider).userType.isEmpty) {
+          String userType = await getCurrentUserType();
+          ref.read(userTypeProvider).setUserType(userType);
+        }
+        if (ref.read(userTypeProvider).userType == UserTypes.admin) {
+          //  Get Global Data
+        } else {
+          //  Get Section-wide Data
+        }
         ref.read(loadingProvider).toggleLoading(false);
       } catch (error) {
         Fluttertoast.showToast(msg: 'Error initializing home screen: $error');
@@ -75,19 +84,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         adminLeftNavigator(context, path: GoRoutes.home),
-        Container(
-            width: MediaQuery.of(context).size.width * 0.8,
-            decoration: const BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage(ImagePaths.gradientBG),
-                    fit: BoxFit.cover)),
-            height: MediaQuery.of(context).size.height,
+        bodyGradientContainer(context,
             child: SingleChildScrollView(
               child: horizontal5Percent(context,
                   child: Center(
-                    child: blackInterBold('ADMIN DASHBOARD', fontSize: 60),
-                  )),
-            )),
+                      child: blackInterBold('ADMIN DASHBOARD', fontSize: 60))),
+            ))
       ],
     );
   }
@@ -100,16 +102,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         teacherLeftNavigator(context, path: GoRoutes.home),
-        Container(
-          color: CustomColors.pearlWhite,
-          width: MediaQuery.of(context).size.width * 0.8,
-          height: MediaQuery.of(context).size.height,
-          child: SingleChildScrollView(
-            child: horizontal5Percent(context,
-                child: Center(
-                    child: blackInterBold('OWNER DASHBOARD', fontSize: 60))),
-          ),
-        ),
+        bodyGradientContainer(context,
+            child: SingleChildScrollView(
+              child: horizontal5Percent(context,
+                  child: Center(
+                      child: blackInterBold('OWNER DASHBOARD', fontSize: 60))),
+            ))
       ],
     );
   }

@@ -54,7 +54,7 @@ Widget backButton(BuildContext context, {required Function onPress}) {
       style: ElevatedButton.styleFrom(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-      child: whiteInterRegular('BACK'));
+      child: blackInterBold('BACK'));
 }
 
 Widget viewEntryButton(BuildContext context, {required Function onPress}) {
@@ -70,7 +70,7 @@ Widget editEntryButton(BuildContext context, {required Function onPress}) {
       onPressed: () {
         onPress();
       },
-      child: const Icon(Icons.edit, color: CustomColors.pearlWhite));
+      child: const Icon(Icons.edit, color: CustomColors.midnightBlue));
 }
 
 Widget restoreEntryButton(BuildContext context, {required Function onPress}) {

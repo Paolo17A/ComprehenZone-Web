@@ -63,13 +63,8 @@ class _ViewTeachersScreenState extends ConsumerState<ViewTeachersScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             adminLeftNavigator(context, path: GoRoutes.teachers),
-            Container(
-              width: MediaQuery.of(context).size.width * 0.8,
-              height: MediaQuery.of(context).size.height,
-              decoration: const BoxDecoration(
-                  image: DecorationImage(
-                      image: AssetImage(ImagePaths.gradientBG),
-                      fit: BoxFit.cover)),
+            bodyGradientContainer(
+              context,
               child: SingleChildScrollView(
                 child: horizontal5Percent(context,
                     child: Column(
