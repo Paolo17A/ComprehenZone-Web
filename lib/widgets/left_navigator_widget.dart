@@ -34,7 +34,13 @@ Widget adminLeftNavigator(BuildContext context, {required String path}) {
                 thisPath: GoRoutes.teachers,
                 currentPath: path),
             listTile(context,
-                label: 'Students', thisPath: '', currentPath: path),
+                label: 'Students',
+                thisPath: GoRoutes.students,
+                currentPath: path),
+            listTile(context,
+                label: 'Modules',
+                thisPath: GoRoutes.modules,
+                currentPath: path),
           ],
         )),
         ListTile(
@@ -56,18 +62,26 @@ Widget adminLeftNavigator(BuildContext context, {required String path}) {
 Widget teacherLeftNavigator(BuildContext context, {required String path}) {
   return Container(
     width: MediaQuery.of(context).size.width * 0.2,
-    height: MediaQuery.of(context).size.height - 40,
+    height: MediaQuery.of(context).size.height,
     decoration: BoxDecoration(
-        color: CustomColors.midnightBlue,
-        border: Border.all(color: CustomColors.midnightBlue)),
+        color: CustomColors.pearlWhite,
+        border: Border.all(color: CustomColors.paleCyan, width: 5)),
     child: Column(
       children: [
         Flexible(
             child: ListView(
           padding: EdgeInsets.zero,
           children: [
+            vertical20Pix(
+                child: Image.asset(ImagePaths.comprehenzoneLogo, height: 100)),
             listTile(context,
                 label: 'Dashboard', thisPath: GoRoutes.home, currentPath: path),
+            listTile(context,
+                label: 'Modules',
+                thisPath: GoRoutes.modules,
+                currentPath: path),
+            listTile(context,
+                label: 'Quizzes', thisPath: '', currentPath: path),
           ],
         )),
         ListTile(

@@ -9,6 +9,7 @@ import 'package:comprehenzone_web/widgets/custom_text_widgets.dart';
 import 'package:comprehenzone_web/widgets/left_navigator_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
 import '../providers/user_type_provider.dart';
@@ -183,7 +184,16 @@ class _SelectedSectionScreenState extends ConsumerState<SelectedSectionScreen> {
                   itemCount:
                       ref.read(sectionsProvider).sectionStudentDocs.length,
                   itemBuilder: (context, index) {
-                    return Container();
+                    final studentData = ref
+                        .read(sectionsProvider)
+                        .sectionStudentDocs[index]
+                        .data() as Map<dynamic, dynamic>;
+                    String formattedName =
+                        '${studentData[UserFields.firstName]} ${studentData[UserFields.lastName]}';
+                    return Row(children: [
+                      const Gap(20),
+                      blackInterBold(formattedName, fontSize: 28)
+                    ]);
                   },
                 )
               : blackInterRegular('No Assigned Students', fontSize: 40)

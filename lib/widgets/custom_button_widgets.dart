@@ -86,7 +86,7 @@ Widget deleteEntryButton(BuildContext context, {required Function onPress}) {
       onPressed: () {
         onPress();
       },
-      child: const Icon(Icons.delete, color: CustomColors.pearlWhite));
+      child: const Icon(Icons.delete, color: CustomColors.midnightBlue));
 }
 
 Widget uploadImageButton(String label, Function selectImage) {

@@ -397,3 +397,14 @@ void showVerificationImageDialog(BuildContext context,
             ),
           ));
 }
+
+Widget snapshotHandler(AsyncSnapshot snapshot) {
+  if (snapshot.connectionState == ConnectionState.waiting) {
+    return const Center(child: CircularProgressIndicator());
+  } else if (!snapshot.hasData) {
+    return const Text('No data found');
+  } else if (snapshot.hasError) {
+    return Text('Error gettin data: ${snapshot.error.toString()}');
+  }
+  return Container();
+}

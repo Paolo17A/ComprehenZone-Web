@@ -8,6 +8,7 @@ class ImagePaths {
 class StorageFields {
   static const verificationImages = 'verificationImages';
   static const profilePics = 'profilePics';
+  static const moduleDocuments = 'moduleDocuments';
 }
 
 class Collections {
@@ -46,7 +47,24 @@ class SectionFields {
   static const String studentIDs = 'studentIDs';
 }
 
-class PathParamters {
+class ModuleFields {
+  static const String teacherID = 'teacherID';
+  static const String sectionID = 'sectionID';
+  static const String title = 'title';
+  static const String content = 'content';
+  static const String dateCreated = 'dateCreated';
+  static const String dateLastModified = 'dateLastModified';
+  static const String additionalDocuments = 'additionalDocuments';
+  static const String additionalResources = 'additionalResources';
+}
+
+class AdditionalResourcesFields {
+  static const String fileName = 'fileName';
+  static const String downloadLink = 'downloadLink';
+}
+
+class PathParameters {
   static const sectionID = 'sectionID';
   static const userID = 'userID';
+  static const moduleID = 'moduleID';
 }

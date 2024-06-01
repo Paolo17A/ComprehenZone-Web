@@ -140,7 +140,7 @@ class _ViewSectionsScreenState extends ConsumerState<ViewSectionsScreen> {
         viewEntryButton(context,
             onPress: () => GoRouter.of(context).goNamed(
                 GoRoutes.selectedSection,
-                pathParameters: {PathParamters.sectionID: sectionDoc.id})),
+                pathParameters: {PathParameters.sectionID: sectionDoc.id})),
         editEntryButton(context,
             onPress: () => showEditSectionDialog(sectionDoc)),
       ], flex: 2)

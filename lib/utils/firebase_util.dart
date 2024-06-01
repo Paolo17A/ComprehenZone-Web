@@ -3,6 +3,8 @@
 //==============================================================================
 // ignore_for_file: unnecessary_cast
 
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comprehenzone_web/providers/sections_provider.dart';
 import 'package:comprehenzone_web/providers/verification_image_provider.dart';
@@ -434,6 +436,212 @@ Future assignUserToSection(BuildContext context, WidgetRef ref,
   } catch (error) {
     scaffoldMessenger.showSnackBar(
         SnackBar(content: Text('Error assigning user to section: $error')));
+    ref.read(loadingProvider).toggleLoading(false);
+  }
+}
+
+//==============================================================================
+//MODULES=======================================================================
+//==============================================================================
+Future<List<DocumentSnapshot>> getAllModuleDocs() async {
+  final modules =
+      await FirebaseFirestore.instance.collection(Collections.modules).get();
+  return modules.docs.map((user) => user as DocumentSnapshot).toList();
+}
+
+Future<List<DocumentSnapshot>> getAllUserModuleDocs() async {
+  final modules = await FirebaseFirestore.instance
+      .collection(Collections.modules)
+      .where(ModuleFields.teacherID,
+          isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+      .get();
+  return modules.docs.map((user) => user as DocumentSnapshot).toList();
+}
+
+Future<DocumentSnapshot> getThisModuleDoc(String moduleID) async {
+  return await FirebaseFirestore.instance
+      .collection(Collections.modules)
+      .doc(moduleID)
+      .get();
+}
+
+void addNewModule(BuildContext context, WidgetRef ref,
+    {required TextEditingController titleController,
+    required TextEditingController contentController,
+    required List<Uint8List?> documentFiles,
+    required List<String> documentNames,
+    required List<TextEditingController> fileNameControllers,
+    required List<TextEditingController> downloadLinkControllers}) async {
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  final goRouter = GoRouter.of(context);
+
+  if (titleController.text.isEmpty || contentController.text.isEmpty) {
+    scaffoldMessenger.showSnackBar(const SnackBar(
+        content: Text('Please provide a title and content for this lesson.')));
+    return;
+  }
+  for (int i = 0; i < downloadLinkControllers.length; i++) {
+    if (fileNameControllers[i].text.isEmpty ||
+        downloadLinkControllers[i].text.isEmpty) {
+      scaffoldMessenger.showSnackBar(const SnackBar(
+          content: Text(
+              'Please fill up all additional resource fields or delete unused ones.')));
+      return;
+    } else if (!Uri.tryParse(downloadLinkControllers[i].text.trim())!
+        .hasAbsolutePath) {
+      scaffoldMessenger.showSnackBar(SnackBar(
+          content: Text('The URL provided in resource #${i + 1} is invalid')));
+      return;
+    }
+  }
+  try {
+    ref.read(loadingProvider).toggleLoading(true);
+
+    //  1. Create Module Document and indicate it's associated sections
+    final moduleReference =
+        await FirebaseFirestore.instance.collection(Collections.modules).add({
+      ModuleFields.teacherID: FirebaseAuth.instance.currentUser!.uid,
+      ModuleFields.title: titleController.text,
+      ModuleFields.content: contentController.text,
+      ModuleFields.dateCreated: DateTime.now(),
+      ModuleFields.dateLastModified: DateTime.now(),
+    });
+
+    List<Map<dynamic, dynamic>> additionalResources = [];
+    for (int i = 0; i < downloadLinkControllers.length; i++) {
+      additionalResources.add({
+        AdditionalResourcesFields.fileName: fileNameControllers[i].text.trim(),
+        AdditionalResourcesFields.downloadLink:
+            downloadLinkControllers[i].text.trim()
+      });
+    }
+
+    //  Handle Portfolio Entries
+    List<Map<String, String>> documentEntries = [];
+    for (int i = 0; i < documentFiles.length; i++) {
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child(StorageFields.moduleDocuments)
+          .child(moduleReference.id)
+          .child(documentNames[i]);
+      final uploadTask = storageRef.putData(documentFiles[i]!);
+      final taskSnapshot = await uploadTask;
+      final String downloadURL = await taskSnapshot.ref.getDownloadURL();
+      documentEntries.add({
+        AdditionalResourcesFields.fileName: documentNames[i],
+        AdditionalResourcesFields.downloadLink: downloadURL
+      });
+    }
+
+    await FirebaseFirestore.instance
+        .collection(Collections.modules)
+        .doc(moduleReference.id)
+        .update({
+      ModuleFields.additionalResources: additionalResources,
+      ModuleFields.additionalDocuments: documentEntries,
+    });
+
+    scaffoldMessenger.showSnackBar(
+        const SnackBar(content: Text('Successfully added new lesson.')));
+    ref.read(loadingProvider).toggleLoading(false);
+
+    goRouter.goNamed(GoRoutes.modules);
+  } catch (error) {
+    scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('Error adding new lesson: $error')));
+    ref.read(loadingProvider).toggleLoading(false);
+  }
+}
+
+void editThisModule(BuildContext context, WidgetRef ref,
+    {required String moduleID,
+    required TextEditingController titleController,
+    required TextEditingController contentController,
+    required List<dynamic> documentFiles,
+    required List<String> documentNames,
+    required List<TextEditingController> fileNameControllers,
+    required List<TextEditingController> downloadLinkControllers}) async {
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  final goRouter = GoRouter.of(context);
+
+  if (titleController.text.isEmpty || contentController.text.isEmpty) {
+    scaffoldMessenger.showSnackBar(const SnackBar(
+        content: Text('Please provide a title and content for this lesson.')));
+    return;
+  }
+  for (int i = 0; i < downloadLinkControllers.length; i++) {
+    if (fileNameControllers[i].text.isEmpty ||
+        downloadLinkControllers[i].text.isEmpty) {
+      scaffoldMessenger.showSnackBar(const SnackBar(
+          content: Text(
+              'Please fill up all additional resource fields or delete unused ones.')));
+      return;
+    } else if (!Uri.tryParse(downloadLinkControllers[i].text.trim())!
+        .hasAbsolutePath) {
+      scaffoldMessenger.showSnackBar(SnackBar(
+          content: Text('The URL provided in resource #${i + 1} is invalid')));
+      return;
+    }
+  }
+  try {
+    ref.read(loadingProvider).toggleLoading(true);
+
+    //  1. Create Module Document and indicate it's associated sections
+    FirebaseFirestore.instance
+        .collection(Collections.modules)
+        .doc(moduleID)
+        .update({
+      ModuleFields.title: titleController.text,
+      ModuleFields.content: contentController.text,
+      ModuleFields.dateLastModified: DateTime.now(),
+    });
+
+    List<Map<dynamic, dynamic>> additionalResources = [];
+    for (int i = 0; i < downloadLinkControllers.length; i++) {
+      additionalResources.add({
+        AdditionalResourcesFields.fileName: fileNameControllers[i].text.trim(),
+        AdditionalResourcesFields.downloadLink:
+            downloadLinkControllers[i].text.trim()
+      });
+    }
+
+    //  Handle Document Entries
+    List<Map<String, String>> documentEntries = [];
+    for (int i = 0; i < documentFiles.length; i++) {
+      //  The current file is unchanged
+      if (documentFiles[i] is String) {
+        continue;
+      }
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child(StorageFields.moduleDocuments)
+          .child(moduleID)
+          .child(documentNames[i]);
+      final uploadTask = storageRef.putData(documentFiles[i] as Uint8List);
+      final taskSnapshot = await uploadTask;
+      final String downloadURL = await taskSnapshot.ref.getDownloadURL();
+      documentEntries.add({
+        AdditionalResourcesFields.fileName: documentNames[i],
+        AdditionalResourcesFields.downloadLink: downloadURL
+      });
+    }
+
+    await FirebaseFirestore.instance
+        .collection(Collections.modules)
+        .doc(moduleID)
+        .update({
+      ModuleFields.additionalResources: additionalResources,
+      ModuleFields.additionalDocuments: FieldValue.arrayUnion(documentEntries),
+    });
+
+    scaffoldMessenger.showSnackBar(
+        const SnackBar(content: Text('Successfully edited this module.')));
+    ref.read(loadingProvider).toggleLoading(false);
+
+    goRouter.goNamed(GoRoutes.modules);
+  } catch (error) {
+    scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('Error editing this module: $error')));
     ref.read(loadingProvider).toggleLoading(false);
   }
 }

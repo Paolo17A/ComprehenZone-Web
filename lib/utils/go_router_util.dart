@@ -1,7 +1,11 @@
+import 'package:comprehenzone_web/screens/add_module_screen.dart';
+import 'package:comprehenzone_web/screens/edit_module_screen.dart';
 import 'package:comprehenzone_web/screens/home_screen.dart';
 import 'package:comprehenzone_web/screens/register_screen.dart';
 import 'package:comprehenzone_web/screens/selected_section_screen.dart';
+import 'package:comprehenzone_web/screens/view_modules_screen.dart';
 import 'package:comprehenzone_web/screens/view_sections_screen.dart';
+import 'package:comprehenzone_web/screens/view_students_screen.dart';
 import 'package:comprehenzone_web/screens/view_teachers_screen.dart';
 import 'package:comprehenzone_web/utils/string_util.dart';
 import 'package:flutter/widgets.dart';
@@ -14,6 +18,11 @@ class GoRoutes {
   static const sections = 'sections';
   static const selectedSection = 'selectedSection';
   static const teachers = 'teachers';
+  static const students = 'students';
+  static const quizzes = 'quizzes';
+  static const modules = 'modules';
+  static const addModule = 'addModule';
+  static const editModule = 'editModule';
 }
 
 final goRoutes = GoRouter(initialLocation: GoRoutes.home, routes: [
@@ -35,18 +44,41 @@ final goRoutes = GoRouter(initialLocation: GoRoutes.home, routes: [
                 customTransition(context, state, const ViewSectionsScreen())),
         GoRoute(
             name: GoRoutes.selectedSection,
-            path: '${GoRoutes.sections}/:${PathParamters.sectionID}',
+            path: '${GoRoutes.sections}/:${PathParameters.sectionID}',
             pageBuilder: (context, state) => customTransition(
                 context,
                 state,
                 SelectedSectionScreen(
                     sectionID:
-                        state.pathParameters[PathParamters.sectionID]!))),
+                        state.pathParameters[PathParameters.sectionID]!))),
         GoRoute(
             name: GoRoutes.teachers,
             path: GoRoutes.teachers,
             pageBuilder: (context, state) =>
-                customTransition(context, state, const ViewTeachersScreen()))
+                customTransition(context, state, const ViewTeachersScreen())),
+        GoRoute(
+            name: GoRoutes.students,
+            path: GoRoutes.students,
+            pageBuilder: (context, state) =>
+                customTransition(context, state, const ViewStudentsScreen())),
+        GoRoute(
+            name: GoRoutes.modules,
+            path: GoRoutes.modules,
+            pageBuilder: (context, state) =>
+                customTransition(context, state, const ViewModulesScreen())),
+        GoRoute(
+            name: GoRoutes.addModule,
+            path: GoRoutes.addModule,
+            pageBuilder: (context, state) =>
+                customTransition(context, state, const AddModuleScreen())),
+        GoRoute(
+            name: GoRoutes.editModule,
+            path: '${GoRoutes.modules}/:${PathParameters.moduleID}/edit',
+            pageBuilder: (context, state) => customTransition(
+                context,
+                state,
+                EditModuleScreen(
+                    moduleID: state.pathParameters[PathParameters.moduleID]!)))
       ])
 ]);
 
