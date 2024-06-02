@@ -63,8 +63,31 @@ class AdditionalResourcesFields {
   static const String downloadLink = 'downloadLink';
 }
 
+class QuizFields {
+  static const String teacherID = 'teacherID';
+  static const String sectionID = 'sectionID';
+  static const String quizType = 'quizType';
+  static const String title = 'title';
+  static const String questions = 'questions';
+  static const String dateCreated = 'dateCreated';
+  static const String dateLastModified = 'dateLastModified';
+}
+
+class QuestionFields {
+  static const String question = 'question';
+  static const String options = 'options';
+  static const String answer = 'answer';
+}
+
+class QuizTypes {
+  static const String multipleChoice = 'MULTIPLE-CHOICE';
+  static const String trueOrFalse = 'TRUE-FALSE';
+  static const String identification = 'IDENTIFICATION';
+}
+
 class PathParameters {
   static const sectionID = 'sectionID';
   static const userID = 'userID';
   static const moduleID = 'moduleID';
+  static const quizID = 'quizID';
 }

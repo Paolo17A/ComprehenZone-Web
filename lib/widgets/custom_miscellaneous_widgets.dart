@@ -408,3 +408,20 @@ Widget snapshotHandler(AsyncSnapshot snapshot) {
   }
   return Container();
 }
+
+Widget buildProfileImage({required String profileImageURL}) {
+  return profileImageURL.isNotEmpty
+      ? CircleAvatar(
+          radius: 70,
+          backgroundColor: CustomColors.midnightBlue,
+          backgroundImage: NetworkImage(profileImageURL),
+        )
+      : const CircleAvatar(
+          radius: 70,
+          backgroundColor: CustomColors.midnightBlue,
+          child: Icon(
+            Icons.person,
+            color: Colors.white,
+            size: 80,
+          ));
+}

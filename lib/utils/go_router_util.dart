@@ -1,9 +1,14 @@
 import 'package:comprehenzone_web/screens/add_module_screen.dart';
+import 'package:comprehenzone_web/screens/add_quiz_screen.dart';
 import 'package:comprehenzone_web/screens/edit_module_screen.dart';
+import 'package:comprehenzone_web/screens/edit_profile_screen.dart';
+import 'package:comprehenzone_web/screens/edit_quiz_screen.dart';
 import 'package:comprehenzone_web/screens/home_screen.dart';
+import 'package:comprehenzone_web/screens/profile_screen.dart';
 import 'package:comprehenzone_web/screens/register_screen.dart';
 import 'package:comprehenzone_web/screens/selected_section_screen.dart';
 import 'package:comprehenzone_web/screens/view_modules_screen.dart';
+import 'package:comprehenzone_web/screens/view_quizzes_screen.dart';
 import 'package:comprehenzone_web/screens/view_sections_screen.dart';
 import 'package:comprehenzone_web/screens/view_students_screen.dart';
 import 'package:comprehenzone_web/screens/view_teachers_screen.dart';
@@ -19,10 +24,14 @@ class GoRoutes {
   static const selectedSection = 'selectedSection';
   static const teachers = 'teachers';
   static const students = 'students';
-  static const quizzes = 'quizzes';
   static const modules = 'modules';
   static const addModule = 'addModule';
   static const editModule = 'editModule';
+  static const quizzes = 'quizzes';
+  static const addQuiz = 'addQuiz';
+  static const editQuiz = 'editQuiz';
+  static const profile = 'profile';
+  static const editProfile = 'editProfile';
 }
 
 final goRoutes = GoRouter(initialLocation: GoRoutes.home, routes: [
@@ -78,7 +87,35 @@ final goRoutes = GoRouter(initialLocation: GoRoutes.home, routes: [
                 context,
                 state,
                 EditModuleScreen(
-                    moduleID: state.pathParameters[PathParameters.moduleID]!)))
+                    moduleID: state.pathParameters[PathParameters.moduleID]!))),
+        GoRoute(
+            name: GoRoutes.quizzes,
+            path: GoRoutes.quizzes,
+            pageBuilder: (context, state) =>
+                customTransition(context, state, const ViewQuizzesScreen())),
+        GoRoute(
+            name: GoRoutes.addQuiz,
+            path: GoRoutes.addQuiz,
+            pageBuilder: (context, state) =>
+                customTransition(context, state, const AddQuizScreen())),
+        GoRoute(
+            name: GoRoutes.editQuiz,
+            path: '${GoRoutes.quizzes}/:${PathParameters.quizID}/edit',
+            pageBuilder: (context, state) => customTransition(
+                context,
+                state,
+                EditQuizScreen(
+                    quizID: state.pathParameters[PathParameters.quizID]!))),
+        GoRoute(
+            name: GoRoutes.profile,
+            path: GoRoutes.profile,
+            pageBuilder: (context, state) =>
+                customTransition(context, state, const ProfileScreen())),
+        GoRoute(
+            name: GoRoutes.editProfile,
+            path: GoRoutes.editProfile,
+            pageBuilder: (context, state) =>
+                customTransition(context, state, const EditProfileScreen())),
       ])
 ]);
 

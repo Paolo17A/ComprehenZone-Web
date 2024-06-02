@@ -3,6 +3,7 @@
 //==============================================================================
 // ignore_for_file: unnecessary_cast
 
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -15,6 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../providers/loading_provider.dart';
+import '../providers/profile_image_url_provider.dart';
 import '../providers/user_type_provider.dart';
 import '../providers/users_provider.dart';
 import 'go_router_util.dart';
@@ -316,6 +318,92 @@ Future<List<DocumentSnapshot>> getAvailableTeacherDocs() async {
       .where(UserFields.isVerified, isEqualTo: true)
       .get();
   return teachers.docs.map((student) => student as DocumentSnapshot).toList();
+}
+
+Future addProfilePic(BuildContext context, WidgetRef ref,
+    {required Uint8List selectedImage}) async {
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+  try {
+    ref.read(loadingProvider.notifier).toggleLoading(true);
+
+    final storageRef = FirebaseStorage.instance
+        .ref()
+        .child(StorageFields.profilePics)
+        .child('${FirebaseAuth.instance.currentUser!.uid}.png');
+
+    final uploadTask = storageRef.putData(selectedImage);
+    final taskSnapshot = await uploadTask;
+    final downloadURL = await taskSnapshot.ref.getDownloadURL();
+
+    // Update the user's data in Firestore with the image URL
+    await FirebaseFirestore.instance
+        .collection(Collections.users)
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .update({UserFields.profileImageURL: downloadURL});
+    scaffoldMessenger.showSnackBar(const SnackBar(
+        content: Text('Successfully added new profile picture')));
+    ref.read(profileImageURLProvider.notifier).setImageURL(downloadURL);
+    ref.read(loadingProvider.notifier).toggleLoading(false);
+  } catch (error) {
+    scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('Error uploading new profile picture: $error')));
+    ref.read(loadingProvider.notifier).toggleLoading(false);
+  }
+}
+
+Future<void> removeProfilePic(BuildContext context, WidgetRef ref) async {
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  try {
+    ref.read(loadingProvider.notifier).toggleLoading(true);
+    await FirebaseFirestore.instance
+        .collection(Collections.users)
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .update({UserFields.profileImageURL: ''});
+
+    final storageRef = FirebaseStorage.instance
+        .ref()
+        .child(StorageFields.profilePics)
+        .child('${FirebaseAuth.instance.currentUser!.uid}.png');
+
+    await storageRef.delete();
+    scaffoldMessenger.showSnackBar(
+        const SnackBar(content: Text('Successfully removed profile picture.')));
+    ref.read(profileImageURLProvider).removeImageURL();
+    ref.read(loadingProvider.notifier).toggleLoading(false);
+  } catch (error) {
+    scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('Error removing current profile pic: $error')));
+    ref.read(loadingProvider.notifier).toggleLoading(false);
+  }
+}
+
+Future editClientProfile(BuildContext context, WidgetRef ref,
+    {required TextEditingController firstNameController,
+    required TextEditingController lastNameController}) async {
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  final goRouter = GoRouter.of(context);
+  if (firstNameController.text.isEmpty || lastNameController.text.isEmpty) {
+    scaffoldMessenger.showSnackBar(
+        const SnackBar(content: Text('Please fill up all given fields.')));
+    return;
+  }
+  try {
+    ref.read(loadingProvider.notifier).toggleLoading(true);
+    await FirebaseFirestore.instance
+        .collection(Collections.users)
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .update({
+      UserFields.firstName: firstNameController.text.trim(),
+      UserFields.lastName: lastNameController.text.trim(),
+    });
+    ref.read(loadingProvider.notifier).toggleLoading(false);
+    goRouter.goNamed(GoRoutes.profile);
+  } catch (error) {
+    scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('Error editing client profile : $error')));
+    ref.read(loadingProvider.notifier).toggleLoading(false);
+  }
 }
 
 //==============================================================================
@@ -642,6 +730,118 @@ void editThisModule(BuildContext context, WidgetRef ref,
   } catch (error) {
     scaffoldMessenger.showSnackBar(
         SnackBar(content: Text('Error editing this module: $error')));
+    ref.read(loadingProvider).toggleLoading(false);
+  }
+}
+
+//==============================================================================
+//QUIZZES=======================================================================
+//==============================================================================
+Future<List<DocumentSnapshot>> getAllQuizDocs() async {
+  final quizzes =
+      await FirebaseFirestore.instance.collection(Collections.quizzes).get();
+  return quizzes.docs.map((user) => user as DocumentSnapshot).toList();
+}
+
+Future<List<DocumentSnapshot>> getAllUserQuizDocs() async {
+  final quizzes = await FirebaseFirestore.instance
+      .collection(Collections.quizzes)
+      .where(QuizFields.teacherID,
+          isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+      .get();
+  return quizzes.docs.map((user) => user as DocumentSnapshot).toList();
+}
+
+Future<DocumentSnapshot> getThisQuizDoc(String quizID) async {
+  return await FirebaseFirestore.instance
+      .collection(Collections.quizzes)
+      .doc(quizID)
+      .get();
+}
+
+Future addNewQuiz(BuildContext context, WidgetRef ref,
+    {required TextEditingController titleController,
+    required List<dynamic> quizQuestions}) async {
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  final goRouter = GoRouter.of(context);
+  try {
+    ref.read(loadingProvider).toggleLoading(true);
+    final customQuizzes =
+        await FirebaseFirestore.instance.collection(Collections.quizzes).get();
+    final existingQuiz = customQuizzes.docs.where((quiz) {
+      final quizData = quiz.data();
+      String title = quizData[QuizFields.title];
+      return title == titleController.text.trim();
+    }).toList();
+    if (existingQuiz.isNotEmpty) {
+      scaffoldMessenger.showSnackBar(const SnackBar(
+          content: Text('A quiz with this title already exists')));
+      ref.read(loadingProvider).toggleLoading(false);
+
+      return;
+    }
+    String encodedQuiz = jsonEncode(quizQuestions);
+
+    await FirebaseFirestore.instance.collection(Collections.quizzes).add({
+      QuizFields.teacherID: FirebaseAuth.instance.currentUser!.uid,
+      QuizFields.quizType: QuizTypes.multipleChoice,
+      QuizFields.title: titleController.text.trim(),
+      QuizFields.questions: encodedQuiz,
+      QuizFields.dateCreated: DateTime.now(),
+      QuizFields.dateLastModified: DateTime.now(),
+    });
+
+    scaffoldMessenger.showSnackBar(
+        const SnackBar(content: Text('Successfully added new quiz')));
+    ref.read(loadingProvider).toggleLoading(false);
+    goRouter.goNamed(GoRoutes.quizzes);
+  } catch (error) {
+    scaffoldMessenger
+        .showSnackBar(SnackBar(content: Text('Error adding new quiz: $error')));
+    ref.read(loadingProvider).toggleLoading(false);
+  }
+}
+
+void editThisQuiz(BuildContext context, WidgetRef ref,
+    {required String quizID,
+    required TextEditingController titleController,
+    required List<dynamic> quizQuestions}) async {
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  final goRouter = GoRouter.of(context);
+  try {
+    ref.read(loadingProvider).toggleLoading(true);
+
+    final customLessons =
+        await FirebaseFirestore.instance.collection(Collections.quizzes).get();
+    final existingQuiz = customLessons.docs.where((lesson) {
+      final quizData = lesson.data();
+      String title = quizData[QuizFields.title];
+      return title == titleController.text.trim();
+    }).toList();
+    if (existingQuiz.isNotEmpty && existingQuiz.first.id != quizID) {
+      scaffoldMessenger.showSnackBar(const SnackBar(
+          content: Text('A quiz with this title already exists')));
+      ref.read(loadingProvider).toggleLoading(false);
+
+      return;
+    }
+    String encodedQuiz = jsonEncode(quizQuestions);
+
+    await FirebaseFirestore.instance
+        .collection(Collections.quizzes)
+        .doc(quizID)
+        .update({
+      QuizFields.title: titleController.text.trim(),
+      QuizFields.questions: encodedQuiz,
+      QuizFields.dateLastModified: DateTime.now()
+    });
+
+    scaffoldMessenger.showSnackBar(
+        const SnackBar(content: Text('Successfully edited this quiz')));
+    goRouter.goNamed(GoRoutes.quizzes);
+  } catch (error) {
+    scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('Error editing this quiz: $error')));
     ref.read(loadingProvider).toggleLoading(false);
   }
 }

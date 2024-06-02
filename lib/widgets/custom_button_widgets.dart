@@ -44,6 +44,8 @@ Widget submitButton(BuildContext context,
       padding: const EdgeInsets.all(20),
       child: ElevatedButton(
         onPressed: () => onPress(),
+        style: ElevatedButton.styleFrom(
+            backgroundColor: CustomColors.midnightBlue),
         child: whiteInterRegular(label),
       ));
 }
@@ -52,9 +54,10 @@ Widget backButton(BuildContext context, {required Function onPress}) {
   return ElevatedButton(
       onPressed: () => onPress(),
       style: ElevatedButton.styleFrom(
+          backgroundColor: CustomColors.midnightBlue,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-      child: blackInterBold('BACK'));
+      child: whiteInterBold('BACK'));
 }
 
 Widget viewEntryButton(BuildContext context, {required Function onPress}) {

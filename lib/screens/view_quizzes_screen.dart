@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comprehenzone_web/providers/loading_provider.dart';
-import 'package:comprehenzone_web/providers/modules_provider.dart';
+import 'package:comprehenzone_web/providers/quizzes_provider.dart';
 import 'package:comprehenzone_web/providers/user_type_provider.dart';
 import 'package:comprehenzone_web/utils/firebase_util.dart';
 import 'package:comprehenzone_web/widgets/custom_miscellaneous_widgets.dart';
@@ -16,14 +16,14 @@ import '../utils/string_util.dart';
 import '../widgets/custom_button_widgets.dart';
 import '../widgets/custom_text_widgets.dart';
 
-class ViewModulesScreen extends ConsumerStatefulWidget {
-  const ViewModulesScreen({super.key});
+class ViewQuizzesScreen extends ConsumerStatefulWidget {
+  const ViewQuizzesScreen({super.key});
 
   @override
-  ConsumerState<ViewModulesScreen> createState() => _ViewModulesScreenState();
+  ConsumerState<ViewQuizzesScreen> createState() => _ViewQuizzesScreenState();
 }
 
-class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
+class _ViewQuizzesScreenState extends ConsumerState<ViewQuizzesScreen> {
   @override
   void initState() {
     super.initState();
@@ -40,14 +40,14 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
         }
         ref.read(userTypeProvider).setUserType(await getCurrentUserType());
         if (ref.read(userTypeProvider).userType == UserTypes.admin) {
-          ref.read(modulesProvider).setModuleDocs(await getAllModuleDocs());
+          ref.read(quizzesProvider).setQuizDocs(await getAllQuizDocs());
         } else {
-          ref.read(modulesProvider).setModuleDocs(await getAllUserModuleDocs());
+          ref.read(quizzesProvider).setQuizDocs(await getAllUserQuizDocs());
         }
         ref.read(loadingProvider).toggleLoading(false);
       } catch (error) {
         scaffoldMessenger.showSnackBar(
-            SnackBar(content: Text('Error getting module docs: $error')));
+            SnackBar(content: Text('Error getting quiz docs: $error')));
         ref.read(loadingProvider).toggleLoading(false);
       }
     });
@@ -65,83 +65,81 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ref.read(userTypeProvider).userType == UserTypes.admin
-                  ? adminLeftNavigator(context, path: GoRoutes.modules)
-                  : teacherLeftNavigator(context, path: GoRoutes.modules),
+                  ? adminLeftNavigator(context, path: GoRoutes.quizzes)
+                  : teacherLeftNavigator(context, path: GoRoutes.quizzes),
               bodyGradientContainer(context,
                   child: SingleChildScrollView(
                     child:
-                        horizontal5Percent(context, child: _modulesContent()),
+                        horizontal5Percent(context, child: _quizzesContent()),
                   ))
             ],
           )),
     );
   }
 
-  Widget _modulesContent() {
+  Widget _quizzesContent() {
     return Column(
       children: [
-        _modulesHeader(),
+        _quizzesHeader(),
         viewContentContainer(context,
             child: Column(
               children: [
-                _modulesLabelRow(),
-                ref.read(modulesProvider).moduleDocs.isNotEmpty
-                    ? _moduleEntries()
+                _quizzesLabelRow(),
+                ref.read(quizzesProvider).quizDocs.isNotEmpty
+                    ? _quizEntries()
                     : viewContentUnavailable(context,
-                        text: 'NO AVAILABLE MODULES'),
+                        text: 'NO AVAILABLE QUIZZES')
               ],
             )),
       ],
     );
   }
 
-  Widget _modulesHeader() {
+  Widget _quizzesHeader() {
     return vertical20Pix(
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        blackInterBold('MODULES', fontSize: 40),
+        blackInterBold('QUIZZES', fontSize: 40),
         if (ref.read(userTypeProvider).userType == UserTypes.teacher)
           ElevatedButton(
-              onPressed: () => GoRouter.of(context).goNamed(GoRoutes.addModule),
-              child: blackInterBold('NEW MODULE'))
+              onPressed: () => GoRouter.of(context).goNamed(GoRoutes.addQuiz),
+              child: blackInterBold('NEW QUIZ'))
       ]),
     );
   }
 
-  Widget _modulesLabelRow() {
+  Widget _quizzesLabelRow() {
     return viewContentLabelRow(context, children: [
-      viewFlexLabelTextCell('Title', 1),
-      viewFlexLabelTextCell('Content', 2),
+      viewFlexLabelTextCell('Title', 2),
+      viewFlexLabelTextCell('Quiz Type', 1),
       if (ref.read(userTypeProvider).userType == UserTypes.admin)
         viewFlexLabelTextCell('Teacher', 1),
       viewFlexLabelTextCell('Actions', 2)
     ]);
   }
 
-  Widget _moduleEntries() {
+  Widget _quizEntries() {
     return SizedBox(
       height: 550,
       child: ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: ref.read(modulesProvider).moduleDocs.length,
+          itemCount: ref.read(quizzesProvider).quizDocs.length,
           itemBuilder: (context, index) {
             return ref.read(userTypeProvider).userType == UserTypes.admin
-                ? _globalModuleEntry(
-                    ref.read(modulesProvider).moduleDocs[index])
-                : _teacherModuleEntry(
-                    ref.read(modulesProvider).moduleDocs[index]);
+                ? _globalQuizEntry(ref.read(quizzesProvider).quizDocs[index])
+                : _teacherQuizEntry(ref.read(quizzesProvider).quizDocs[index]);
           }),
     );
   }
 
-  Widget _globalModuleEntry(DocumentSnapshot moduleDoc) {
-    final moduleData = moduleDoc.data() as Map<dynamic, dynamic>;
-    String title = moduleData[ModuleFields.title];
-    String content = moduleData[ModuleFields.content];
-    String teacherID = moduleData[ModuleFields.teacherID];
+  Widget _globalQuizEntry(DocumentSnapshot quizDoc) {
+    final quizData = quizDoc.data() as Map<dynamic, dynamic>;
+    String title = quizData[QuizFields.title];
+    String quizType = quizData[QuizFields.quizType];
+    String teacherID = quizData[ModuleFields.teacherID];
     return viewContentEntryRow(context, children: [
-      viewFlexTextCell(title, flex: 1),
-      viewFlexTextCell(content, flex: 2),
+      viewFlexTextCell(title, flex: 2),
+      viewFlexTextCell(quizType, flex: 1),
       viewFlexActionsCell([
         FutureBuilder(
           future: getThisUserDoc(teacherID),
@@ -160,20 +158,20 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
     ]);
   }
 
-  Widget _teacherModuleEntry(DocumentSnapshot moduleDoc) {
-    final moduleData = moduleDoc.data() as Map<dynamic, dynamic>;
-    String title = moduleData[ModuleFields.title];
-    String content = moduleData[ModuleFields.content];
+  Widget _teacherQuizEntry(DocumentSnapshot quizDoc) {
+    final quizData = quizDoc.data() as Map<dynamic, dynamic>;
+    String title = quizData[ModuleFields.title];
+    String quizType = quizData[QuizFields.quizType];
     return viewContentEntryRow(context, children: [
-      viewFlexTextCell(title, flex: 1),
-      viewFlexTextCell(content, flex: 2),
+      viewFlexTextCell(title, flex: 2),
+      viewFlexTextCell(quizType, flex: 1),
       viewFlexActionsCell([
         editEntryButton(context,
-            onPress: () => GoRouter.of(context).goNamed(GoRoutes.editModule,
-                pathParameters: {PathParameters.moduleID: moduleDoc.id})),
+            onPress: () => GoRouter.of(context).goNamed(GoRoutes.editQuiz,
+                pathParameters: {PathParameters.quizID: quizDoc.id})),
         deleteEntryButton(context,
             onPress: () => displayDeleteEntryDialog(context,
-                message: 'Are you sure you wish to delete this module? ',
+                message: 'Are you sure you wish to delete this quiz? ',
                 deleteEntry: () {}))
       ], flex: 2)
     ]);
