@@ -111,6 +111,7 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
     return viewContentLabelRow(context, children: [
       viewFlexLabelTextCell('Title', 1),
       viewFlexLabelTextCell('Content', 2),
+      viewFlexLabelTextCell('Quarter', 1),
       if (ref.read(userTypeProvider).userType == UserTypes.admin)
         viewFlexLabelTextCell('Teacher', 1),
       viewFlexLabelTextCell('Actions', 2)
@@ -139,9 +140,11 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
     String title = moduleData[ModuleFields.title];
     String content = moduleData[ModuleFields.content];
     String teacherID = moduleData[ModuleFields.teacherID];
+    num quarter = moduleData[ModuleFields.quarter];
     return viewContentEntryRow(context, children: [
       viewFlexTextCell(title, flex: 1),
       viewFlexTextCell(content, flex: 2),
+      viewFlexTextCell(quarter.toString(), flex: 1),
       viewFlexActionsCell([
         FutureBuilder(
           future: getThisUserDoc(teacherID),
@@ -164,9 +167,11 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
     final moduleData = moduleDoc.data() as Map<dynamic, dynamic>;
     String title = moduleData[ModuleFields.title];
     String content = moduleData[ModuleFields.content];
+    num quarter = moduleData[ModuleFields.quarter];
     return viewContentEntryRow(context, children: [
       viewFlexTextCell(title, flex: 1),
       viewFlexTextCell(content, flex: 2),
+      viewFlexTextCell(quarter.toString(), flex: 1),
       viewFlexActionsCell([
         editEntryButton(context,
             onPress: () => GoRouter.of(context).goNamed(GoRoutes.editModule,

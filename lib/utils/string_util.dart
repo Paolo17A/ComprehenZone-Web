@@ -56,6 +56,7 @@ class ModuleFields {
   static const String dateLastModified = 'dateLastModified';
   static const String additionalDocuments = 'additionalDocuments';
   static const String additionalResources = 'additionalResources';
+  static const String quarter = 'quarter';
 }
 
 class AdditionalResourcesFields {

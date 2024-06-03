@@ -559,7 +559,8 @@ void addNewModule(BuildContext context, WidgetRef ref,
     required List<Uint8List?> documentFiles,
     required List<String> documentNames,
     required List<TextEditingController> fileNameControllers,
-    required List<TextEditingController> downloadLinkControllers}) async {
+    required List<TextEditingController> downloadLinkControllers,
+    required int selectedQuarter}) async {
   final scaffoldMessenger = ScaffoldMessenger.of(context);
   final goRouter = GoRouter.of(context);
 
@@ -593,6 +594,7 @@ void addNewModule(BuildContext context, WidgetRef ref,
       ModuleFields.content: contentController.text,
       ModuleFields.dateCreated: DateTime.now(),
       ModuleFields.dateLastModified: DateTime.now(),
+      ModuleFields.quarter: selectedQuarter
     });
 
     List<Map<dynamic, dynamic>> additionalResources = [];
@@ -648,7 +650,8 @@ void editThisModule(BuildContext context, WidgetRef ref,
     required List<dynamic> documentFiles,
     required List<String> documentNames,
     required List<TextEditingController> fileNameControllers,
-    required List<TextEditingController> downloadLinkControllers}) async {
+    required List<TextEditingController> downloadLinkControllers,
+    required int selectedQuarter}) async {
   final scaffoldMessenger = ScaffoldMessenger.of(context);
   final goRouter = GoRouter.of(context);
 
@@ -682,6 +685,7 @@ void editThisModule(BuildContext context, WidgetRef ref,
       ModuleFields.title: titleController.text,
       ModuleFields.content: contentController.text,
       ModuleFields.dateLastModified: DateTime.now(),
+      ModuleFields.quarter: selectedQuarter
     });
 
     List<Map<dynamic, dynamic>> additionalResources = [];

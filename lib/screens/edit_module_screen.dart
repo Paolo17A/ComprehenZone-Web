@@ -14,6 +14,7 @@ import 'package:go_router/go_router.dart';
 import '../providers/user_type_provider.dart';
 import '../utils/firebase_util.dart';
 import '../utils/string_util.dart';
+import '../widgets/dropdown_widget.dart';
 
 class EditModuleScreen extends ConsumerStatefulWidget {
   final String moduleID;
@@ -30,6 +31,7 @@ class _EditModuleScreenState extends ConsumerState<EditModuleScreen> {
   final List<String> documentNames = [];
   final List<TextEditingController> fileNameControllers = [];
   final List<TextEditingController> downloadLinkControllers = [];
+  int selectedQuarter = 1;
 
   Future<void> _pickDocument() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
@@ -88,6 +90,7 @@ class _EditModuleScreenState extends ConsumerState<EditModuleScreen> {
           documentNames
               .add(additionalDocuments[i][AdditionalResourcesFields.fileName]);
         }
+        selectedQuarter = moduleData[ModuleFields.quarter];
         ref.read(loadingProvider).toggleLoading(false);
       } catch (error) {
         scaffoldMessenger.showSnackBar(
@@ -128,6 +131,7 @@ class _EditModuleScreenState extends ConsumerState<EditModuleScreen> {
                                 _lessonContent(),
                                 _additionalDocuments(),
                                 _additionalResources(),
+                                _quarterDropdown()
                               ],
                             ),
                           ),
@@ -141,7 +145,8 @@ class _EditModuleScreenState extends ConsumerState<EditModuleScreen> {
                                       documentNames: documentNames,
                                       fileNameControllers: fileNameControllers,
                                       downloadLinkControllers:
-                                          downloadLinkControllers),
+                                          downloadLinkControllers,
+                                      selectedQuarter: selectedQuarter),
                                   child: blackInterBold('EDIT MODULE')))
                         ])),
                   ))
@@ -344,5 +349,24 @@ class _EditModuleScreenState extends ConsumerState<EditModuleScreen> {
         ],
       ),
     );
+  }
+
+  Widget _quarterDropdown() {
+    return vertical10Pix(
+        child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        interText('Quarter', fontSize: 18),
+        Container(
+          decoration: BoxDecoration(
+              border: Border.all(), borderRadius: BorderRadius.circular(10)),
+          child: dropdownWidget('QUARTER', (number) {
+            setState(() {
+              selectedQuarter = int.parse(number!);
+            });
+          }, ['1', '2', '3', '4'], selectedQuarter.toString(), false),
+        ),
+      ],
+    ));
   }
 }

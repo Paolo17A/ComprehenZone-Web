@@ -16,6 +16,7 @@ import 'package:go_router/go_router.dart';
 import '../providers/user_type_provider.dart';
 import '../utils/firebase_util.dart';
 import '../utils/string_util.dart';
+import '../widgets/dropdown_widget.dart';
 
 class AddModuleScreen extends ConsumerStatefulWidget {
   const AddModuleScreen({super.key});
@@ -31,6 +32,7 @@ class _AddModuleScreenState extends ConsumerState<AddModuleScreen> {
   final List<String> documentNames = [];
   final List<TextEditingController> fileNameControllers = [];
   final List<TextEditingController> downloadLinkControllers = [];
+  int selectedQuarter = 1;
 
   Future<void> _pickDocument() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
@@ -103,6 +105,7 @@ class _AddModuleScreenState extends ConsumerState<AddModuleScreen> {
                                 _lessonContent(),
                                 _additionalDocuments(),
                                 _additionalResources(),
+                                _quarterDropdown()
                               ],
                             ),
                           ),
@@ -115,7 +118,8 @@ class _AddModuleScreenState extends ConsumerState<AddModuleScreen> {
                                       documentNames: documentNames,
                                       fileNameControllers: fileNameControllers,
                                       downloadLinkControllers:
-                                          downloadLinkControllers),
+                                          downloadLinkControllers,
+                                      selectedQuarter: selectedQuarter),
                                   child: blackInterBold('ADD MODULE')))
                         ])),
                   ))
@@ -318,5 +322,24 @@ class _AddModuleScreenState extends ConsumerState<AddModuleScreen> {
         ],
       ),
     );
+  }
+
+  Widget _quarterDropdown() {
+    return vertical10Pix(
+        child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        interText('Quarter', fontSize: 18),
+        Container(
+          decoration: BoxDecoration(
+              border: Border.all(), borderRadius: BorderRadius.circular(10)),
+          child: dropdownWidget('QUARTER', (number) {
+            setState(() {
+              selectedQuarter = int.parse(number!);
+            });
+          }, ['1', '2', '3', '4'], selectedQuarter.toString(), false),
+        ),
+      ],
+    ));
   }
 }
