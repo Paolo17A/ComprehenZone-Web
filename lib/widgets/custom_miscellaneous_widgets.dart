@@ -86,14 +86,14 @@ Widget loginFieldsContainer(BuildContext context, WidgetRef ref,
               onPress: () => logInUser(context, ref,
                   emailController: emailController,
                   passwordController: passwordController)),
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          /*Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             blackInterRegular('Don\'t have an account?', fontSize: 12),
             TextButton(
                 onPressed: () =>
                     GoRouter.of(context).goNamed(GoRoutes.register),
                 child: blackInterRegular('REGISTER',
                     fontSize: 12, textDecoration: TextDecoration.underline))
-          ])
+          ])*/
         ],
       ));
 }
@@ -314,7 +314,7 @@ Widget viewFlexTextCell(String text,
             borderRadius: customBorderRadius),
         child: ClipRRect(
           child: Center(
-              child: SelectableText(text,
+              child: Text(text,
                   style: TextStyle(
                     color: textColor,
                     fontWeight: FontWeight.bold,
@@ -424,4 +424,57 @@ Widget buildProfileImage({required String profileImageURL}) {
             color: Colors.white,
             size: 80,
           ));
+}
+
+Widget analyticReportWidget(BuildContext context,
+    {required String count,
+    required String demographic,
+    required Widget displayIcon,
+    required Function? onPress}) {
+  return Padding(
+    padding: const EdgeInsets.all(8),
+    child: Container(
+        width: 250,
+        height: MediaQuery.of(context).size.height * 0.2,
+        decoration: BoxDecoration(
+            color: CustomColors.pearlWhite, border: Border.all(width: 3)),
+        padding: const EdgeInsets.all(10),
+        child: Row(children: [
+          Flexible(
+            flex: 2,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                blackInterBold(count, fontSize: 40),
+                Container(
+                  width: 150,
+                  height: 45,
+                  decoration: BoxDecoration(
+                      color: CustomColors.grass, border: Border.all()),
+                  child: TextButton(
+                    onPressed: onPress != null ? () => onPress() : null,
+                    child: Center(
+                      child: whiteInterBold(demographic, fontSize: 15),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+          SizedBox(
+              width: MediaQuery.of(context).size.width * 0.05,
+              child: Transform.scale(scale: 2, child: displayIcon))
+        ])),
+  );
+}
+
+Container breakdownContainer(BuildContext context, {required Widget child}) {
+  return Container(
+      width: MediaQuery.of(context).size.width * 0.25,
+      height: MediaQuery.of(context).size.height * 0.4,
+      decoration: BoxDecoration(boxShadow: [
+        BoxShadow(
+            offset: const Offset(0, 3), color: Colors.grey.withOpacity(0.5))
+      ], borderRadius: BorderRadius.circular(20), color: Colors.white),
+      child: Padding(padding: const EdgeInsets.all(11), child: child));
 }

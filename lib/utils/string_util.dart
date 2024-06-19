@@ -86,9 +86,17 @@ class QuizTypes {
   static const String identification = 'IDENTIFICATION';
 }
 
+class QuizResultFields {
+  static const String studentID = 'studentID';
+  static const String quizID = 'quizID';
+  static const String answers = 'answers';
+  static const String grade = 'grade';
+}
+
 class PathParameters {
   static const sectionID = 'sectionID';
   static const userID = 'userID';
   static const moduleID = 'moduleID';
   static const quizID = 'quizID';
+  static const studentID = 'studentID';
 }

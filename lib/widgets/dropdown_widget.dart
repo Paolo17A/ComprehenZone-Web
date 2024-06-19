@@ -63,7 +63,6 @@ Widget sectionDocumentSnapshotDropdownWidget(
       isExpanded: true,
       value: selectedOption,
       items: dropdownDocuments.map((doc) {
-        print(doc.id);
         final docData = doc.data() as Map<dynamic, dynamic>;
         String sectionName = docData['name'];
         return DropdownMenuItem<String>(

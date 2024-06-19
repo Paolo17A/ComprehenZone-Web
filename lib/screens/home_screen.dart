@@ -5,6 +5,7 @@ import 'package:comprehenzone_web/widgets/custom_miscellaneous_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 
 import '../utils/firebase_util.dart';
 import '../utils/go_router_util.dart';
@@ -87,8 +88,112 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         bodyGradientContainer(context,
             child: SingleChildScrollView(
               child: horizontal5Percent(context,
-                  child: Center(
-                      child: blackInterBold('ADMIN DASHBOARD', fontSize: 60))),
+                  child: Column(
+                    children: [
+                      //  blackInterBold('ADMIN DASHBOARD', fontSize: 60),
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        children: [
+                          FutureBuilder(
+                              future: getAllSectionDocs(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                } else if (!snapshot.hasData ||
+                                    snapshot.hasError) {
+                                  return const Text('Error retrieving data');
+                                }
+                                int sectionCount = snapshot.data!.length;
+                                return analyticReportWidget(context,
+                                    count: sectionCount.toString(),
+                                    demographic: 'Sections',
+                                    displayIcon:
+                                        const Icon(Icons.security_outlined),
+                                    onPress: () => GoRouter.of(context)
+                                        .goNamed(GoRoutes.sections));
+                              }),
+                          FutureBuilder(
+                              future: getAllTeacherDocs(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                } else if (!snapshot.hasData ||
+                                    snapshot.hasError) {
+                                  return const Text('Error retrieving data');
+                                }
+                                int teacherCount = snapshot.data!.length;
+                                return analyticReportWidget(context,
+                                    count: teacherCount.toString(),
+                                    demographic: 'Teachers',
+                                    displayIcon: const Icon(Icons.person_2),
+                                    onPress: () => GoRouter.of(context)
+                                        .goNamed(GoRoutes.teachers));
+                              }),
+                          FutureBuilder(
+                              future: getAllStudentDocs(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                } else if (!snapshot.hasData ||
+                                    snapshot.hasError) {
+                                  return const Text('Error retrieving data');
+                                }
+                                int studentCount = snapshot.data!.length;
+                                return analyticReportWidget(context,
+                                    count: studentCount.toString(),
+                                    demographic: 'Students',
+                                    displayIcon: const Icon(Icons.people),
+                                    onPress: () => GoRouter.of(context)
+                                        .goNamed(GoRoutes.students));
+                              }),
+                          FutureBuilder(
+                              future: getAllModuleDocs(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                } else if (!snapshot.hasData ||
+                                    snapshot.hasError) {
+                                  return const Text('Error retrieving data');
+                                }
+                                int moduleCount = snapshot.data!.length;
+                                return analyticReportWidget(context,
+                                    count: moduleCount.toString(),
+                                    demographic: 'Modules',
+                                    displayIcon: const Icon(Icons.book),
+                                    onPress: () => GoRouter.of(context)
+                                        .goNamed(GoRoutes.modules));
+                              }),
+                          FutureBuilder(
+                              future: getAllQuizDocs(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                } else if (!snapshot.hasData ||
+                                    snapshot.hasError) {
+                                  return const Text('Error retrieving data');
+                                }
+                                int quizzesCount = snapshot.data!.length;
+                                return analyticReportWidget(context,
+                                    count: quizzesCount.toString(),
+                                    demographic: 'Quizzes',
+                                    displayIcon: const Icon(Icons.quiz),
+                                    onPress: () => GoRouter.of(context)
+                                        .goNamed(GoRoutes.quizzes));
+                              }),
+                        ],
+                      )
+                    ],
+                  )),
             ))
       ],
     );
@@ -110,6 +215,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ))
       ],
     );
+  }
+
+//==============================================================================
+//STUDENT=======================================================================
+//==============================================================================
+  Widget studentDashboard() {
+    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      studentLeftNavigator(context, path: GoRoutes.home),
+      bodyGradientContainer(context,
+          child: SingleChildScrollView(
+            child: horizontal5Percent(context,
+                child: blackInterBold('STUDENT DASHBOARD')),
+          ))
+    ]);
   }
 
 //==============================================================================

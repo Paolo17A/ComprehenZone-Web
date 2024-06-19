@@ -103,11 +103,62 @@ Widget teacherLeftNavigator(BuildContext context, {required String path}) {
         ListTile(
             leading: const Icon(
               Icons.exit_to_app,
-              color: Colors.white,
+              color: Colors.black,
             ),
             title: const Text('Log Out',
                 style: TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold)),
+                    color: Colors.black, fontWeight: FontWeight.bold)),
+            onTap: () {
+              FirebaseAuth.instance.signOut().then((value) {
+                GoRouter.of(context).goNamed(GoRoutes.home);
+                GoRouter.of(context).pushReplacementNamed(GoRoutes.home);
+              });
+            })
+      ],
+    ),
+  );
+}
+
+Widget studentLeftNavigator(BuildContext context, {required String path}) {
+  return Container(
+    width: MediaQuery.of(context).size.width * 0.2,
+    height: MediaQuery.of(context).size.height,
+    decoration: BoxDecoration(
+        color: CustomColors.pearlWhite,
+        border: Border.all(color: CustomColors.paleCyan, width: 5)),
+    child: Column(
+      children: [
+        Flexible(
+            child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            vertical20Pix(
+                child: Image.asset(ImagePaths.comprehenzoneLogo, height: 100)),
+            listTile(context,
+                label: 'Dashboard', thisPath: GoRoutes.home, currentPath: path),
+            listTile(context,
+                label: 'Modules',
+                thisPath: GoRoutes.modules,
+                currentPath: path),
+            listTile(context,
+                label: 'Quizzes',
+                thisPath: GoRoutes.quizzes,
+                currentPath: path),
+            const Divider(),
+            listTile(context,
+                label: 'Profile',
+                thisPath: GoRoutes.profile,
+                currentPath: path),
+          ],
+        )),
+        ListTile(
+            leading: const Icon(
+              Icons.exit_to_app,
+              color: Colors.black,
+            ),
+            title: const Text('Log Out',
+                style: TextStyle(
+                    color: Colors.black, fontWeight: FontWeight.bold)),
             onTap: () {
               FirebaseAuth.instance.signOut().then((value) {
                 GoRouter.of(context).goNamed(GoRoutes.home);

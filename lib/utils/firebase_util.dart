@@ -406,6 +406,152 @@ Future editClientProfile(BuildContext context, WidgetRef ref,
   }
 }
 
+Future addNewUser(BuildContext context, WidgetRef ref,
+    {required String userType,
+    required TextEditingController emailController,
+    required TextEditingController passwordController,
+    required TextEditingController confirmPasswordController,
+    required TextEditingController firstNameController,
+    required TextEditingController lastNameController,
+    required TextEditingController idNumberController}) async {
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  final goRouter = GoRouter.of(context);
+  try {
+    if (emailController.text.isEmpty ||
+        passwordController.text.isEmpty ||
+        confirmPasswordController.text.isEmpty ||
+        firstNameController.text.isEmpty ||
+        lastNameController.text.isEmpty ||
+        idNumberController.text.isEmpty) {
+      scaffoldMessenger.showSnackBar(
+          const SnackBar(content: Text('Please fill up all given fields.')));
+      return;
+    }
+    if (!emailController.text.contains('@') ||
+        !emailController.text.contains('.com')) {
+      scaffoldMessenger.showSnackBar(
+          const SnackBar(content: Text('Please input a valid email address')));
+      return;
+    }
+    if (passwordController.text != confirmPasswordController.text) {
+      scaffoldMessenger.showSnackBar(
+          const SnackBar(content: Text('The passwords do not match')));
+      return;
+    }
+    if (passwordController.text.length < 6) {
+      scaffoldMessenger.showSnackBar(const SnackBar(
+          content: Text('The password must be at least six characters long')));
+      return;
+    }
+
+    //  Store admin's current data locally then sign out
+    final currentUser = await FirebaseFirestore.instance
+        .collection(Collections.users)
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get();
+    final currentUserData = currentUser.data() as Map<dynamic, dynamic>;
+    String userEmail = currentUserData[UserFields.email];
+    String userPassword = currentUserData[UserFields.password];
+    await FirebaseAuth.instance.signOut();
+
+    //  Create user with Firebase Auth
+    ref.read(loadingProvider).toggleLoading(true);
+    await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailController.text.trim(), password: passwordController.text);
+
+    //  Create new document is Firestore database
+    await FirebaseFirestore.instance
+        .collection(Collections.users)
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .set({
+      UserFields.email: emailController.text.trim(),
+      UserFields.password: passwordController.text,
+      UserFields.firstName: firstNameController.text.trim(),
+      UserFields.lastName: lastNameController.text.trim(),
+      UserFields.userType: userType,
+      UserFields.profileImageURL: '',
+      UserFields.idNumber: idNumberController.text.trim(),
+      UserFields.isVerified: true,
+      UserFields.assignedSection: ''
+    });
+
+    //  Log-back in to admin account
+    await FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: userEmail, password: userPassword);
+
+    scaffoldMessenger.showSnackBar(
+        const SnackBar(content: Text('Successfully registered new user')));
+    ref.read(loadingProvider).toggleLoading(false);
+    if (userType == UserTypes.student) {
+      goRouter.goNamed(GoRoutes.students);
+    } else if (userType == UserTypes.teacher) {
+      goRouter.goNamed(GoRoutes.teachers);
+    }
+  } catch (error) {
+    scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('Error registering new user: $error')));
+    ref.read(loadingProvider.notifier).toggleLoading(false);
+  }
+}
+
+Future changeUserPassword(BuildContext context, WidgetRef ref,
+    {required String userType,
+    required String userID,
+    required TextEditingController passwordController}) async {
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  if (passwordController.text.length < 6) {
+    scaffoldMessenger.showSnackBar(const SnackBar(
+        content: Text('The password must be at least six characters long')));
+    return;
+  }
+  try {
+    GoRouter.of(context).pop();
+    ref.read(loadingProvider).toggleLoading(true);
+    //  Store admin's current data locally then sign out
+    final currentUser = await FirebaseFirestore.instance
+        .collection(Collections.users)
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get();
+    final currentUserData = currentUser.data() as Map<dynamic, dynamic>;
+    String userEmail = currentUserData[UserFields.email];
+    String userPassword = currentUserData[UserFields.password];
+    await FirebaseAuth.instance.signOut();
+
+    final selectedUser = await FirebaseFirestore.instance
+        .collection(Collections.users)
+        .doc(userID)
+        .get();
+    final selectedUserData = selectedUser.data() as Map<dynamic, dynamic>;
+
+    await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: selectedUserData[UserFields.email],
+        password: selectedUserData[UserFields.password]);
+
+    await FirebaseAuth.instance.currentUser!
+        .updatePassword(passwordController.text);
+
+    await FirebaseFirestore.instance
+        .collection(Collections.users)
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .update({UserFields.password: passwordController.text});
+
+    //  Log-back in to admin account
+    await FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: userEmail, password: userPassword);
+
+    scaffoldMessenger.showSnackBar(const SnackBar(
+        content: Text('Successfully changed this user\'s password.')));
+    ref.read(usersProvider).setUserDocs(userType == UserTypes.teacher
+        ? await getAllTeacherDocs()
+        : await getAllStudentDocs());
+    ref.read(loadingProvider).toggleLoading(false);
+  } catch (error) {
+    scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('Error changing user password: $error')));
+    ref.read(loadingProvider).toggleLoading(false);
+  }
+}
+
 //==============================================================================
 //SECTIONS======================================================================
 //==============================================================================
@@ -848,4 +994,16 @@ void editThisQuiz(BuildContext context, WidgetRef ref,
         SnackBar(content: Text('Error editing this quiz: $error')));
     ref.read(loadingProvider).toggleLoading(false);
   }
+}
+
+//==============================================================================
+//QUIZ RESULTS==================================================================
+//==============================================================================
+
+Future<List<DocumentSnapshot>> getStudentQuizResults(String studentID) async {
+  final quizResults = await FirebaseFirestore.instance
+      .collection(Collections.quizResults)
+      .where(QuizResultFields.studentID, isEqualTo: studentID)
+      .get();
+  return quizResults.docs.map((e) => e as DocumentSnapshot).toList();
 }

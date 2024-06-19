@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comprehenzone_web/providers/users_provider.dart';
+import 'package:comprehenzone_web/utils/color_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../providers/loading_provider.dart';
-import '../utils/delete_entry_dialog_util.dart';
 import '../utils/firebase_util.dart';
 import '../utils/go_router_util.dart';
 import '../utils/string_util.dart';
@@ -23,6 +23,7 @@ class ViewStudentsScreen extends ConsumerStatefulWidget {
 }
 
 class _ViewStudentsScreenState extends ConsumerState<ViewStudentsScreen> {
+  final passwordController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -71,9 +72,16 @@ class _ViewStudentsScreenState extends ConsumerState<ViewStudentsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         vertical20Pix(
-                            child: Row(children: [
-                          blackInterBold('STUDENT ACCOUNTS', fontSize: 40)
-                        ])),
+                            child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                              blackInterBold('STUDENT ACCOUNTS', fontSize: 40),
+                              ElevatedButton(
+                                  onPressed: () => GoRouter.of(context)
+                                      .goNamed(GoRoutes.addStudent),
+                                  child: blackInterBold('ADD STUDENT'))
+                            ])),
                         viewContentContainer(context,
                             child: Column(
                               children: [
@@ -96,9 +104,9 @@ class _ViewStudentsScreenState extends ConsumerState<ViewStudentsScreen> {
 
   Widget _studentsLabelRow() {
     return viewContentLabelRow(context, children: [
-      viewFlexLabelTextCell('Name', 3),
-      viewFlexLabelTextCell('Verification Status', 2),
-      viewFlexLabelTextCell('Actions', 2)
+      viewFlexLabelTextCell('Name', 2),
+      //viewFlexLabelTextCell('Verification Status', 2),
+      viewFlexLabelTextCell('Actions', 3)
     ]);
   }
 
@@ -117,12 +125,11 @@ class _ViewStudentsScreenState extends ConsumerState<ViewStudentsScreen> {
     final userData = userDoc.data() as Map<dynamic, dynamic>;
     String formattedName =
         '${userData[UserFields.firstName]} ${userData[UserFields.lastName]}';
-    bool accountVerified = userData[UserFields.isVerified];
-    String verificationImage = userData[UserFields.verificationImage];
+    //String verificationImage = userData[UserFields.verificationImage];
 
     return viewContentEntryRow(context, children: [
-      viewFlexTextCell(formattedName, flex: 3),
-      viewFlexActionsCell([
+      viewFlexTextCell(formattedName, flex: 2),
+      /*viewFlexActionsCell([
         if (accountVerified)
           blackInterBold('VERIFIED')
         else
@@ -130,10 +137,50 @@ class _ViewStudentsScreenState extends ConsumerState<ViewStudentsScreen> {
               onPressed: () => showVerificationImageDialog(context,
                   verificationImage: verificationImage),
               child: blackInterBold('VIEW ID'))
-      ], flex: 2),
+      ], flex: 2),*/
       viewFlexActionsCell([
-        if (accountVerified) viewEntryButton(context, onPress: () {}),
-        if (!accountVerified)
+        //if (accountVerified)
+        viewEntryButton(context,
+            onPress: () => GoRouter.of(context).goNamed(
+                GoRoutes.selectedStudent,
+                pathParameters: {PathParameters.studentID: userDoc.id})),
+        ElevatedButton(
+          onPressed: () {
+            showDialog(
+                context: context,
+                builder: (_) {
+                  passwordController.clear();
+                  return Dialog(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.5,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          blackInterBold('CHANGE PASSWORD', fontSize: 28),
+                          passwordTextField(
+                              label: 'New Password',
+                              passwordController: passwordController),
+                          all20Pix(
+                            child: ElevatedButton(
+                                onPressed: () {
+                                  changeUserPassword(context, ref,
+                                      userType: UserTypes.student,
+                                      userID: userDoc.id,
+                                      passwordController: passwordController);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: CustomColors.midnightBlue),
+                                child: whiteInterBold('CHANGE PASSWORD')),
+                          )
+                        ],
+                      ),
+                    ),
+                  );
+                });
+          },
+          child: blackInterBold('CHANGE PASSWORD'),
+        )
+        /* if (!accountVerified)
           ElevatedButton(
               onPressed: () => approveThisUserRegistration(context, ref,
                   userID: userDoc.id, userType: UserTypes.student),
@@ -149,8 +196,8 @@ class _ViewStudentsScreenState extends ConsumerState<ViewStudentsScreen> {
               child: const Icon(
                 Icons.block,
                 color: Colors.black,
-              ))
-      ], flex: 2)
+              ))*/
+      ], flex: 3)
     ]);
   }
 }
