@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
+import '../models/section_model.dart';
 import '../utils/color_util.dart';
 import '../utils/firebase_util.dart';
 import '../utils/go_router_util.dart';
@@ -477,4 +479,157 @@ Container breakdownContainer(BuildContext context, {required Widget child}) {
             offset: const Offset(0, 3), color: Colors.grey.withOpacity(0.5))
       ], borderRadius: BorderRadius.circular(20), color: Colors.white),
       child: Padding(padding: const EdgeInsets.all(11), child: child));
+}
+
+Widget sectionCountFutureBuilder() {
+  return FutureBuilder(
+      future: getAllSectionDocs(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (!snapshot.hasData || snapshot.hasError) {
+          return const Text('Error retrieving data');
+        }
+        int sectionCount = snapshot.data!.length;
+        return analyticReportWidget(context,
+            count: sectionCount.toString(),
+            demographic: 'Sections',
+            displayIcon: const Icon(Icons.security_outlined),
+            onPress: () => GoRouter.of(context).goNamed(GoRoutes.sections));
+      });
+}
+
+Widget teacherCountFutureBuilder() {
+  return FutureBuilder(
+      future: getAllTeacherDocs(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (!snapshot.hasData || snapshot.hasError) {
+          return const Text('Error retrieving data');
+        }
+        int teacherCount = snapshot.data!.length;
+        return analyticReportWidget(context,
+            count: teacherCount.toString(),
+            demographic: 'Teachers',
+            displayIcon: const Icon(Icons.person_2),
+            onPress: () => GoRouter.of(context).goNamed(GoRoutes.teachers));
+      });
+}
+
+Widget studentCountFutureBuilder() {
+  return FutureBuilder(
+      future: getAllStudentDocs(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (!snapshot.hasData || snapshot.hasError) {
+          return const Text('Error retrieving data');
+        }
+        int studentCount = snapshot.data!.length;
+        return analyticReportWidget(context,
+            count: studentCount.toString(),
+            demographic: 'Students',
+            displayIcon: const Icon(Icons.people),
+            onPress: () => GoRouter.of(context).goNamed(GoRoutes.students));
+      });
+}
+
+Widget modulesCountFutureBuilder() {
+  return FutureBuilder(
+      future: getAllModuleDocs(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (!snapshot.hasData || snapshot.hasError) {
+          return const Text('Error retrieving data');
+        }
+        int moduleCount = snapshot.data!.length;
+        return analyticReportWidget(context,
+            count: moduleCount.toString(),
+            demographic: 'Modules',
+            displayIcon: const Icon(Icons.book),
+            onPress: () => GoRouter.of(context).goNamed(GoRoutes.modules));
+      });
+}
+
+Widget quizzesCountFutureBuilder() {
+  return FutureBuilder(
+      future: getAllQuizDocs(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (!snapshot.hasData || snapshot.hasError) {
+          return const Text('Error retrieving data');
+        }
+        int quizzesCount = snapshot.data!.length;
+        return analyticReportWidget(context,
+            count: quizzesCount.toString(),
+            demographic: 'Quizzes',
+            displayIcon: const Icon(Icons.quiz),
+            onPress: () => GoRouter.of(context).goNamed(GoRoutes.quizzes));
+      });
+}
+
+Widget sectionsBarChart(BuildContext context,
+    {required List<SectionModel> sectionModels}) {
+  return sectionModels.isNotEmpty
+      ? SizedBox(
+          width: MediaQuery.of(context).size.width * 0.7,
+          child: SfCartesianChart(
+              borderWidth: 2,
+              //borderColor: Colors.black,
+              plotAreaBorderColor: Colors.black,
+              isTransposed: false,
+              primaryXAxis: const CategoryAxis(
+                axisLine: AxisLine(color: Colors.black),
+                labelStyle: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 10),
+              ),
+              primaryYAxis: const NumericAxis(
+                  axisLine: AxisLine(color: Colors.black),
+                  minimum: 0,
+                  interval: 5,
+                  borderColor: Colors.black,
+                  labelStyle: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15),
+                  title: AxisTitle(
+                      text: 'Students',
+                      textStyle: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16))),
+              title: const ChartTitle(
+                  text: 'Section Student Count',
+                  borderColor: Colors.black,
+                  textStyle: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 25)),
+              series: <BarSeries<SectionModel, String>>[
+                BarSeries<SectionModel, String>(
+                    color: CustomColors.midnightBlue,
+                    dataSource: sectionModels,
+                    width: 0.5,
+                    animationDuration: 0,
+                    spacing: 0,
+                    xValueMapper: (SectionModel sectionData, _) =>
+                        sectionData.name,
+                    yValueMapper: (SectionModel sectionData, _) =>
+                        sectionData.students)
+              ]),
+        )
+      : const Center(
+          child: Text(
+            'No sections available',
+            style: TextStyle(
+                color: CustomColors.midnightBlue,
+                fontWeight: FontWeight.bold,
+                fontSize: 30),
+          ),
+        );
 }

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../providers/user_type_provider.dart';
 import '../utils/firebase_util.dart';
 import '../utils/go_router_util.dart';
 import '../utils/string_util.dart';
@@ -45,12 +46,24 @@ class _ViewSectionsScreenState extends ConsumerState<ViewSectionsScreen> {
           return;
         }
         String userType = await getCurrentUserType();
-        if (userType == UserTypes.teacher) {
+        if (userType == UserTypes.student) {
           ref.read(loadingProvider).toggleLoading(false);
           goRouter.goNamed(GoRoutes.home);
           return;
         }
-        ref.read(sectionsProvider).setSectionDocs(await getAllSectionDocs());
+        ref.read(userTypeProvider).setUserType(userType);
+        if (ref.read(userTypeProvider).userType == UserTypes.admin) {
+          //  Get Global Data
+
+          ref.read(sectionsProvider).setSectionDocs(await getAllSectionDocs());
+        } else {
+          //  Get Section-wide Data
+          final user = await getCurrentUserDoc();
+          final userData = user.data() as Map<dynamic, dynamic>;
+          await getTheseSectionDocs(userData[UserFields.assignedSections]);
+          ref.read(sectionsProvider).setSectionDocs(
+              await getTheseSectionDocs(userData[UserFields.assignedSections]));
+        }
         ref.read(loadingProvider).toggleLoading(false);
       } catch (error) {
         scaffoldMessenger.showSnackBar(
@@ -64,6 +77,7 @@ class _ViewSectionsScreenState extends ConsumerState<ViewSectionsScreen> {
   Widget build(BuildContext context) {
     ref.watch(loadingProvider);
     ref.watch(sectionsProvider);
+    ref.watch(userTypeProvider);
     return Scaffold(
       body: stackedLoadingContainer(
           context,
@@ -71,7 +85,9 @@ class _ViewSectionsScreenState extends ConsumerState<ViewSectionsScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              adminLeftNavigator(context, path: GoRoutes.sections),
+              ref.read(userTypeProvider).userType == UserTypes.admin
+                  ? adminLeftNavigator(context, path: GoRoutes.sections)
+                  : teacherLeftNavigator(context, path: GoRoutes.sections),
               bodyGradientContainer(context,
                   child: SingleChildScrollView(
                       child: horizontal5Percent(context,
@@ -141,8 +157,9 @@ class _ViewSectionsScreenState extends ConsumerState<ViewSectionsScreen> {
             onPress: () => GoRouter.of(context).goNamed(
                 GoRoutes.selectedSection,
                 pathParameters: {PathParameters.sectionID: sectionDoc.id})),
-        editEntryButton(context,
-            onPress: () => showEditSectionDialog(sectionDoc)),
+        if (ref.read(userTypeProvider).userType == UserTypes.admin)
+          editEntryButton(context,
+              onPress: () => showEditSectionDialog(sectionDoc)),
       ], flex: 2)
     ]);
   }

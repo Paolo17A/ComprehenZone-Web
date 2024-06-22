@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:comprehenzone_web/utils/string_util.dart';
 import 'package:comprehenzone_web/widgets/custom_text_widgets.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
@@ -64,7 +65,7 @@ Widget sectionDocumentSnapshotDropdownWidget(
       value: selectedOption,
       items: dropdownDocuments.map((doc) {
         final docData = doc.data() as Map<dynamic, dynamic>;
-        String sectionName = docData['name'];
+        String sectionName = docData[SectionFields.name];
         return DropdownMenuItem<String>(
             value: doc.id,
             child: SizedBox(

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comprehenzone_web/providers/loading_provider.dart';
 import 'package:comprehenzone_web/utils/go_router_util.dart';
 import 'package:comprehenzone_web/widgets/custom_miscellaneous_widgets.dart';
@@ -27,6 +28,10 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
   final lastNameController = TextEditingController();
   final idNumberController = TextEditingController();
 
+  List<DocumentSnapshot> sectionDocs = [];
+  String selectedSectionID = '';
+  String selectedSectionName = '';
+
   @override
   void initState() {
     super.initState();
@@ -46,6 +51,7 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
           goRouter.goNamed(GoRoutes.home);
           return;
         }
+        sectionDocs = await getAllSectionDocs();
         ref.read(loadingProvider).toggleLoading(false);
       } catch (error) {
         scaffoldMessenger.showSnackBar(
@@ -85,7 +91,8 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
                                         firstNameController:
                                             firstNameController,
                                         lastNameController: lastNameController,
-                                        idNumberController: idNumberController),
+                                        idNumberController: idNumberController,
+                                        sectionID: selectedSectionID),
                                     child: blackInterBold('ADD NEW TEACHER')))
                           ],
                         )),
@@ -132,8 +139,60 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
               label: 'Last Name', textController: lastNameController),
           numberTextField(
               label: 'ID Number', textController: idNumberController),
+          sectionWidget()
         ],
       ),
+    );
+  }
+
+  Widget sectionWidget() {
+    return all10Pix(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        blackInterBold('Section', fontSize: 20),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: ((context) => Dialog(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            blackInterBold('Select this teacher\'s section',
+                                fontSize: 24),
+                            Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: sectionDocs.map((section) {
+                                  final sectionData =
+                                      section.data() as Map<dynamic, dynamic>;
+                                  return vertical10Pix(
+                                    child: ElevatedButton(
+                                        onPressed: () {
+                                          GoRouter.of(context).pop();
+                                          setState(() {
+                                            selectedSectionID = section.id;
+                                            selectedSectionName =
+                                                sectionData[SectionFields.name];
+                                          });
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                CustomColors.midnightBlue),
+                                        child: whiteInterBold(
+                                            sectionData[SectionFields.name])),
+                                  );
+                                }).toList()),
+                          ],
+                        ))));
+              },
+              child: blackInterBold(selectedSectionName.isNotEmpty
+                  ? selectedSectionName
+                  : 'SELECT A SECTION')),
+        )
+      ]),
     );
   }
 }

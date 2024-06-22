@@ -39,7 +39,8 @@ class _SelectedStudentScreenState extends ConsumerState<SelectedStudentScreen> {
         final studentData = student.data() as Map<dynamic, dynamic>;
         formattedName =
             '${studentData[UserFields.firstName]} ${studentData[UserFields.lastName]}';
-        String sectionID = studentData[UserFields.assignedSection];
+        String sectionID =
+            (studentData[UserFields.assignedSections] as List<dynamic>).first;
         if (sectionID.isNotEmpty) {
           final section = await getThisSectionDoc(sectionID);
           final sectionData = section.data() as Map<dynamic, dynamic>;

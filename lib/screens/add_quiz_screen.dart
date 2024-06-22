@@ -63,7 +63,7 @@ class _AddQuizScreenState extends ConsumerState<AddQuizScreen> {
           return;
         }
         ref.read(userTypeProvider).setUserType(await getCurrentUserType());
-        if (ref.read(userTypeProvider).userType == UserTypes.admin) {
+        if (ref.read(userTypeProvider).userType == UserTypes.student) {
           ref.read(loadingProvider).toggleLoading(false);
           goRouter.goNamed(GoRoutes.home);
           return;

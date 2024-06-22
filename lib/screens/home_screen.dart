@@ -1,3 +1,4 @@
+import 'package:comprehenzone_web/models/section_model.dart';
 import 'package:comprehenzone_web/providers/loading_provider.dart';
 import 'package:comprehenzone_web/providers/user_type_provider.dart';
 import 'package:comprehenzone_web/utils/string_util.dart';
@@ -5,8 +6,6 @@ import 'package:comprehenzone_web/widgets/custom_miscellaneous_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:go_router/go_router.dart';
-
 import '../utils/firebase_util.dart';
 import '../utils/go_router_util.dart';
 import '../widgets/custom_padding_widgets.dart';
@@ -24,6 +23,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   //  LOG-IN
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+
+  //  ADMIN
+  List<SectionModel> sectionModels = [];
 
   @override
   void dispose() {
@@ -49,8 +51,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         }
         if (ref.read(userTypeProvider).userType == UserTypes.admin) {
           //  Get Global Data
+          final sections = await getAllSectionDocs();
+          for (var section in sections) {
+            final sectionData = section.data() as Map<dynamic, dynamic>;
+            final students = await getSectionStudentDocs(section.id);
+            sectionModels.add(SectionModel(
+                section.id, sectionData[SectionFields.name], students.length));
+          }
         } else {
           //  Get Section-wide Data
+          final user = await getCurrentUserDoc();
+          final userData = user.data() as Map<dynamic, dynamic>;
+          final sections =
+              await getTheseSectionDocs(userData[UserFields.assignedSections]);
+          for (var section in sections) {
+            final sectionData = section.data() as Map<dynamic, dynamic>;
+            final students = await getSectionStudentDocs(section.id);
+            sectionModels.add(SectionModel(
+                section.id, sectionData[SectionFields.name], students.length));
+          }
         }
         ref.read(loadingProvider).toggleLoading(false);
       } catch (error) {
@@ -94,104 +113,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       Wrap(
                         alignment: WrapAlignment.center,
                         children: [
-                          FutureBuilder(
-                              future: getAllSectionDocs(),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const Center(
-                                      child: CircularProgressIndicator());
-                                } else if (!snapshot.hasData ||
-                                    snapshot.hasError) {
-                                  return const Text('Error retrieving data');
-                                }
-                                int sectionCount = snapshot.data!.length;
-                                return analyticReportWidget(context,
-                                    count: sectionCount.toString(),
-                                    demographic: 'Sections',
-                                    displayIcon:
-                                        const Icon(Icons.security_outlined),
-                                    onPress: () => GoRouter.of(context)
-                                        .goNamed(GoRoutes.sections));
-                              }),
-                          FutureBuilder(
-                              future: getAllTeacherDocs(),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const Center(
-                                      child: CircularProgressIndicator());
-                                } else if (!snapshot.hasData ||
-                                    snapshot.hasError) {
-                                  return const Text('Error retrieving data');
-                                }
-                                int teacherCount = snapshot.data!.length;
-                                return analyticReportWidget(context,
-                                    count: teacherCount.toString(),
-                                    demographic: 'Teachers',
-                                    displayIcon: const Icon(Icons.person_2),
-                                    onPress: () => GoRouter.of(context)
-                                        .goNamed(GoRoutes.teachers));
-                              }),
-                          FutureBuilder(
-                              future: getAllStudentDocs(),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const Center(
-                                      child: CircularProgressIndicator());
-                                } else if (!snapshot.hasData ||
-                                    snapshot.hasError) {
-                                  return const Text('Error retrieving data');
-                                }
-                                int studentCount = snapshot.data!.length;
-                                return analyticReportWidget(context,
-                                    count: studentCount.toString(),
-                                    demographic: 'Students',
-                                    displayIcon: const Icon(Icons.people),
-                                    onPress: () => GoRouter.of(context)
-                                        .goNamed(GoRoutes.students));
-                              }),
-                          FutureBuilder(
-                              future: getAllModuleDocs(),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const Center(
-                                      child: CircularProgressIndicator());
-                                } else if (!snapshot.hasData ||
-                                    snapshot.hasError) {
-                                  return const Text('Error retrieving data');
-                                }
-                                int moduleCount = snapshot.data!.length;
-                                return analyticReportWidget(context,
-                                    count: moduleCount.toString(),
-                                    demographic: 'Modules',
-                                    displayIcon: const Icon(Icons.book),
-                                    onPress: () => GoRouter.of(context)
-                                        .goNamed(GoRoutes.modules));
-                              }),
-                          FutureBuilder(
-                              future: getAllQuizDocs(),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const Center(
-                                      child: CircularProgressIndicator());
-                                } else if (!snapshot.hasData ||
-                                    snapshot.hasError) {
-                                  return const Text('Error retrieving data');
-                                }
-                                int quizzesCount = snapshot.data!.length;
-                                return analyticReportWidget(context,
-                                    count: quizzesCount.toString(),
-                                    demographic: 'Quizzes',
-                                    displayIcon: const Icon(Icons.quiz),
-                                    onPress: () => GoRouter.of(context)
-                                        .goNamed(GoRoutes.quizzes));
-                              }),
+                          sectionCountFutureBuilder(),
+                          teacherCountFutureBuilder(),
+                          studentCountFutureBuilder(),
+                          modulesCountFutureBuilder(),
+                          quizzesCountFutureBuilder()
                         ],
-                      )
+                      ),
+                      const Divider(color: Colors.black),
+                      sectionsBarChart(context, sectionModels: sectionModels)
                     ],
                   )),
             ))
@@ -210,8 +140,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         bodyGradientContainer(context,
             child: SingleChildScrollView(
               child: horizontal5Percent(context,
-                  child: Center(
-                      child: blackInterBold('OWNER DASHBOARD', fontSize: 60))),
+                  child: Column(
+                    children: [
+                      blackInterBold('TEACHER DASHBOARD', fontSize: 60),
+                      sectionsBarChart(context, sectionModels: sectionModels)
+                    ],
+                  )),
             ))
       ],
     );

@@ -33,12 +33,10 @@ class UserFields {
   static const String lastName = 'lastName';
   static const String userType = 'userType';
   static const String profileImageURL = 'profileImageURL';
-  static const String isVerified = 'isVerified';
   static const String birthDate = 'birthDate';
   static const String contactNumber = 'contactNumber';
-  static const String assignedSection = 'assignedSection';
+  static const String assignedSections = 'assignedSections';
   static const String idNumber = 'idNumber';
-  static const String verificationImage = 'verificationImage';
 }
 
 class SectionFields {
@@ -65,8 +63,9 @@ class AdditionalResourcesFields {
 }
 
 class QuizFields {
+  static const String isGlobal = 'isGlobal';
+  static const String isActive = 'isActive';
   static const String teacherID = 'teacherID';
-  static const String sectionID = 'sectionID';
   static const String quizType = 'quizType';
   static const String title = 'title';
   static const String questions = 'questions';

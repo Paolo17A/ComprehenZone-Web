@@ -99,10 +99,10 @@ class _ViewQuizzesScreenState extends ConsumerState<ViewQuizzesScreen> {
     return vertical20Pix(
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         blackInterBold('QUIZZES', fontSize: 40),
-        if (ref.read(userTypeProvider).userType == UserTypes.teacher)
-          ElevatedButton(
-              onPressed: () => GoRouter.of(context).goNamed(GoRoutes.addQuiz),
-              child: blackInterBold('NEW QUIZ'))
+        //if (ref.read(userTypeProvider).userType == UserTypes.teacher)
+        ElevatedButton(
+            onPressed: () => GoRouter.of(context).goNamed(GoRoutes.addQuiz),
+            child: blackInterBold('NEW QUIZ'))
       ]),
     );
   }
@@ -136,25 +136,35 @@ class _ViewQuizzesScreenState extends ConsumerState<ViewQuizzesScreen> {
     final quizData = quizDoc.data() as Map<dynamic, dynamic>;
     String title = quizData[QuizFields.title];
     String quizType = quizData[QuizFields.quizType];
-    String teacherID = quizData[ModuleFields.teacherID];
+    String teacherID = quizData[QuizFields.teacherID];
+    bool isGlobal = quizData[QuizFields.isGlobal];
     return viewContentEntryRow(context, children: [
       viewFlexTextCell(title, flex: 2),
       viewFlexTextCell(quizType, flex: 1),
       viewFlexActionsCell([
-        FutureBuilder(
-          future: getThisUserDoc(teacherID),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting ||
-                !snapshot.hasData ||
-                snapshot.hasError) return snapshotHandler(snapshot);
-            final teacherData = snapshot.data!.data() as Map<dynamic, dynamic>;
-            String formattedName =
-                '${teacherData[UserFields.firstName]} ${teacherData[UserFields.lastName]}';
-            return blackInterBold(formattedName);
-          },
-        )
+        isGlobal
+            ? blackInterBold('GLOBAL QUIZ', fontSize: 20)
+            : FutureBuilder(
+                future: getThisUserDoc(teacherID),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting ||
+                      !snapshot.hasData ||
+                      snapshot.hasError) return snapshotHandler(snapshot);
+                  final teacherData =
+                      snapshot.data!.data() as Map<dynamic, dynamic>;
+                  String formattedName =
+                      '${teacherData[UserFields.firstName]} ${teacherData[UserFields.lastName]}';
+                  return blackInterBold(formattedName, fontSize: 20);
+                },
+              )
       ], flex: 1),
-      viewFlexActionsCell([viewEntryButton(context, onPress: () {})], flex: 2)
+      viewFlexActionsCell([
+        viewEntryButton(context, onPress: () {}),
+        if (isGlobal)
+          editEntryButton(context,
+              onPress: () => GoRouter.of(context).goNamed(GoRoutes.editQuiz,
+                  pathParameters: {PathParameters.quizID: quizDoc.id})),
+      ], flex: 2)
     ]);
   }
 

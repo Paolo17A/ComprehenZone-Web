@@ -8,7 +8,6 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comprehenzone_web/providers/sections_provider.dart';
-import 'package:comprehenzone_web/providers/verification_image_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -48,15 +47,6 @@ Future logInUser(BuildContext context, WidgetRef ref,
       scaffoldMessenger.showSnackBar(const SnackBar(
           content: Text(
               'Only admins and teachers may log-in to the web platform.')));
-      ref.read(loadingProvider.notifier).toggleLoading(false);
-      return;
-    }
-
-    if (!userData[UserFields.isVerified]) {
-      await FirebaseAuth.instance.signOut();
-      scaffoldMessenger.showSnackBar(const SnackBar(
-          content:
-              Text('Your account has not yet been verified by the admin')));
       ref.read(loadingProvider.notifier).toggleLoading(false);
       return;
     }
@@ -116,11 +106,6 @@ Future registerNewUser(BuildContext context, WidgetRef ref,
           content: Text('The password must be at least six characters long')));
       return;
     }
-    if (ref.read(verificationImageProvider).verificationImage == null) {
-      scaffoldMessenger.showSnackBar(const SnackBar(
-          content: Text('Please upload an image of your faculty ID.')));
-      return;
-    }
     //  Create user with Firebase Auth
     ref.read(loadingProvider).toggleLoading(true);
     await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -138,28 +123,12 @@ Future registerNewUser(BuildContext context, WidgetRef ref,
       UserFields.userType: userType,
       UserFields.profileImageURL: '',
       UserFields.idNumber: idNumberController.text.trim(),
-      UserFields.isVerified: false,
-      UserFields.assignedSection: ''
+      UserFields.assignedSections: []
     });
-
-    final storageRef = FirebaseStorage.instance
-        .ref()
-        .child(StorageFields.verificationImages)
-        .child(FirebaseAuth.instance.currentUser!.uid)
-        .child('${FirebaseAuth.instance.currentUser!.uid}.png');
-    final uploadTask = storageRef
-        .putData(ref.read(verificationImageProvider).verificationImage!);
-    final taskSnapshot = await uploadTask;
-    final String verificationImage = await taskSnapshot.ref.getDownloadURL();
-    await FirebaseFirestore.instance
-        .collection(Collections.users)
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .update({UserFields.verificationImage: verificationImage});
     scaffoldMessenger.showSnackBar(
         const SnackBar(content: Text('Successfully registered new user')));
     await FirebaseAuth.instance.signOut();
     ref.read(loadingProvider).toggleLoading(false);
-    ref.read(verificationImageProvider).resetVerificationImage();
     goRouter.goNamed(GoRoutes.home);
   } catch (error) {
     scaffoldMessenger.showSnackBar(
@@ -201,7 +170,7 @@ Future<List<DocumentSnapshot>> getAllStudentDocs() async {
   return users.docs.map((user) => user as DocumentSnapshot).toList();
 }
 
-Future approveThisUserRegistration(BuildContext context, WidgetRef ref,
+/*Future approveThisUserRegistration(BuildContext context, WidgetRef ref,
     {required String userID, required String userType}) async {
   final scaffoldMessenger = ScaffoldMessenger.of(context);
   try {
@@ -280,22 +249,22 @@ Future denyThisUserRegistration(BuildContext context, WidgetRef ref,
         content: Text('Error denying this user\'s registration: $error')));
     ref.read(loadingProvider).toggleLoading(false);
   }
-}
+}*/
 
 Future<List<DocumentSnapshot>> getSectionStudentDocs(String sectionID) async {
   final students = await FirebaseFirestore.instance
       .collection(Collections.users)
       .where(UserFields.userType, isEqualTo: UserTypes.student)
-      .where(UserFields.assignedSection, isEqualTo: sectionID)
+      .where(UserFields.assignedSections, arrayContains: sectionID)
       .get();
   return students.docs.map((student) => student as DocumentSnapshot).toList();
 }
 
-Future<List<DocumentSnapshot>> getSectionTeacherDoc(String sectionID) async {
+Future<List<DocumentSnapshot>> getSectionTeachersDoc(String sectionID) async {
   final teachers = await FirebaseFirestore.instance
       .collection(Collections.users)
       .where(UserFields.userType, isEqualTo: UserTypes.teacher)
-      .where(UserFields.assignedSection, isEqualTo: sectionID)
+      .where(UserFields.assignedSections, arrayContains: sectionID)
       .get();
   return teachers.docs.map((teacher) => teacher as DocumentSnapshot).toList();
 }
@@ -304,20 +273,22 @@ Future<List<DocumentSnapshot>> getStudentsWithNoSectionDocs() async {
   final students = await FirebaseFirestore.instance
       .collection(Collections.users)
       .where(UserFields.userType, isEqualTo: UserTypes.student)
-      .where(UserFields.assignedSection, isEqualTo: '')
-      .where(UserFields.isVerified, isEqualTo: true)
-      .get();
+      .where(UserFields.assignedSections, isEqualTo: []).get();
   return students.docs.map((student) => student as DocumentSnapshot).toList();
 }
 
-Future<List<DocumentSnapshot>> getAvailableTeacherDocs() async {
+Future<List<DocumentSnapshot>> getAvailableTeacherDocs(String sectionID) async {
   final teachers = await FirebaseFirestore.instance
       .collection(Collections.users)
       .where(UserFields.userType, isEqualTo: UserTypes.teacher)
-      .where(UserFields.assignedSection, isEqualTo: '')
-      .where(UserFields.isVerified, isEqualTo: true)
       .get();
-  return teachers.docs.map((student) => student as DocumentSnapshot).toList();
+
+  final availableTeachers = teachers.docs.where((doc) {
+    List assignedSections = doc[UserFields.assignedSections];
+    return !assignedSections.contains(sectionID);
+  }).toList();
+
+  return availableTeachers;
 }
 
 Future addProfilePic(BuildContext context, WidgetRef ref,
@@ -413,7 +384,8 @@ Future addNewUser(BuildContext context, WidgetRef ref,
     required TextEditingController confirmPasswordController,
     required TextEditingController firstNameController,
     required TextEditingController lastNameController,
-    required TextEditingController idNumberController}) async {
+    required TextEditingController idNumberController,
+    required String sectionID}) async {
   final scaffoldMessenger = ScaffoldMessenger.of(context);
   final goRouter = GoRouter.of(context);
   try {
@@ -444,6 +416,12 @@ Future addNewUser(BuildContext context, WidgetRef ref,
       return;
     }
 
+    if (sectionID.isEmpty) {
+      scaffoldMessenger.showSnackBar(
+          const SnackBar(content: Text('Please select a section')));
+      return;
+    }
+
     //  Store admin's current data locally then sign out
     final currentUser = await FirebaseFirestore.instance
         .collection(Collections.users)
@@ -471,8 +449,7 @@ Future addNewUser(BuildContext context, WidgetRef ref,
       UserFields.userType: userType,
       UserFields.profileImageURL: '',
       UserFields.idNumber: idNumberController.text.trim(),
-      UserFields.isVerified: true,
-      UserFields.assignedSection: ''
+      UserFields.assignedSections: [sectionID]
     });
 
     //  Log-back in to admin account
@@ -562,6 +539,15 @@ Future<List<DocumentSnapshot>> getAllSectionDocs() async {
   return sections.docs.map((user) => user as DocumentSnapshot).toList();
 }
 
+Future<List<DocumentSnapshot>> getTheseSectionDocs(
+    List<dynamic> sectionIDs) async {
+  final sections = await FirebaseFirestore.instance
+      .collection(Collections.sections)
+      .where(FieldPath.documentId, whereIn: sectionIDs)
+      .get();
+  return sections.docs.map((user) => user as DocumentSnapshot).toList();
+}
+
 Future<DocumentSnapshot> getThisSectionDoc(String sectionID) async {
   return await FirebaseFirestore.instance
       .collection(Collections.sections)
@@ -633,31 +619,38 @@ Future assignUserToSection(BuildContext context, WidgetRef ref,
     ref.read(loadingProvider).toggleLoading(true);
     goRouter.pop();
     List<DocumentSnapshot> sectionTeacher =
-        await getSectionTeacherDoc(sectionID);
+        await getSectionTeachersDoc(sectionID);
     if (sectionTeacher.isNotEmpty) {
       final oldTeacherID = sectionTeacher.first.id;
       await FirebaseFirestore.instance
           .collection(Collections.users)
           .doc(oldTeacherID)
-          .update({UserFields.assignedSection: ''});
+          .update({UserFields.assignedSections: []});
     }
     await FirebaseFirestore.instance
         .collection(Collections.users)
         .doc(userID)
-        .update({UserFields.assignedSection: sectionID});
+        .update({
+      UserFields.assignedSections: FieldValue.arrayUnion([sectionID])
+    });
     scaffoldMessenger.showSnackBar(const SnackBar(
         content: Text('Successfully assigned user to this section')));
 
     //  TEACHERS
-    final teachers = await getSectionTeacherDoc(sectionID);
+    final teachers = await getSectionTeachersDoc(sectionID);
     if (teachers.isNotEmpty) {
-      final teacherData = teachers.first.data() as Map<dynamic, dynamic>;
-      ref.read(sectionsProvider).setAssignedTeacherName(
-          '${teacherData[UserFields.firstName]} ${teacherData[UserFields.lastName]}');
+      ref
+          .read(sectionsProvider)
+          .setAssignedTeacherNames(teachers.map((teacher) {
+            final teacherData = teacher.data() as Map<dynamic, dynamic>;
+            String formattedName =
+                '${teacherData[UserFields.firstName]} ${teacherData[UserFields.lastName]}';
+            return formattedName;
+          }).toList());
     }
-    ref
+    /*ref
         .read(sectionsProvider)
-        .setAvailableTeacherDocs(await getAvailableTeacherDocs());
+        .setAvailableTeacherDocs(await getAvailableTeacherDocs());*/
 
     //  STUDENTS
     ref
@@ -939,6 +932,9 @@ Future addNewQuiz(BuildContext context, WidgetRef ref,
       QuizFields.questions: encodedQuiz,
       QuizFields.dateCreated: DateTime.now(),
       QuizFields.dateLastModified: DateTime.now(),
+      QuizFields.isGlobal:
+          ref.read(userTypeProvider).userType == UserTypes.admin,
+      QuizFields.isActive: true
     });
 
     scaffoldMessenger.showSnackBar(

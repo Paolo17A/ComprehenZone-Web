@@ -6,7 +6,7 @@ class SectionsNotifier extends ChangeNotifier {
   List<DocumentSnapshot> sectionDocs = [];
 
 //  SELECTED SECTION VARIABLES
-  String assignedTeacherName = '';
+  List<String> assignedTeacherNames = [];
   List<DocumentSnapshot> availableTeacherDocs = [];
   List<DocumentSnapshot> sectionStudentDocs = [];
   List<DocumentSnapshot> studentsWithNoSectionDocs = [];
@@ -16,8 +16,8 @@ class SectionsNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setAssignedTeacherName(String name) {
-    assignedTeacherName = name;
+  void setAssignedTeacherNames(List<String> names) {
+    assignedTeacherNames = names;
     notifyListeners();
   }
 

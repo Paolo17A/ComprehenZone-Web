@@ -34,13 +34,14 @@ class _SelectedSectionScreenState extends ConsumerState<SelectedSectionScreen> {
       final scaffoldMessenger = ScaffoldMessenger.of(context);
       final goRouter = GoRouter.of(context);
       try {
+        ref.read(sectionsProvider).setSectionStudentDocs([]);
         ref.read(loadingProvider).toggleLoading(true);
 
         //  In case user refreshed the screen and the provider is reset
         if (ref.read(userTypeProvider).userType.isEmpty) {
           ref.read(userTypeProvider).setUserType(await getCurrentUserType());
         }
-        if (ref.read(userTypeProvider).userType == UserTypes.teacher) {
+        if (ref.read(userTypeProvider).userType == UserTypes.student) {
           ref.read(loadingProvider).toggleLoading(false);
           goRouter.goNamed(GoRoutes.home);
           return;
@@ -49,15 +50,21 @@ class _SelectedSectionScreenState extends ConsumerState<SelectedSectionScreen> {
         name = sectionData[SectionFields.name];
 
         //  TEACHERS
-        final teachers = await getSectionTeacherDoc(widget.sectionID);
+        final teachers = await getSectionTeachersDoc(widget.sectionID);
         if (teachers.isNotEmpty) {
-          final teacherData = teachers.first.data() as Map<dynamic, dynamic>;
-          ref.read(sectionsProvider).setAssignedTeacherName(
-              '${teacherData[UserFields.firstName]} ${teacherData[UserFields.lastName]}');
+          ref
+              .read(sectionsProvider)
+              .setAssignedTeacherNames(teachers.map((teacher) {
+                final teacherData = teacher.data() as Map<dynamic, dynamic>;
+                String formattedName =
+                    '${teacherData[UserFields.firstName]} ${teacherData[UserFields.lastName]}';
+                return formattedName;
+              }).toList());
+        } else {
+          ref.read(sectionsProvider).setAssignedTeacherNames([]);
         }
-        ref
-            .read(sectionsProvider)
-            .setAvailableTeacherDocs(await getAvailableTeacherDocs());
+        ref.read(sectionsProvider).setAvailableTeacherDocs(
+            await getAvailableTeacherDocs(widget.sectionID));
 
         //  STUDENTS
         ref.read(sectionsProvider).setSectionStudentDocs(
@@ -78,6 +85,7 @@ class _SelectedSectionScreenState extends ConsumerState<SelectedSectionScreen> {
   Widget build(BuildContext context) {
     ref.watch(loadingProvider);
     ref.watch(sectionsProvider);
+    ref.watch(userTypeProvider);
     return Scaffold(
       body: stackedLoadingContainer(
           context,
@@ -85,7 +93,9 @@ class _SelectedSectionScreenState extends ConsumerState<SelectedSectionScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              adminLeftNavigator(context, path: GoRoutes.sections),
+              ref.read(userTypeProvider).userType == UserTypes.admin
+                  ? adminLeftNavigator(context, path: GoRoutes.sections)
+                  : teacherLeftNavigator(context, path: GoRoutes.sections),
               bodyGradientContainer(context,
                   child: SingleChildScrollView(
                     child: all20Pix(
@@ -105,13 +115,10 @@ class _SelectedSectionScreenState extends ConsumerState<SelectedSectionScreen> {
 
   Widget _backButton() {
     return vertical20Pix(
-      child: Row(
-        children: [
-          backButton(context,
-              onPress: () => GoRouter.of(context).goNamed(GoRoutes.sections)),
-        ],
-      ),
-    );
+        child: Row(children: [
+      backButton(context,
+          onPress: () => GoRouter.of(context).goNamed(GoRoutes.sections))
+    ]));
   }
 
   Widget _newSectionHeader() {
@@ -132,21 +139,35 @@ class _SelectedSectionScreenState extends ConsumerState<SelectedSectionScreen> {
       decoration: BoxDecoration(
           color: CustomColors.paleCyan, border: Border.all(width: 3)),
       padding: const EdgeInsets.all(10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.4,
-            child: blackInterBold(
-                ref.read(sectionsProvider).assignedTeacherName.isNotEmpty
-                    ? ref.read(sectionsProvider).assignedTeacherName
-                    : 'No Assigned Teacher',
-                textAlign: TextAlign.left,
-                fontSize: 32),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.4,
+                  child: blackInterBold('Section Teachers',
+                      fontSize: 32, textAlign: TextAlign.left)),
+              if (ref.read(userTypeProvider).userType == UserTypes.admin)
+                ElevatedButton(
+                    onPressed: showAvailableTeachers,
+                    child: blackInterBold('ASSIGN TEACHER'))
+            ],
           ),
-          ElevatedButton(
-              onPressed: showAvailableTeachers,
-              child: blackInterBold('ASSIGN TEACHER'))
+          const Divider(color: Colors.black, thickness: 3),
+          ref.read(sectionsProvider).assignedTeacherNames.isNotEmpty
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: ref
+                      .read(sectionsProvider)
+                      .assignedTeacherNames
+                      .map((teacher) => blackInterBold(teacher,
+                          fontSize: 28, textAlign: TextAlign.left))
+                      .toList(),
+                )
+              : blackInterBold('No Assigned Teacher',
+                  textAlign: TextAlign.left, fontSize: 32),
         ],
       ),
     ));
@@ -172,9 +193,6 @@ class _SelectedSectionScreenState extends ConsumerState<SelectedSectionScreen> {
                   textAlign: TextAlign.left,
                 ),
               ),
-              ElevatedButton(
-                  onPressed: showAvailableStudents,
-                  child: blackInterBold('ASSIGN STUDENT'))
             ],
           ),
           const Divider(color: Colors.black, thickness: 3),
