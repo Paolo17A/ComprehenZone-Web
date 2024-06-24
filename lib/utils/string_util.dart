@@ -41,8 +41,8 @@ class UserFields {
 
 class SectionFields {
   static const String name = 'name';
-  static const String teacherIDs = 'teacherIDs';
-  static const String studentIDs = 'studentIDs';
+  static const String teacherID = 'teacherID';
+  //static const String studentIDs = 'studentIDs';
 }
 
 class ModuleFields {

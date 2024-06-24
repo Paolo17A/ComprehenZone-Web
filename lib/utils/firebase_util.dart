@@ -377,6 +377,37 @@ Future editClientProfile(BuildContext context, WidgetRef ref,
   }
 }
 
+Future editThisProfile(BuildContext context, WidgetRef ref,
+    {required String userID,
+    required String userType,
+    required TextEditingController firstNameController,
+    required TextEditingController lastNameController}) async {
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  final goRouter = GoRouter.of(context);
+  if (firstNameController.text.isEmpty || lastNameController.text.isEmpty) {
+    scaffoldMessenger.showSnackBar(
+        const SnackBar(content: Text('Please fill up all given fields.')));
+    return;
+  }
+  try {
+    ref.read(loadingProvider.notifier).toggleLoading(true);
+    await FirebaseFirestore.instance
+        .collection(Collections.users)
+        .doc(userID)
+        .update({
+      UserFields.firstName: firstNameController.text.trim(),
+      UserFields.lastName: lastNameController.text.trim(),
+    });
+    ref.read(loadingProvider.notifier).toggleLoading(false);
+    goRouter.goNamed(
+        userType == UserTypes.teacher ? GoRoutes.teachers : GoRoutes.students);
+  } catch (error) {
+    scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('Error editing client profile : $error')));
+    ref.read(loadingProvider.notifier).toggleLoading(false);
+  }
+}
+
 Future addNewUser(BuildContext context, WidgetRef ref,
     {required String userType,
     required TextEditingController emailController,
@@ -555,6 +586,14 @@ Future<DocumentSnapshot> getThisSectionDoc(String sectionID) async {
       .get();
 }
 
+Future<List<DocumentSnapshot>> getSectionsWithoutTeacher() async {
+  final sections = await FirebaseFirestore.instance
+      .collection(Collections.sections)
+      .where(SectionFields.teacherID, isEqualTo: '')
+      .get();
+  return sections.docs.map((e) => e as DocumentSnapshot).toList();
+}
+
 Future addNewSection(BuildContext context, WidgetRef ref,
     {required TextEditingController nameController}) async {
   final scaffoldMessenger = ScaffoldMessenger.of(context);
@@ -625,7 +664,9 @@ Future assignUserToSection(BuildContext context, WidgetRef ref,
       await FirebaseFirestore.instance
           .collection(Collections.users)
           .doc(oldTeacherID)
-          .update({UserFields.assignedSections: []});
+          .update({
+        UserFields.assignedSections: FieldValue.arrayRemove([sectionID])
+      });
     }
     await FirebaseFirestore.instance
         .collection(Collections.users)
@@ -1002,4 +1043,17 @@ Future<List<DocumentSnapshot>> getStudentQuizResults(String studentID) async {
       .where(QuizResultFields.studentID, isEqualTo: studentID)
       .get();
   return quizResults.docs.map((e) => e as DocumentSnapshot).toList();
+}
+
+Future<double?> getStudentGradeAverage(String studentID) async {
+  final quizResults = await getStudentQuizResults(studentID);
+  if (quizResults.isEmpty) {
+    return null;
+  }
+  double sum = 0;
+  for (var quizResult in quizResults) {
+    final quizResultData = quizResult.data() as Map<dynamic, dynamic>;
+    sum += quizResultData[QuizResultFields.grade];
+  }
+  return sum / quizResults.length;
 }

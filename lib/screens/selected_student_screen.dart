@@ -27,7 +27,7 @@ class _SelectedStudentScreenState extends ConsumerState<SelectedStudentScreen> {
   String formattedName = '';
   String sectionName = '';
   List<DocumentSnapshot> quizResultDocs = [];
-
+  double averageGrade = 0;
   @override
   void initState() {
     super.initState();
@@ -47,6 +47,12 @@ class _SelectedStudentScreenState extends ConsumerState<SelectedStudentScreen> {
           sectionName = sectionData[SectionFields.name];
         }
         quizResultDocs = await getStudentQuizResults(widget.studentID);
+        double sum = 0;
+        for (var quizResult in quizResultDocs) {
+          final quizResultData = quizResult.data() as Map<dynamic, dynamic>;
+          sum += quizResultData[QuizResultFields.grade];
+        }
+        averageGrade = (sum / quizResultDocs.length) * 10;
         ref.read(loadingProvider).toggleLoading(false);
       } catch (error) {
         scaffoldMessenger.showSnackBar(SnackBar(
@@ -100,7 +106,15 @@ class _SelectedStudentScreenState extends ConsumerState<SelectedStudentScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          blackInterBold(formattedName, fontSize: 40),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              blackInterBold(formattedName, fontSize: 40),
+              if (quizResultDocs.isNotEmpty)
+                blackInterBold(
+                    'Average Grade: ${averageGrade.toStringAsFixed(1)}%')
+            ],
+          ),
           blackInterRegular(sectionName, fontSize: 24),
           const Gap(20),
           blackInterBold('SCORES', fontSize: 30),

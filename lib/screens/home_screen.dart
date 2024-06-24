@@ -6,6 +6,7 @@ import 'package:comprehenzone_web/widgets/custom_miscellaneous_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import '../utils/firebase_util.dart';
 import '../utils/go_router_util.dart';
 import '../widgets/custom_padding_widgets.dart';
@@ -23,7 +24,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   //  LOG-IN
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
   //  ADMIN
   List<SectionModel> sectionModels = [];
 
@@ -142,7 +142,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: horizontal5Percent(context,
                   child: Column(
                     children: [
-                      blackInterBold('TEACHER DASHBOARD', fontSize: 60),
+                      //blackInterBold('TEACHER DASHBOARD', fontSize: 60),
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        children: [
+                          analyticReportWidget(context,
+                              count: sectionModels.length.toString(),
+                              demographic: 'Sections',
+                              displayIcon: const Icon(Icons.security_outlined),
+                              onPress: () => GoRouter.of(context)
+                                  .goNamed(GoRoutes.sections)),
+                          teacherModulesCountFutureBuilder(),
+                          teacherQuizzesCountFutureBuilder()
+                        ],
+                      ),
+                      const Divider(color: Colors.black),
                       sectionsBarChart(context, sectionModels: sectionModels)
                     ],
                   )),

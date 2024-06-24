@@ -499,6 +499,24 @@ Widget sectionCountFutureBuilder() {
       });
 }
 
+Widget assignedSectionsCountFutureBuilder() {
+  return FutureBuilder(
+      future: getAllSectionDocs(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (!snapshot.hasData || snapshot.hasError) {
+          return const Text('Error retrieving data');
+        }
+        int sectionCount = snapshot.data!.length;
+        return analyticReportWidget(context,
+            count: sectionCount.toString(),
+            demographic: 'Sections',
+            displayIcon: const Icon(Icons.security_outlined),
+            onPress: () => GoRouter.of(context).goNamed(GoRoutes.sections));
+      });
+}
+
 Widget teacherCountFutureBuilder() {
   return FutureBuilder(
       future: getAllTeacherDocs(),
@@ -553,9 +571,45 @@ Widget modulesCountFutureBuilder() {
       });
 }
 
+Widget teacherModulesCountFutureBuilder() {
+  return FutureBuilder(
+      future: getAllUserModuleDocs(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (!snapshot.hasData || snapshot.hasError) {
+          return const Text('Error retrieving data');
+        }
+        int moduleCount = snapshot.data!.length;
+        return analyticReportWidget(context,
+            count: moduleCount.toString(),
+            demographic: 'Modules',
+            displayIcon: const Icon(Icons.book),
+            onPress: () => GoRouter.of(context).goNamed(GoRoutes.modules));
+      });
+}
+
 Widget quizzesCountFutureBuilder() {
   return FutureBuilder(
       future: getAllQuizDocs(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (!snapshot.hasData || snapshot.hasError) {
+          return const Text('Error retrieving data');
+        }
+        int quizzesCount = snapshot.data!.length;
+        return analyticReportWidget(context,
+            count: quizzesCount.toString(),
+            demographic: 'Quizzes',
+            displayIcon: const Icon(Icons.quiz),
+            onPress: () => GoRouter.of(context).goNamed(GoRoutes.quizzes));
+      });
+}
+
+Widget teacherQuizzesCountFutureBuilder() {
+  return FutureBuilder(
+      future: getAllUserQuizDocs(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());

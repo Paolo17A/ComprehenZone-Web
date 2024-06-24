@@ -9,7 +9,6 @@ import 'package:comprehenzone_web/widgets/custom_text_widgets.dart';
 import 'package:comprehenzone_web/widgets/left_navigator_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
 import '../providers/user_type_provider.dart';
@@ -208,10 +207,30 @@ class _SelectedSectionScreenState extends ConsumerState<SelectedSectionScreen> {
                         .data() as Map<dynamic, dynamic>;
                     String formattedName =
                         '${studentData[UserFields.firstName]} ${studentData[UserFields.lastName]}';
-                    return Row(children: [
-                      const Gap(20),
-                      blackInterBold(formattedName, fontSize: 28)
-                    ]);
+                    return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          //const Gap(20),
+                          blackInterBold(formattedName, fontSize: 28),
+                          FutureBuilder(
+                              future: getStudentGradeAverage(ref
+                                  .read(sectionsProvider)
+                                  .sectionStudentDocs[index]
+                                  .id),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                        ConnectionState.waiting ||
+                                    !snapshot.hasData ||
+                                    snapshot.hasError) {
+                                  return snapshotHandler(snapshot);
+                                }
+                                return blackInterBold(
+                                    snapshot.data != null
+                                        ? 'Average Grade: ${(snapshot.data! * 10).toStringAsFixed(1)}%'
+                                        : 'Average Grade: N/A',
+                                    fontSize: 26);
+                              })
+                        ]);
                   },
                 )
               : blackInterRegular('No Assigned Students', fontSize: 40)

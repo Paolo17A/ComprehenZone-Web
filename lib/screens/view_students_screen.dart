@@ -129,21 +129,16 @@ class _ViewStudentsScreenState extends ConsumerState<ViewStudentsScreen> {
 
     return viewContentEntryRow(context, children: [
       viewFlexTextCell(formattedName, flex: 2),
-      /*viewFlexActionsCell([
-        if (accountVerified)
-          blackInterBold('VERIFIED')
-        else
-          ElevatedButton(
-              onPressed: () => showVerificationImageDialog(context,
-                  verificationImage: verificationImage),
-              child: blackInterBold('VIEW ID'))
-      ], flex: 2),*/
       viewFlexActionsCell([
-        //if (accountVerified)
         viewEntryButton(context,
             onPress: () => GoRouter.of(context).goNamed(
                 GoRoutes.selectedStudent,
                 pathParameters: {PathParameters.studentID: userDoc.id})),
+        ElevatedButton(
+            onPressed: () => GoRouter.of(context).goNamed(
+                GoRoutes.editSelectedProfile,
+                pathParameters: {PathParameters.userID: userDoc.id}),
+            child: blackInterBold('EDIT PROFILE')),
         ElevatedButton(
           onPressed: () {
             showDialog(
@@ -180,23 +175,6 @@ class _ViewStudentsScreenState extends ConsumerState<ViewStudentsScreen> {
           },
           child: blackInterBold('CHANGE PASSWORD'),
         )
-        /* if (!accountVerified)
-          ElevatedButton(
-              onPressed: () => approveThisUserRegistration(context, ref,
-                  userID: userDoc.id, userType: UserTypes.student),
-              child: const Icon(Icons.check, color: Colors.black)),
-        if (!accountVerified)
-          ElevatedButton(
-              onPressed: () => displayDeleteEntryDialog(context,
-                  message:
-                      'Are you sure you want to deny this user\'s registration?',
-                  deleteWord: 'Deny',
-                  deleteEntry: () => denyThisUserRegistration(context, ref,
-                      userID: userDoc.id, userType: UserTypes.student)),
-              child: const Icon(
-                Icons.block,
-                color: Colors.black,
-              ))*/
       ], flex: 3)
     ]);
   }

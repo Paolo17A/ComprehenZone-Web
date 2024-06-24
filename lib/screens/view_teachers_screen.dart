@@ -142,6 +142,11 @@ class _ViewTeachersScreenState extends ConsumerState<ViewTeachersScreen> {
       viewFlexActionsCell([
         viewEntryButton(context, onPress: () {}),
         ElevatedButton(
+            onPressed: () => GoRouter.of(context).goNamed(
+                GoRoutes.editSelectedProfile,
+                pathParameters: {PathParameters.userID: userDoc.id}),
+            child: blackInterBold('EDIT PROFILE')),
+        ElevatedButton(
           onPressed: () {
             showDialog(
                 context: context,

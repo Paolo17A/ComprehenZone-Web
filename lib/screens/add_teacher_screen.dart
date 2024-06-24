@@ -28,7 +28,7 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
   final lastNameController = TextEditingController();
   final idNumberController = TextEditingController();
 
-  List<DocumentSnapshot> sectionDocs = [];
+  List<DocumentSnapshot> availableSectionDocs = [];
   String selectedSectionID = '';
   String selectedSectionName = '';
 
@@ -51,7 +51,17 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
           goRouter.goNamed(GoRoutes.home);
           return;
         }
-        sectionDocs = await getAllSectionDocs();
+        List<DocumentSnapshot> sectionDocs = await getAllSectionDocs();
+        for (var section in sectionDocs) {
+          final assignedTeacher = await FirebaseFirestore.instance
+              .collection(Collections.users)
+              .where(UserFields.assignedSections, arrayContains: section.id)
+              .get();
+          List<DocumentSnapshot> assignedTeacherDocs = assignedTeacher.docs;
+          if (assignedTeacherDocs.isEmpty) {
+            availableSectionDocs.add(section);
+          }
+        }
         ref.read(loadingProvider).toggleLoading(false);
       } catch (error) {
         scaffoldMessenger.showSnackBar(
@@ -163,28 +173,33 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
                           children: [
                             blackInterBold('Select this teacher\'s section',
                                 fontSize: 24),
-                            Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: sectionDocs.map((section) {
-                                  final sectionData =
-                                      section.data() as Map<dynamic, dynamic>;
-                                  return vertical10Pix(
-                                    child: ElevatedButton(
-                                        onPressed: () {
-                                          GoRouter.of(context).pop();
-                                          setState(() {
-                                            selectedSectionID = section.id;
-                                            selectedSectionName =
-                                                sectionData[SectionFields.name];
-                                          });
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                CustomColors.midnightBlue),
-                                        child: whiteInterBold(
-                                            sectionData[SectionFields.name])),
-                                  );
-                                }).toList()),
+                            availableSectionDocs.isNotEmpty
+                                ? Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children:
+                                        availableSectionDocs.map((section) {
+                                      final sectionData = section.data()
+                                          as Map<dynamic, dynamic>;
+                                      return vertical10Pix(
+                                        child: ElevatedButton(
+                                            onPressed: () {
+                                              GoRouter.of(context).pop();
+                                              setState(() {
+                                                selectedSectionID = section.id;
+                                                selectedSectionName =
+                                                    sectionData[
+                                                        SectionFields.name];
+                                              });
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    CustomColors.midnightBlue),
+                                            child: whiteInterBold(sectionData[
+                                                SectionFields.name])),
+                                      );
+                                    }).toList())
+                                : blackInterBold(
+                                    'There are currently no available sections to assign this teacher to.')
                           ],
                         ))));
               },

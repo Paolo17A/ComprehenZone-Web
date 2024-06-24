@@ -5,6 +5,7 @@ import 'package:comprehenzone_web/screens/add_teacher_screen.dart';
 import 'package:comprehenzone_web/screens/edit_module_screen.dart';
 import 'package:comprehenzone_web/screens/edit_profile_screen.dart';
 import 'package:comprehenzone_web/screens/edit_quiz_screen.dart';
+import 'package:comprehenzone_web/screens/edit_selected_profile_screen.dart';
 import 'package:comprehenzone_web/screens/home_screen.dart';
 import 'package:comprehenzone_web/screens/profile_screen.dart';
 import 'package:comprehenzone_web/screens/selected_section_screen.dart';
@@ -37,6 +38,7 @@ class GoRoutes {
   static const editQuiz = 'editQuiz';
   static const profile = 'profile';
   static const editProfile = 'editProfile';
+  static const editSelectedProfile = 'editSelectedProfile';
 }
 
 final goRoutes = GoRouter(initialLocation: GoRoutes.home, routes: [
@@ -140,6 +142,14 @@ final goRoutes = GoRouter(initialLocation: GoRoutes.home, routes: [
             path: GoRoutes.editProfile,
             pageBuilder: (context, state) =>
                 customTransition(context, state, const EditProfileScreen())),
+        GoRoute(
+            name: GoRoutes.editSelectedProfile,
+            path: '${GoRoutes.editSelectedProfile}/:${PathParameters.userID}',
+            pageBuilder: (context, state) => customTransition(
+                context,
+                state,
+                EditSelectedProfileScreen(
+                    userID: state.pathParameters[PathParameters.userID]!))),
       ])
 ]);
 
