@@ -726,6 +726,14 @@ Future<List<DocumentSnapshot>> getAllUserModuleDocs() async {
   return modules.docs.map((user) => user as DocumentSnapshot).toList();
 }
 
+Future<List<DocumentSnapshot>> getTeacherModuleDocs(String teacherID) async {
+  final modules = await FirebaseFirestore.instance
+      .collection(Collections.modules)
+      .where(ModuleFields.teacherID, isEqualTo: teacherID)
+      .get();
+  return modules.docs.map((user) => user as DocumentSnapshot).toList();
+}
+
 Future<DocumentSnapshot> getThisModuleDoc(String moduleID) async {
   return await FirebaseFirestore.instance
       .collection(Collections.modules)
@@ -932,6 +940,14 @@ Future<List<DocumentSnapshot>> getAllUserQuizDocs() async {
       .collection(Collections.quizzes)
       .where(QuizFields.teacherID,
           isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+      .get();
+  return quizzes.docs.map((user) => user as DocumentSnapshot).toList();
+}
+
+Future<List<DocumentSnapshot>> getAllTeacherQuizDocs(String teacherID) async {
+  final quizzes = await FirebaseFirestore.instance
+      .collection(Collections.quizzes)
+      .where(QuizFields.teacherID, isEqualTo: teacherID)
       .get();
   return quizzes.docs.map((user) => user as DocumentSnapshot).toList();
 }

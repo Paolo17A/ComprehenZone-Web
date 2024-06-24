@@ -10,6 +10,7 @@ import 'package:comprehenzone_web/screens/home_screen.dart';
 import 'package:comprehenzone_web/screens/profile_screen.dart';
 import 'package:comprehenzone_web/screens/selected_section_screen.dart';
 import 'package:comprehenzone_web/screens/selected_student_screen.dart';
+import 'package:comprehenzone_web/screens/selected_teacher_screen.dart';
 import 'package:comprehenzone_web/screens/view_modules_screen.dart';
 import 'package:comprehenzone_web/screens/view_quizzes_screen.dart';
 import 'package:comprehenzone_web/screens/view_sections_screen.dart';
@@ -27,6 +28,7 @@ class GoRoutes {
   static const selectedSection = 'selectedSection';
   static const teachers = 'teachers';
   static const addTeacher = 'addTeacher';
+  static const selectedTeacher = 'selectedTeacher';
   static const students = 'students';
   static const addStudent = 'addStudent';
   static const selectedStudent = 'selectedStudent';
@@ -77,6 +79,15 @@ final goRoutes = GoRouter(initialLocation: GoRoutes.home, routes: [
             path: GoRoutes.addTeacher,
             pageBuilder: (context, state) =>
                 customTransition(context, state, const AddTeacherScreen())),
+        GoRoute(
+            name: GoRoutes.selectedTeacher,
+            path: '${GoRoutes.teachers}/:${PathParameters.teacherID}',
+            pageBuilder: (context, state) => customTransition(
+                context,
+                state,
+                SelectedTeacherScreen(
+                    teacherID:
+                        state.pathParameters[PathParameters.teacherID]!))),
         GoRoute(
             name: GoRoutes.students,
             path: GoRoutes.students,

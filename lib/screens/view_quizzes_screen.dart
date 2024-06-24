@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../utils/delete_entry_dialog_util.dart';
 import '../utils/go_router_util.dart';
 import '../utils/string_util.dart';
 import '../widgets/custom_button_widgets.dart';
@@ -179,10 +178,6 @@ class _ViewQuizzesScreenState extends ConsumerState<ViewQuizzesScreen> {
         editEntryButton(context,
             onPress: () => GoRouter.of(context).goNamed(GoRoutes.editQuiz,
                 pathParameters: {PathParameters.quizID: quizDoc.id})),
-        deleteEntryButton(context,
-            onPress: () => displayDeleteEntryDialog(context,
-                message: 'Are you sure you wish to delete this quiz? ',
-                deleteEntry: () {}))
       ], flex: 2)
     ]);
   }
