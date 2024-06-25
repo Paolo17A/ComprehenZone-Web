@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comprehenzone_web/providers/loading_provider.dart';
 import 'package:comprehenzone_web/providers/quizzes_provider.dart';
 import 'package:comprehenzone_web/providers/user_type_provider.dart';
+import 'package:comprehenzone_web/utils/color_util.dart';
 import 'package:comprehenzone_web/utils/firebase_util.dart';
 import 'package:comprehenzone_web/widgets/custom_miscellaneous_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_padding_widgets.dart';
@@ -23,6 +24,7 @@ class ViewQuizzesScreen extends ConsumerStatefulWidget {
 }
 
 class _ViewQuizzesScreenState extends ConsumerState<ViewQuizzesScreen> {
+  List<DocumentSnapshot> quizDocs = [];
   @override
   void initState() {
     super.initState();
@@ -40,8 +42,17 @@ class _ViewQuizzesScreenState extends ConsumerState<ViewQuizzesScreen> {
         ref.read(userTypeProvider).setUserType(await getCurrentUserType());
         if (ref.read(userTypeProvider).userType == UserTypes.admin) {
           ref.read(quizzesProvider).setQuizDocs(await getAllQuizDocs());
-        } else {
+        } else if (ref.read(userTypeProvider).userType == UserTypes.teacher) {
           ref.read(quizzesProvider).setQuizDocs(await getAllUserQuizDocs());
+        } else {
+          final user = await getCurrentUserDoc();
+          final userData = user.data() as Map<dynamic, dynamic>;
+          List<dynamic> assignedSections =
+              userData[UserFields.assignedSections];
+          List<DocumentSnapshot> teacherDocs =
+              await getSectionTeacherDoc(assignedSections.first);
+          String teacherID = teacherDocs.first.id;
+          quizDocs = await getAllAssignedQuizDocs(teacherID);
         }
         ref.read(loadingProvider).toggleLoading(false);
       } catch (error) {
@@ -65,14 +76,113 @@ class _ViewQuizzesScreenState extends ConsumerState<ViewQuizzesScreen> {
             children: [
               ref.read(userTypeProvider).userType == UserTypes.admin
                   ? adminLeftNavigator(context, path: GoRoutes.quizzes)
-                  : teacherLeftNavigator(context, path: GoRoutes.quizzes),
+                  : ref.read(userTypeProvider).userType == UserTypes.teacher
+                      ? teacherLeftNavigator(context, path: GoRoutes.quizzes)
+                      : studentLeftNavigator(context, path: GoRoutes.quizzes),
               bodyGradientContainer(context,
                   child: SingleChildScrollView(
-                    child:
-                        horizontal5Percent(context, child: _quizzesContent()),
+                    child: horizontal5Percent(context,
+                        child: ref.read(userTypeProvider).userType ==
+                                UserTypes.student
+                            ? _studentQuizzes()
+                            : _quizzesContent()),
                   ))
             ],
           )),
+    );
+  }
+
+  Widget _studentQuizzes() {
+    return Column(
+      children: [
+        vertical20Pix(child: blackInterBold('ASSIGNED QUIZZES', fontSize: 32)),
+        vertical20Pix(
+          child: Container(
+              width: double.maxFinite,
+              decoration: BoxDecoration(border: Border.all(width: 2)),
+              padding: const EdgeInsets.all(10),
+              child: quizDocs.isNotEmpty
+                  ? Center(
+                      child: Wrap(
+                        runSpacing: 10,
+                        spacing: 10,
+                        children: quizDocs
+                            .map((quizDoc) => _quizEntryFutureBuilder(quizDoc))
+                            .toList(),
+                      ),
+                    )
+                  : all20Pix(
+                      child: blackInterBold(
+                          'You have no assigned quizzes to take.'))),
+        ),
+      ],
+    );
+  }
+
+  Widget _quizEntryFutureBuilder(DocumentSnapshot quizDoc) {
+    final quizData = quizDoc.data() as Map<dynamic, dynamic>;
+    String title = quizData[QuizFields.title];
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.3,
+      decoration: BoxDecoration(
+          color: CustomColors.pearlWhite, border: Border.all(width: 2)),
+      padding: const EdgeInsets.all(10),
+      child: FutureBuilder(
+        future: getQuizResult(quizDoc.id),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return blackInterRegular('Error getting quiz status');
+          } else if (!snapshot.hasData) {
+            return _quizEntryWidget(
+                quizID: quizDoc.id, title: title, isDone: false);
+          }
+          final quizResult = snapshot.data!.id;
+          final quizResultData = snapshot.data!.data() as Map<dynamic, dynamic>;
+
+          return _quizEntryWidget(
+              quizID: quizDoc.id,
+              title: title,
+              isDone: true,
+              quizResultID: quizResult,
+              grade: quizResultData[QuizResultFields.grade]);
+        },
+      ),
+    );
+  }
+
+  Widget _quizEntryWidget(
+      {required String quizID,
+      required String title,
+      required bool isDone,
+      String quizResultID = '',
+      num grade = 0}) {
+    return vertical10Pix(
+      child: TextButton(
+        onPressed: () {
+          if (isDone) {
+            print('VIEW RESULTS');
+            /*NavigatorRoutes.selectedQuizResult(context,
+                quizResultID: quizResultID);*/
+            GoRouter.of(context).goNamed(GoRoutes.selectedQuizResult,
+                pathParameters: {PathParameters.quizResultID: quizResultID});
+          } else {
+            print('WILL ANSWER PALANG');
+            //NavigatorRoutes.answerQuiz(context, quizID: quizID);
+            GoRouter.of(context).goNamed(GoRoutes.answerQuiz,
+                pathParameters: {PathParameters.quizID: quizID});
+          }
+        },
+        child: Row(
+          mainAxisAlignment:
+              isDone ? MainAxisAlignment.spaceBetween : MainAxisAlignment.start,
+          children: [
+            blackInterBold(title, fontSize: 28),
+            if (isDone) blackInterBold('$grade/10')
+          ],
+        ),
+      ),
     );
   }
 

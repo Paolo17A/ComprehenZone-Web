@@ -135,44 +135,8 @@ class _SelectedStudentScreenState extends ConsumerState<SelectedStudentScreen> {
   Widget quizResults() {
     return Column(
         children: quizResultDocs
-            .map((quizResult) => quizResultEntry(quizResult))
+            .map((quizResult) =>
+                quizResultEntry(context, quizResultDoc: quizResult))
             .toList());
-  }
-
-  Widget quizResultEntry(DocumentSnapshot quizResultDoc) {
-    final quizResultData = quizResultDoc.data() as Map<dynamic, dynamic>;
-    num grade = quizResultData[QuizResultFields.grade];
-    String quizID = quizResultData[QuizResultFields.quizID];
-    return FutureBuilder(
-      future: getThisQuizDoc(quizID),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (!snapshot.hasData || snapshot.hasError) {
-          return const Text('Error retrieving data');
-        }
-        final quizData = snapshot.data!.data() as Map<dynamic, dynamic>;
-        String title = quizData[QuizFields.title];
-        return Container(
-          width: double.infinity,
-          height: 70,
-          decoration: BoxDecoration(border: Border.all(width: 2)),
-          padding: const EdgeInsets.all(10),
-          child: TextButton(
-            onPressed: () {},
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                    flex: 2,
-                    child: blackInterBold(title,
-                        fontSize: 16, overflow: TextOverflow.ellipsis)),
-                Flexible(child: blackInterBold('$grade/10', fontSize: 20))
-              ],
-            ),
-          ),
-        );
-      },
-    );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comprehenzone_web/models/section_model.dart';
 import 'package:comprehenzone_web/providers/loading_provider.dart';
 import 'package:comprehenzone_web/providers/user_type_provider.dart';
@@ -6,7 +7,9 @@ import 'package:comprehenzone_web/widgets/custom_miscellaneous_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import '../utils/color_util.dart';
 import '../utils/firebase_util.dart';
 import '../utils/go_router_util.dart';
 import '../widgets/custom_padding_widgets.dart';
@@ -26,6 +29,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   final passwordController = TextEditingController();
   //  ADMIN
   List<SectionModel> sectionModels = [];
+
+  //  STUDENT
+  String formattedName = '';
+  String sectionName = '';
+  List<DocumentSnapshot> quizResultDocs = [];
+  double averageGrade = 0;
 
   @override
   void dispose() {
@@ -58,7 +67,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             sectionModels.add(SectionModel(
                 section.id, sectionData[SectionFields.name], students.length));
           }
-        } else {
+        } else if (ref.read(userTypeProvider).userType == UserTypes.teacher) {
           //  Get Section-wide Data
           final user = await getCurrentUserDoc();
           final userData = user.data() as Map<dynamic, dynamic>;
@@ -70,6 +79,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             sectionModels.add(SectionModel(
                 section.id, sectionData[SectionFields.name], students.length));
           }
+        } else {
+          final user = await getCurrentUserDoc();
+          final userData = user.data() as Map<dynamic, dynamic>;
+          formattedName =
+              '${userData[UserFields.firstName]} ${userData[UserFields.lastName]}';
+          String sectionID =
+              (userData[UserFields.assignedSections] as List<dynamic>).first;
+          if (sectionID.isNotEmpty) {
+            final section = await getThisSectionDoc(sectionID);
+            final sectionData = section.data() as Map<dynamic, dynamic>;
+            sectionName = sectionData[SectionFields.name];
+          }
+          quizResultDocs = await getUserQuizResults();
+          double sum = 0;
+          for (var quizResult in quizResultDocs) {
+            final quizResultData = quizResult.data() as Map<dynamic, dynamic>;
+            sum += quizResultData[QuizResultFields.grade];
+          }
+          averageGrade = (sum / quizResultDocs.length) * 10;
         }
         ref.read(loadingProvider).toggleLoading(false);
       } catch (error) {
@@ -91,7 +119,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: hasLoggedInUser()
                       ? ref.read(userTypeProvider).userType == UserTypes.admin
                           ? adminDashboard()
-                          : teacherDashboard()
+                          : ref.read(userTypeProvider).userType ==
+                                  UserTypes.teacher
+                              ? teacherDashboard()
+                              : studentDashboard()
                       : _logInContainer()),
             )));
   }
@@ -174,9 +205,49 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       bodyGradientContainer(context,
           child: SingleChildScrollView(
             child: horizontal5Percent(context,
-                child: blackInterBold('STUDENT DASHBOARD')),
+                child: Column(children: [studentDataCyanContainer()])),
           ))
     ]);
+  }
+
+  Widget studentDataCyanContainer() {
+    return vertical20Pix(
+      child: Container(
+        width: double.maxFinite,
+        decoration: BoxDecoration(
+            color: CustomColors.paleCyan, border: Border.all(width: 5)),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                blackInterBold(formattedName, fontSize: 40),
+                if (quizResultDocs.isNotEmpty)
+                  blackInterBold(
+                      'Average Grade: ${averageGrade.toStringAsFixed(1)}%')
+              ],
+            ),
+            blackInterRegular('Your Section: $sectionName', fontSize: 24),
+            const Gap(20),
+            blackInterBold('SCORES', fontSize: 30),
+            quizResultDocs.isNotEmpty
+                ? Column(
+                    children: quizResultDocs
+                        .map((quizResult) =>
+                            quizResultEntry(context, quizResultDoc: quizResult))
+                        .toList())
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      blackInterBold('You have not yet answered any quizzes.')
+                    ],
+                  )
+          ],
+        ),
+      ),
+    );
   }
 
 //==============================================================================

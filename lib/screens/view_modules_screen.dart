@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comprehenzone_web/providers/loading_provider.dart';
 import 'package:comprehenzone_web/providers/modules_provider.dart';
 import 'package:comprehenzone_web/providers/user_type_provider.dart';
+import 'package:comprehenzone_web/utils/color_util.dart';
 import 'package:comprehenzone_web/utils/firebase_util.dart';
 import 'package:comprehenzone_web/widgets/custom_miscellaneous_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_padding_widgets.dart';
@@ -24,6 +25,11 @@ class ViewModulesScreen extends ConsumerStatefulWidget {
 }
 
 class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
+  List<DocumentSnapshot> firstQuarterModuleDocs = [];
+  List<DocumentSnapshot> secondQuarterModuleDocs = [];
+  List<DocumentSnapshot> thirdQuarterModuleDocs = [];
+  List<DocumentSnapshot> fourthQuarterModuleDocs = [];
+
   @override
   void initState() {
     super.initState();
@@ -41,8 +47,24 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
         ref.read(userTypeProvider).setUserType(await getCurrentUserType());
         if (ref.read(userTypeProvider).userType == UserTypes.admin) {
           ref.read(modulesProvider).setModuleDocs(await getAllModuleDocs());
-        } else {
+        } else if (ref.read(userTypeProvider).userType == UserTypes.teacher) {
           ref.read(modulesProvider).setModuleDocs(await getAllUserModuleDocs());
+        } else {
+          final user = await getCurrentUserDoc();
+          final userData = user.data() as Map<dynamic, dynamic>;
+          List<dynamic> assignedSections =
+              userData[UserFields.assignedSections];
+          List<DocumentSnapshot> teacherDocs =
+              await getSectionTeacherDoc(assignedSections.first);
+          String teacherID = teacherDocs.first.id;
+          firstQuarterModuleDocs =
+              await getAllAssignedQuarterModuleDocs(teacherID, 1);
+          secondQuarterModuleDocs =
+              await getAllAssignedQuarterModuleDocs(teacherID, 2);
+          thirdQuarterModuleDocs =
+              await getAllAssignedQuarterModuleDocs(teacherID, 3);
+          fourthQuarterModuleDocs =
+              await getAllAssignedQuarterModuleDocs(teacherID, 4);
         }
         ref.read(loadingProvider).toggleLoading(false);
       } catch (error) {
@@ -66,14 +88,138 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
             children: [
               ref.read(userTypeProvider).userType == UserTypes.admin
                   ? adminLeftNavigator(context, path: GoRoutes.modules)
-                  : teacherLeftNavigator(context, path: GoRoutes.modules),
+                  : ref.read(userTypeProvider).userType == UserTypes.teacher
+                      ? teacherLeftNavigator(context, path: GoRoutes.modules)
+                      : studentLeftNavigator(context, path: GoRoutes.modules),
               bodyGradientContainer(context,
                   child: SingleChildScrollView(
-                    child:
-                        horizontal5Percent(context, child: _modulesContent()),
+                    child: horizontal5Percent(context,
+                        child: ref.read(userTypeProvider).userType ==
+                                UserTypes.student
+                            ? _studentModules()
+                            : _modulesContent()),
                   ))
             ],
           )),
+    );
+  }
+
+  //============================================================================
+  //=STUDENTS===================================================================
+  //============================================================================
+
+  Widget _studentModules() {
+    return vertical20Pix(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        _firstQuarterModules(),
+        _secondQuarterModules(),
+        _thirdQuarterModules(),
+        _fourthQuarterModules(),
+      ]),
+    );
+  }
+
+  Widget _firstQuarterModules() {
+    return vertical20Pix(
+      child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+              border: Border.all(width: 2), color: CustomColors.paleCyan),
+          padding: const EdgeInsets.all(10),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            blackInterBold('1ST QUARTER MODULES', fontSize: 20),
+            firstQuarterModuleDocs.isNotEmpty
+                ? Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: firstQuarterModuleDocs
+                        .map((moduleDoc) => moduleEntry(moduleDoc))
+                        .toList())
+                : blackInterRegular('No assigned modules for this quarter.')
+          ])),
+    );
+  }
+
+  Widget _secondQuarterModules() {
+    return vertical20Pix(
+      child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+              border: Border.all(width: 2), color: CustomColors.paleCyan),
+          padding: const EdgeInsets.all(10),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            blackInterBold('2ND QUARTER MODULES', fontSize: 20),
+            secondQuarterModuleDocs.isNotEmpty
+                ? Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: secondQuarterModuleDocs
+                        .map((moduleDoc) => moduleEntry(moduleDoc))
+                        .toList())
+                : blackInterRegular('No assigned modules for this quarter.')
+          ])),
+    );
+  }
+
+  Widget _thirdQuarterModules() {
+    return vertical20Pix(
+      child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+              border: Border.all(width: 2), color: CustomColors.paleCyan),
+          padding: const EdgeInsets.all(10),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            blackInterBold('3RD QUARTER MODULES', fontSize: 20),
+            secondQuarterModuleDocs.isNotEmpty
+                ? Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: thirdQuarterModuleDocs
+                        .map((moduleDoc) => moduleEntry(moduleDoc))
+                        .toList())
+                : blackInterRegular('No assigned modules for this quarter.')
+          ])),
+    );
+  }
+
+  Widget _fourthQuarterModules() {
+    return vertical20Pix(
+      child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+              border: Border.all(width: 2), color: CustomColors.paleCyan),
+          padding: const EdgeInsets.all(10),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            blackInterBold('4TH QUARTER MODULES', fontSize: 20),
+            fourthQuarterModuleDocs.isNotEmpty
+                ? Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: fourthQuarterModuleDocs
+                        .map((moduleDoc) => moduleEntry(moduleDoc))
+                        .toList())
+                : blackInterRegular('No assigned modules for this quarter.')
+          ])),
+    );
+  }
+
+  Widget moduleEntry(DocumentSnapshot moduleDoc) {
+    final moduleData = moduleDoc.data() as Map<dynamic, dynamic>;
+    String title = moduleData[ModuleFields.title];
+    return InkWell(
+      onTap: () => GoRouter.of(context).goNamed(GoRoutes.selectedModule,
+          pathParameters: {PathParameters.moduleID: moduleDoc.id}),
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.3,
+        decoration: BoxDecoration(
+            color: CustomColors.pearlWhite, border: Border.all(width: 2)),
+        padding: const EdgeInsets.all(10),
+        child: blackInterBold(title),
+      ),
     );
   }
 

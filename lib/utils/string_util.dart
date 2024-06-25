@@ -99,4 +99,5 @@ class PathParameters {
   static const quizID = 'quizID';
   static const studentID = 'studentID';
   static const teacherID = 'teacherID';
+  static const quizResultID = 'quizResultID';
 }

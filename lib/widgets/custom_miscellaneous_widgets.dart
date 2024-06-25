@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comprehenzone_web/providers/verification_image_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -686,4 +687,44 @@ Widget sectionsBarChart(BuildContext context,
                 fontSize: 30),
           ),
         );
+}
+
+Widget quizResultEntry(BuildContext context,
+    {required DocumentSnapshot quizResultDoc}) {
+  final quizResultData = quizResultDoc.data() as Map<dynamic, dynamic>;
+  num grade = quizResultData[QuizResultFields.grade];
+  String quizID = quizResultData[QuizResultFields.quizID];
+  return FutureBuilder(
+    future: getThisQuizDoc(quizID),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Center(child: CircularProgressIndicator());
+      } else if (!snapshot.hasData || snapshot.hasError) {
+        return const Text('Error retrieving data');
+      }
+      final quizData = snapshot.data!.data() as Map<dynamic, dynamic>;
+      String title = quizData[QuizFields.title];
+      return Container(
+        width: double.infinity,
+        height: 70,
+        decoration: BoxDecoration(border: Border.all(width: 2)),
+        padding: const EdgeInsets.all(10),
+        child: TextButton(
+          onPressed: () => GoRouter.of(context).goNamed(
+              GoRoutes.selectedQuizResult,
+              pathParameters: {PathParameters.quizResultID: quizResultDoc.id}),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                  flex: 2,
+                  child: blackInterBold(title,
+                      fontSize: 16, overflow: TextOverflow.ellipsis)),
+              Flexible(child: blackInterBold('$grade/10', fontSize: 20))
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }

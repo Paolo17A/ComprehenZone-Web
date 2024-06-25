@@ -82,7 +82,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             children: [
               ref.read(userTypeProvider).userType == UserTypes.admin
                   ? adminLeftNavigator(context, path: GoRoutes.profile)
-                  : teacherLeftNavigator(context, path: GoRoutes.profile),
+                  : ref.read(userTypeProvider).userType == UserTypes.teacher
+                      ? teacherLeftNavigator(context, path: GoRoutes.profile)
+                      : studentLeftNavigator(context, path: GoRoutes.profile),
               bodyGradientContainer(context,
                   child:
                       SingleChildScrollView(child: profileDetailsContainer()))

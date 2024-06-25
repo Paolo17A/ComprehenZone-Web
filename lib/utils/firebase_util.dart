@@ -42,15 +42,6 @@ Future logInUser(BuildContext context, WidgetRef ref,
     final userDoc = await getCurrentUserDoc();
     final userData = userDoc.data() as Map<dynamic, dynamic>;
 
-    if (userData[UserFields.userType] == UserTypes.student) {
-      await FirebaseAuth.instance.signOut();
-      scaffoldMessenger.showSnackBar(const SnackBar(
-          content: Text(
-              'Only admins and teachers may log-in to the web platform.')));
-      ref.read(loadingProvider.notifier).toggleLoading(false);
-      return;
-    }
-
     //  reset the password in firebase in case client reset it using an email link.
     if (userData[UserFields.password] != passwordController.text) {
       await FirebaseFirestore.instance
@@ -560,6 +551,15 @@ Future changeUserPassword(BuildContext context, WidgetRef ref,
   }
 }
 
+Future<List<DocumentSnapshot>> getSectionTeacherDoc(String sectionID) async {
+  final teachers = await FirebaseFirestore.instance
+      .collection(Collections.users)
+      .where(UserFields.userType, isEqualTo: UserTypes.teacher)
+      .where(UserFields.assignedSections, arrayContains: sectionID)
+      .get();
+  return teachers.docs.map((teacher) => teacher as DocumentSnapshot).toList();
+}
+
 //==============================================================================
 //SECTIONS======================================================================
 //==============================================================================
@@ -724,6 +724,16 @@ Future<List<DocumentSnapshot>> getAllUserModuleDocs() async {
           isEqualTo: FirebaseAuth.instance.currentUser!.uid)
       .get();
   return modules.docs.map((user) => user as DocumentSnapshot).toList();
+}
+
+Future<List<DocumentSnapshot>> getAllAssignedQuarterModuleDocs(
+    String teacherID, int quarter) async {
+  final modules = await FirebaseFirestore.instance
+      .collection(Collections.modules)
+      .where(ModuleFields.teacherID, isEqualTo: teacherID)
+      .where(ModuleFields.quarter, isEqualTo: quarter)
+      .get();
+  return modules.docs.map((e) => e as DocumentSnapshot).toList();
 }
 
 Future<List<DocumentSnapshot>> getTeacherModuleDocs(String teacherID) async {
@@ -952,6 +962,20 @@ Future<List<DocumentSnapshot>> getAllTeacherQuizDocs(String teacherID) async {
   return quizzes.docs.map((user) => user as DocumentSnapshot).toList();
 }
 
+Future<List<DocumentSnapshot>> getAllAssignedQuizDocs(String teacherID) async {
+  final sectionQuizzes = await FirebaseFirestore.instance
+      .collection(Collections.quizzes)
+      .where(QuizFields.teacherID, isEqualTo: teacherID)
+      .get();
+  final globalQuizzes = await FirebaseFirestore.instance
+      .collection(Collections.quizzes)
+      .where(QuizFields.isGlobal, isEqualTo: true)
+      .get();
+  return [...sectionQuizzes.docs, ...globalQuizzes.docs]
+      .map((e) => e as DocumentSnapshot)
+      .toList();
+}
+
 Future<DocumentSnapshot> getThisQuizDoc(String quizID) async {
   return await FirebaseFirestore.instance
       .collection(Collections.quizzes)
@@ -1049,6 +1073,56 @@ void editThisQuiz(BuildContext context, WidgetRef ref,
   }
 }
 
+Future<DocumentSnapshot?> getQuizResult(String quizID) async {
+  final QuerySnapshot result = await FirebaseFirestore.instance
+      .collection(Collections.quizResults)
+      .where(QuizResultFields.quizID, isEqualTo: quizID)
+      .where(QuizResultFields.studentID,
+          isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+      .limit(1)
+      .get();
+
+  if (result.docs.isNotEmpty) {
+    return result.docs.first;
+  } else {
+    return null;
+  }
+}
+
+void submitQuizAnswers(BuildContext context, WidgetRef ref,
+    {required String quizID,
+    required List<dynamic> selectedAnswers,
+    required int correctAnswers}) async {
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  final goRouter = GoRouter.of(context);
+  //final navigator = Navigator.of(context);
+  try {
+    ref.read(loadingProvider).toggleLoading(true);
+
+    final quizResultReference = await FirebaseFirestore.instance
+        .collection(Collections.quizResults)
+        .add({
+      QuizResultFields.studentID: FirebaseAuth.instance.currentUser!.uid,
+      QuizResultFields.quizID: quizID,
+      QuizResultFields.answers: selectedAnswers,
+      QuizResultFields.grade: correctAnswers,
+    });
+
+    scaffoldMessenger.showSnackBar(
+        const SnackBar(content: Text('Successfully submitted this quiz.')));
+    ref.read(loadingProvider).toggleLoading(false);
+
+    goRouter.goNamed(GoRoutes.selectedQuizResult,
+        pathParameters: {PathParameters.quizResultID: quizResultReference.id});
+    // navigator.pop();
+    // navigator.pushReplacementNamed(NavigatorRoutes.studentSubmittables);
+  } catch (error) {
+    scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('Error submitting quiz answers: $error')));
+    ref.read(loadingProvider).toggleLoading(false);
+  }
+}
+
 //==============================================================================
 //QUIZ RESULTS==================================================================
 //==============================================================================
@@ -1057,6 +1131,15 @@ Future<List<DocumentSnapshot>> getStudentQuizResults(String studentID) async {
   final quizResults = await FirebaseFirestore.instance
       .collection(Collections.quizResults)
       .where(QuizResultFields.studentID, isEqualTo: studentID)
+      .get();
+  return quizResults.docs.map((e) => e as DocumentSnapshot).toList();
+}
+
+Future<List<DocumentSnapshot>> getUserQuizResults() async {
+  final quizResults = await FirebaseFirestore.instance
+      .collection(Collections.quizResults)
+      .where(QuizResultFields.studentID,
+          isEqualTo: FirebaseAuth.instance.currentUser!.uid)
       .get();
   return quizResults.docs.map((e) => e as DocumentSnapshot).toList();
 }
