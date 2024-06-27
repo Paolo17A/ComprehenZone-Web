@@ -74,7 +74,7 @@ Widget loginFieldsContainer(BuildContext context, WidgetRef ref,
                   displayPrefixIcon: const Icon(Icons.lock)),
             ],
           )),
-          Row(
+          /*Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               TextButton(
@@ -83,7 +83,7 @@ Widget loginFieldsContainer(BuildContext context, WidgetRef ref,
                   child: blackInterRegular('Forgot Password?',
                       fontSize: 12, textDecoration: TextDecoration.underline))
             ],
-          ),
+          ),*/
           const Gap(30),
           loginButton(
               onPress: () => logInUser(context, ref,
