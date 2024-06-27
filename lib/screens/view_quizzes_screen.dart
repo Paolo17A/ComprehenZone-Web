@@ -268,7 +268,7 @@ class _ViewQuizzesScreenState extends ConsumerState<ViewQuizzesScreen> {
               )
       ], flex: 1),
       viewFlexActionsCell([
-        viewEntryButton(context, onPress: () {}),
+        //viewEntryButton(context, onPress: () {}),
         if (isGlobal)
           editEntryButton(context,
               onPress: () => GoRouter.of(context).goNamed(GoRoutes.editQuiz,

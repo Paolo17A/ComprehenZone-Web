@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../utils/delete_entry_dialog_util.dart';
 import '../utils/go_router_util.dart';
 import '../utils/string_util.dart';
 import '../widgets/custom_button_widgets.dart';
@@ -305,7 +304,7 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
           },
         )
       ], flex: 1),
-      viewFlexActionsCell([viewEntryButton(context, onPress: () {})], flex: 2)
+      //viewFlexActionsCell([viewEntryButton(context, onPress: () {})], flex: 2)
     ]);
   }
 
@@ -322,10 +321,10 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
         editEntryButton(context,
             onPress: () => GoRouter.of(context).goNamed(GoRoutes.editModule,
                 pathParameters: {PathParameters.moduleID: moduleDoc.id})),
-        deleteEntryButton(context,
+        /*deleteEntryButton(context,
             onPress: () => displayDeleteEntryDialog(context,
                 message: 'Are you sure you wish to delete this module? ',
-                deleteEntry: () {}))
+                deleteEntry: () {}))*/
       ], flex: 2)
     ]);
   }
