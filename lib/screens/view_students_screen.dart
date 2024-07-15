@@ -44,6 +44,15 @@ class _ViewStudentsScreenState extends ConsumerState<ViewStudentsScreen> {
           return;
         }
         ref.read(usersProvider).setUserDocs(await getAllStudentDocs());
+        for (var userDoc in ref.read(usersProvider).userDocs) {
+          final userData = userDoc.data() as Map<dynamic, dynamic>;
+          if (!userData.containsKey(UserFields.gradeLevel)) {
+            await FirebaseFirestore.instance
+                .collection(Collections.users)
+                .doc(userDoc.id)
+                .update({UserFields.gradeLevel: '5'});
+          }
+        }
         ref.read(loadingProvider).toggleLoading(false);
       } catch (error) {
         scaffoldMessenger.showSnackBar(
@@ -105,7 +114,7 @@ class _ViewStudentsScreenState extends ConsumerState<ViewStudentsScreen> {
   Widget _studentsLabelRow() {
     return viewContentLabelRow(context, children: [
       viewFlexLabelTextCell('Name', 2),
-      //viewFlexLabelTextCell('Verification Status', 2),
+      viewFlexLabelTextCell('Grade Level', 1),
       viewFlexLabelTextCell('Actions', 3)
     ]);
   }
@@ -125,10 +134,11 @@ class _ViewStudentsScreenState extends ConsumerState<ViewStudentsScreen> {
     final userData = userDoc.data() as Map<dynamic, dynamic>;
     String formattedName =
         '${userData[UserFields.firstName]} ${userData[UserFields.lastName]}';
-    //String verificationImage = userData[UserFields.verificationImage];
+    String gradeLevel = userData[UserFields.gradeLevel];
 
     return viewContentEntryRow(context, children: [
       viewFlexTextCell(formattedName, flex: 2),
+      viewFlexTextCell(gradeLevel, flex: 1),
       viewFlexActionsCell([
         viewEntryButton(context,
             onPress: () => GoRouter.of(context).goNamed(

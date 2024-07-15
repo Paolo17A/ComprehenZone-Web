@@ -37,6 +37,7 @@ class UserFields {
   static const String contactNumber = 'contactNumber';
   static const String assignedSections = 'assignedSections';
   static const String idNumber = 'idNumber';
+  static const String gradeLevel = 'gradeLevel';
 }
 
 class SectionFields {

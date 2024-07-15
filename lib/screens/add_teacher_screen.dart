@@ -102,7 +102,8 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
                                             firstNameController,
                                         lastNameController: lastNameController,
                                         idNumberController: idNumberController,
-                                        sectionID: selectedSectionID),
+                                        sectionID: selectedSectionID,
+                                        gradeLevel: ''),
                                     child: blackInterBold('ADD NEW TEACHER')))
                           ],
                         )),

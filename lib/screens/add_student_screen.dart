@@ -3,6 +3,7 @@ import 'package:comprehenzone_web/providers/loading_provider.dart';
 import 'package:comprehenzone_web/utils/go_router_util.dart';
 import 'package:comprehenzone_web/widgets/custom_miscellaneous_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_padding_widgets.dart';
+import 'package:comprehenzone_web/widgets/dropdown_widget.dart';
 import 'package:comprehenzone_web/widgets/left_navigator_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,6 +28,7 @@ class _AddStudentScreenState extends ConsumerState<AddStudentScreen> {
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
   final idNumberController = TextEditingController();
+  String gradeLevel = '5';
 
   List<DocumentSnapshot> sectionDocs = [];
   String selectedSectionID = '';
@@ -92,7 +94,8 @@ class _AddStudentScreenState extends ConsumerState<AddStudentScreen> {
                                             firstNameController,
                                         lastNameController: lastNameController,
                                         idNumberController: idNumberController,
-                                        sectionID: selectedSectionID),
+                                        sectionID: selectedSectionID,
+                                        gradeLevel: gradeLevel),
                                     child: blackInterBold('ADD NEW STUDENT')))
                           ],
                         )),
@@ -140,6 +143,7 @@ class _AddStudentScreenState extends ConsumerState<AddStudentScreen> {
           numberTextField(
               label: 'ID Number', textController: idNumberController),
           sectionWidget(),
+          gradeLevelDropdown()
         ],
       ),
     );
@@ -191,6 +195,24 @@ class _AddStudentScreenState extends ConsumerState<AddStudentScreen> {
               child: blackInterBold(selectedSectionName.isNotEmpty
                   ? selectedSectionName
                   : 'SELECT A SECTION')),
+        )
+      ]),
+    );
+  }
+
+  Widget gradeLevelDropdown() {
+    return all10Pix(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        blackInterBold('Grade Level', fontSize: 20),
+        Container(
+          decoration: BoxDecoration(
+              border: Border.all(), borderRadius: BorderRadius.circular(10)),
+          child: dropdownWidget(gradeLevel, (newVal) {
+            if (newVal == null) return;
+            setState(() {
+              gradeLevel = newVal;
+            });
+          }, ['5', '6'], gradeLevel, false),
         )
       ]),
     );

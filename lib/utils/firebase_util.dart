@@ -50,6 +50,14 @@ Future logInUser(BuildContext context, WidgetRef ref,
           .update({UserFields.password: passwordController.text});
     }
     ref.read(userTypeProvider).setUserType(userData[UserFields.userType]);
+
+    /*if (userData[UserFields.userType] == UserTypes.student &&
+        !userData.containsKey(UserFields.gradeLevel)) {
+      await FirebaseFirestore.instance
+          .collection(Collections.users)
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .update({UserFields.gradeLevel: '5'});
+    }*/
     ref.read(loadingProvider.notifier).toggleLoading(false);
     goRouter.goNamed(GoRoutes.home);
     goRouter.pushReplacementNamed(GoRoutes.home);
@@ -407,7 +415,8 @@ Future addNewUser(BuildContext context, WidgetRef ref,
     required TextEditingController firstNameController,
     required TextEditingController lastNameController,
     required TextEditingController idNumberController,
-    required String sectionID}) async {
+    required String sectionID,
+    required String gradeLevel}) async {
   final scaffoldMessenger = ScaffoldMessenger.of(context);
   final goRouter = GoRouter.of(context);
   try {
@@ -471,7 +480,8 @@ Future addNewUser(BuildContext context, WidgetRef ref,
       UserFields.userType: userType,
       UserFields.profileImageURL: '',
       UserFields.idNumber: idNumberController.text.trim(),
-      UserFields.assignedSections: [sectionID]
+      UserFields.assignedSections: [sectionID],
+      if (userType == UserTypes.student) UserFields.gradeLevel: gradeLevel
     });
 
     //  Log-back in to admin account
