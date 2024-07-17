@@ -481,7 +481,14 @@ Future addNewUser(BuildContext context, WidgetRef ref,
       UserFields.profileImageURL: '',
       UserFields.idNumber: idNumberController.text.trim(),
       UserFields.assignedSections: [sectionID],
-      if (userType == UserTypes.student) UserFields.gradeLevel: gradeLevel
+      if (userType == UserTypes.student) UserFields.gradeLevel: gradeLevel,
+      if (userType == UserTypes.student)
+        UserFields.moduleProgresses: {
+          'quarter1': {},
+          'quarter2': {},
+          'quarter3': {},
+          'quarter4': {}
+        }
     });
 
     //  Log-back in to admin account

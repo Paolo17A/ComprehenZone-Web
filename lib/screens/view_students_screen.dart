@@ -52,6 +52,19 @@ class _ViewStudentsScreenState extends ConsumerState<ViewStudentsScreen> {
                 .doc(userDoc.id)
                 .update({UserFields.gradeLevel: '5'});
           }
+          if (!userData.containsKey(UserFields.moduleProgresses)) {
+            await FirebaseFirestore.instance
+                .collection(Collections.users)
+                .doc(userDoc.id)
+                .update({
+              UserFields.moduleProgresses: {
+                'quarter1': {},
+                'quarter2': {},
+                'quarter3': {},
+                'quarter4': {}
+              }
+            });
+          }
         }
         ref.read(loadingProvider).toggleLoading(false);
       } catch (error) {

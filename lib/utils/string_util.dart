@@ -38,6 +38,7 @@ class UserFields {
   static const String assignedSections = 'assignedSections';
   static const String idNumber = 'idNumber';
   static const String gradeLevel = 'gradeLevel';
+  static const String moduleProgresses = 'moduleProgresses';
 }
 
 class SectionFields {
