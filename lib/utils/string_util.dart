@@ -5,6 +5,23 @@ class ImagePaths {
   static const schoolLogo = 'assets/images/school logo.jpg';
 }
 
+class DocumentPaths {
+  static const grade5quarter1Lesson1 =
+      'assets/documents/Grade5Quarter1Lesson1.pdf';
+  static const grade5quarter1Lesson2 =
+      'assets/documents/Grade5Quarter1Lesson2.pdf';
+  static const grade5quarter1Lesson3 =
+      'assets/documents/Grade5Quarter1Lesson3.pdf';
+  static const grade5quarter1Lesson4 =
+      'assets/documents/Grade5Quarter1Lesson4.pdf';
+  static const grade6quarter2Lesson1 =
+      'assets/documents/Grade6Quarter2Lesson1.pdf';
+  static const grade6quarter2Lesson2 =
+      'assets/documents/Grade6Quarter2Lesson2.pdf';
+  static const grade6quarter2Lesson3 =
+      'assets/documents/Grade6Quarter2Lesson3.pdf';
+}
+
 class StorageFields {
   static const verificationImages = 'verificationImages';
   static const profilePics = 'profilePics';
@@ -92,6 +109,12 @@ class QuizResultFields {
   static const String quizID = 'quizID';
   static const String answers = 'answers';
   static const String grade = 'grade';
+}
+
+class ModuleProgressFields {
+  static const String quarter = 'quarter';
+  static const String title = 'title';
+  static const String progress = 'progress';
 }
 
 class PathParameters {

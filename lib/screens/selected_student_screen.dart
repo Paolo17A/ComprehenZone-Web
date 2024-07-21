@@ -28,6 +28,7 @@ class _SelectedStudentScreenState extends ConsumerState<SelectedStudentScreen> {
   String sectionName = '';
   List<DocumentSnapshot> quizResultDocs = [];
   double averageGrade = 0;
+  Map<dynamic, dynamic> moduleProgresses = {};
   @override
   void initState() {
     super.initState();
@@ -41,6 +42,7 @@ class _SelectedStudentScreenState extends ConsumerState<SelectedStudentScreen> {
             '${studentData[UserFields.firstName]} ${studentData[UserFields.lastName]}';
         String sectionID =
             (studentData[UserFields.assignedSections] as List<dynamic>).first;
+        moduleProgresses = studentData[UserFields.moduleProgresses];
         if (sectionID.isNotEmpty) {
           final section = await getThisSectionDoc(sectionID);
           final sectionData = section.data() as Map<dynamic, dynamic>;
@@ -117,26 +119,72 @@ class _SelectedStudentScreenState extends ConsumerState<SelectedStudentScreen> {
           ),
           blackInterRegular(sectionName, fontSize: 24),
           const Gap(20),
-          blackInterBold('SCORES', fontSize: 30),
-          quizResultDocs.isNotEmpty
-              ? quizResults()
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    blackInterBold(
-                        'This student has not yet answered any quizzes.')
-                  ],
-                )
+          _studentScores(),
+          const Gap(24),
+          if (!ref.read(loadingProvider).isLoading) _studentModuleProgress()
         ],
       ),
     );
   }
 
-  Widget quizResults() {
+  Widget _studentScores() {
     return Column(
-        children: quizResultDocs
-            .map((quizResult) =>
-                quizResultEntry(context, quizResultDoc: quizResult))
-            .toList());
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        blackInterBold('SCORES', fontSize: 30),
+        quizResultDocs.isNotEmpty
+            ? Column(
+                children: quizResultDocs
+                    .map((quizResult) =>
+                        quizResultEntry(context, quizResultDoc: quizResult))
+                    .toList())
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  blackInterBold(
+                      'This student has not yet answered any quizzes.')
+                ],
+              )
+      ],
+    );
+  }
+
+  Widget _studentModuleProgress() {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      blackInterBold('MODULE PROGRESS', fontSize: 30),
+      _quarterModulesContainer('1st Quarter', 'quarter1'),
+      _quarterModulesContainer('2nd Quarter', 'quarter2'),
+      _quarterModulesContainer('3rd Quarter', 'quarter3'),
+      _quarterModulesContainer('4th Quarter', 'quarter4'),
+    ]);
+  }
+
+  Widget _quarterModulesContainer(String label, String quarterKey) {
+    Map<dynamic, dynamic> quarterModules = moduleProgresses[quarterKey];
+    return Container(
+      decoration: BoxDecoration(border: Border.all()),
+      padding: EdgeInsets.all(10),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SizedBox(
+            width: double.infinity,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [blackInterBold(label, fontSize: 20)],
+            )),
+        quarterModules.isNotEmpty
+            ? Column(
+                children: quarterModules.entries
+                    .map((entry) => Row(
+                          children: [
+                            blackInterBold('Module ${entry.key}: ',
+                                fontSize: 16),
+                            blackInterRegular(
+                                '\t\t\tProgress: ${((entry.value[ModuleProgressFields.progress] * 100) as double).toStringAsFixed(2)}%')
+                          ],
+                        ))
+                    .toList())
+            : blackInterRegular('This student has no progress for $label')
+      ]),
+    );
   }
 }

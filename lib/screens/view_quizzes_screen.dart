@@ -174,11 +174,15 @@ class _ViewQuizzesScreenState extends ConsumerState<ViewQuizzesScreen> {
                 pathParameters: {PathParameters.quizID: quizID});
           }
         },
-        child: Row(
-          mainAxisAlignment:
-              isDone ? MainAxisAlignment.spaceBetween : MainAxisAlignment.start,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          /*mainAxisAlignment:
+              isDone ? MainAxisAlignment.spaceBetween : MainAxisAlignment.start,*/
           children: [
-            blackInterBold(title, fontSize: 28),
+            blackInterBold(title,
+                fontSize: 28,
+                textAlign: TextAlign.left,
+                overflow: TextOverflow.ellipsis),
             if (isDone) blackInterBold('$grade/10')
           ],
         ),
