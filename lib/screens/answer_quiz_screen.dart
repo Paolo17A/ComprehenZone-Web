@@ -194,9 +194,7 @@ class _AnswerQuizScreenState extends ConsumerState<AnswerQuizScreen> {
 
   Widget _quizTitle() {
     return vertical20Pix(
-        child: Row(children: [
-      blackInterBold(title, fontSize: 28, textAlign: TextAlign.left)
-    ]));
+        child: blackInterBold(title, fontSize: 28, textAlign: TextAlign.left));
   }
 
   Widget _quizQuestionWidgets() {
@@ -227,11 +225,8 @@ class _AnswerQuizScreenState extends ConsumerState<AnswerQuizScreen> {
     return vertical10Pix(
       child: SizedBox(
         width: MediaQuery.of(context).size.width * 0.6,
-        child: Row(
-          children: [
-            blackInterRegular(question, fontSize: 20, textAlign: TextAlign.left)
-          ],
-        ),
+        child: blackInterRegular(question,
+            fontSize: 20, textAlign: TextAlign.left),
       ),
     );
   }

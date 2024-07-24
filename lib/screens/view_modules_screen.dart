@@ -46,6 +46,15 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
         ref.read(userTypeProvider).setUserType(await getCurrentUserType());
         if (ref.read(userTypeProvider).userType == UserTypes.admin) {
           ref.read(modulesProvider).setModuleDocs(await getAllModuleDocs());
+          for (var moduleDoc in ref.read(modulesProvider).moduleDocs) {
+            final moduleData = moduleDoc.data() as Map<dynamic, dynamic>;
+            if (!moduleData.containsKey(ModuleFields.gradeLevel)) {
+              await FirebaseFirestore.instance
+                  .collection(Collections.modules)
+                  .doc(moduleDoc.id)
+                  .update({ModuleFields.gradeLevel: '5'});
+            }
+          }
         } else if (ref.read(userTypeProvider).userType == UserTypes.teacher) {
           ref.read(modulesProvider).setModuleDocs(await getAllUserModuleDocs());
         } else {
@@ -259,7 +268,8 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
       viewFlexLabelTextCell('Quarter', 1),
       if (ref.read(userTypeProvider).userType == UserTypes.admin)
         viewFlexLabelTextCell('Teacher', 1),
-      viewFlexLabelTextCell('Actions', 2)
+      if (ref.read(userTypeProvider).userType == UserTypes.teacher)
+        viewFlexLabelTextCell('Actions', 2)
     ]);
   }
 

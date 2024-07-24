@@ -122,7 +122,14 @@ Future registerNewUser(BuildContext context, WidgetRef ref,
       UserFields.userType: userType,
       UserFields.profileImageURL: '',
       UserFields.idNumber: idNumberController.text.trim(),
-      UserFields.assignedSections: []
+      UserFields.assignedSections: [],
+      if (userType == UserTypes.student)
+        UserFields.moduleProgresses: {
+          'quarter1': {},
+          'quarter2': {},
+          'quarter3': {},
+          'quarter4': {}
+        }
     });
     scaffoldMessenger.showSnackBar(
         const SnackBar(content: Text('Successfully registered new user')));
@@ -775,7 +782,8 @@ void addNewModule(BuildContext context, WidgetRef ref,
     required List<String> documentNames,
     required List<TextEditingController> fileNameControllers,
     required List<TextEditingController> downloadLinkControllers,
-    required int selectedQuarter}) async {
+    required int selectedQuarter,
+    required String gradeLevel}) async {
   final scaffoldMessenger = ScaffoldMessenger.of(context);
   final goRouter = GoRouter.of(context);
 
@@ -809,7 +817,8 @@ void addNewModule(BuildContext context, WidgetRef ref,
       ModuleFields.content: contentController.text,
       ModuleFields.dateCreated: DateTime.now(),
       ModuleFields.dateLastModified: DateTime.now(),
-      ModuleFields.quarter: selectedQuarter
+      ModuleFields.quarter: selectedQuarter,
+      ModuleFields.gradeLevel: gradeLevel
     });
 
     List<Map<dynamic, dynamic>> additionalResources = [];
@@ -1002,7 +1011,8 @@ Future<DocumentSnapshot> getThisQuizDoc(String quizID) async {
 
 Future addNewQuiz(BuildContext context, WidgetRef ref,
     {required TextEditingController titleController,
-    required List<dynamic> quizQuestions}) async {
+    required List<dynamic> quizQuestions,
+    required String gradeLevel}) async {
   final scaffoldMessenger = ScaffoldMessenger.of(context);
   final goRouter = GoRouter.of(context);
   try {
@@ -1032,7 +1042,8 @@ Future addNewQuiz(BuildContext context, WidgetRef ref,
       QuizFields.dateLastModified: DateTime.now(),
       QuizFields.isGlobal:
           ref.read(userTypeProvider).userType == UserTypes.admin,
-      QuizFields.isActive: true
+      QuizFields.isActive: true,
+      QuizFields.gradeLevel: gradeLevel
     });
 
     scaffoldMessenger.showSnackBar(

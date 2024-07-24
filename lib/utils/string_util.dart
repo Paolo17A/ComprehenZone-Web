@@ -74,6 +74,7 @@ class ModuleFields {
   static const String additionalDocuments = 'additionalDocuments';
   static const String additionalResources = 'additionalResources';
   static const String quarter = 'quarter';
+  static const String gradeLevel = 'gradeLevel';
 }
 
 class AdditionalResourcesFields {
@@ -90,6 +91,8 @@ class QuizFields {
   static const String questions = 'questions';
   static const String dateCreated = 'dateCreated';
   static const String dateLastModified = 'dateLastModified';
+  static const String quarter = 'quarter';
+  static const String gradeLevel = 'gradeLevel';
 }
 
 class QuestionFields {

@@ -119,7 +119,8 @@ class _AddModuleScreenState extends ConsumerState<AddModuleScreen> {
                                       fileNameControllers: fileNameControllers,
                                       downloadLinkControllers:
                                           downloadLinkControllers,
-                                      selectedQuarter: selectedQuarter),
+                                      selectedQuarter: selectedQuarter,
+                                      gradeLevel: '5'),
                                   child: blackInterBold('ADD MODULE')))
                         ])),
                   ))

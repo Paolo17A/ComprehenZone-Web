@@ -147,7 +147,9 @@ class _AddQuizScreenState extends ConsumerState<AddQuizScreen> {
       if (currentQuestion == 10) {
         //currentQuestion--;
         addNewQuiz(context, ref,
-            titleController: _titleController, quizQuestions: quizQuestions);
+            titleController: _titleController,
+            quizQuestions: quizQuestions,
+            gradeLevel: '5');
         return;
       }
       if (currentQuestion <= quizQuestions.length - 1) {

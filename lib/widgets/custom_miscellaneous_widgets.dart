@@ -311,6 +311,7 @@ Widget viewFlexTextCell(String text,
     flex: flex,
     child: Container(
         height: 50,
+        padding: EdgeInsets.all(4),
         decoration: BoxDecoration(
             color: backgroundColor,
             border: customBorder,

@@ -9,6 +9,7 @@ import 'package:comprehenzone_web/widgets/custom_padding_widgets.dart';
 import 'package:comprehenzone_web/widgets/left_navigator_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
 import '../utils/go_router_util.dart';
@@ -42,6 +43,21 @@ class _ViewQuizzesScreenState extends ConsumerState<ViewQuizzesScreen> {
         ref.read(userTypeProvider).setUserType(await getCurrentUserType());
         if (ref.read(userTypeProvider).userType == UserTypes.admin) {
           ref.read(quizzesProvider).setQuizDocs(await getAllQuizDocs());
+          for (var quizDoc in ref.read(quizzesProvider).quizDocs) {
+            final quizData = quizDoc.data() as Map<dynamic, dynamic>;
+            if (!quizData.containsKey(QuizFields.quarter)) {
+              await FirebaseFirestore.instance
+                  .collection(Collections.quizzes)
+                  .doc(quizDoc.id)
+                  .update({QuizFields.quarter: 1});
+            }
+            if (!quizData.containsKey(QuizFields.gradeLevel)) {
+              await FirebaseFirestore.instance
+                  .collection(Collections.quizzes)
+                  .doc(quizDoc.id)
+                  .update({QuizFields.quarter: '5'});
+            }
+          }
         } else if (ref.read(userTypeProvider).userType == UserTypes.teacher) {
           ref.read(quizzesProvider).setQuizDocs(await getAllUserQuizDocs());
         } else {
@@ -183,7 +199,10 @@ class _ViewQuizzesScreenState extends ConsumerState<ViewQuizzesScreen> {
                 fontSize: 28,
                 textAlign: TextAlign.left,
                 overflow: TextOverflow.ellipsis),
-            if (isDone) blackInterBold('$grade/10')
+            if (isDone)
+              SizedBox(height: 16, child: blackInterBold('$grade/10'))
+            else
+              Gap(16)
           ],
         ),
       ),
@@ -225,8 +244,8 @@ class _ViewQuizzesScreenState extends ConsumerState<ViewQuizzesScreen> {
       viewFlexLabelTextCell('Title', 2),
       viewFlexLabelTextCell('Quiz Type', 1),
       if (ref.read(userTypeProvider).userType == UserTypes.admin)
-        viewFlexLabelTextCell('Teacher', 1),
-      viewFlexLabelTextCell('Actions', 2)
+        viewFlexLabelTextCell('Teacher', 2),
+      viewFlexLabelTextCell('Actions', 1)
     ]);
   }
 
@@ -256,7 +275,7 @@ class _ViewQuizzesScreenState extends ConsumerState<ViewQuizzesScreen> {
       viewFlexTextCell(quizType, flex: 1),
       viewFlexActionsCell([
         isGlobal
-            ? blackInterBold('GLOBAL QUIZ', fontSize: 20)
+            ? blackInterBold('GLOBAL QUIZ', fontSize: 18)
             : FutureBuilder(
                 future: getThisUserDoc(teacherID),
                 builder: (context, snapshot) {
@@ -267,17 +286,17 @@ class _ViewQuizzesScreenState extends ConsumerState<ViewQuizzesScreen> {
                       snapshot.data!.data() as Map<dynamic, dynamic>;
                   String formattedName =
                       '${teacherData[UserFields.firstName]} ${teacherData[UserFields.lastName]}';
-                  return blackInterBold(formattedName, fontSize: 20);
+                  return blackInterBold(formattedName,
+                      fontSize: 18, overflow: TextOverflow.ellipsis);
                 },
               )
-      ], flex: 1),
+      ], flex: 2),
       viewFlexActionsCell([
-        //viewEntryButton(context, onPress: () {}),
         if (isGlobal)
           editEntryButton(context,
               onPress: () => GoRouter.of(context).goNamed(GoRoutes.editQuiz,
                   pathParameters: {PathParameters.quizID: quizDoc.id})),
-      ], flex: 2)
+      ], flex: 1)
     ]);
   }
 
