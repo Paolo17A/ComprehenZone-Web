@@ -14,6 +14,7 @@ import 'package:comprehenzone_web/screens/selected_quiz_result_screen.dart';
 import 'package:comprehenzone_web/screens/selected_section_screen.dart';
 import 'package:comprehenzone_web/screens/selected_student_screen.dart';
 import 'package:comprehenzone_web/screens/selected_teacher_screen.dart';
+import 'package:comprehenzone_web/screens/speech_result_screen.dart';
 import 'package:comprehenzone_web/screens/view_modules_screen.dart';
 import 'package:comprehenzone_web/screens/view_quizzes_screen.dart';
 import 'package:comprehenzone_web/screens/view_sections_screen.dart';
@@ -47,6 +48,7 @@ class GoRoutes {
   static const editSelectedProfile = 'editSelectedProfile';
   static const answerQuiz = 'answerQuiz';
   static const selectedQuizResult = 'selectedQuizResult';
+  static const selectedSpeechResult = 'selectedSpeechResult';
 }
 
 final goRoutes = GoRouter(initialLocation: GoRoutes.home, routes: [
@@ -185,6 +187,16 @@ final goRoutes = GoRouter(initialLocation: GoRoutes.home, routes: [
                 SelectedQuizResultScreen(
                     quizResultID:
                         state.pathParameters[PathParameters.quizResultID]!))),
+        GoRoute(
+            name: GoRoutes.selectedSpeechResult,
+            path:
+                '${GoRoutes.selectedSpeechResult}/:${PathParameters.speechResultID}',
+            pageBuilder: (context, state) => customTransition(
+                context,
+                state,
+                SpeechResultScreen(
+                    speechResultID:
+                        state.pathParameters[PathParameters.speechResultID]!))),
         GoRoute(
             name: GoRoutes.answerQuiz,
             path: '${GoRoutes.answerQuiz}/:${PathParameters.quizID}',

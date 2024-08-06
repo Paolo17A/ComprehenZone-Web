@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:comprehenzone_web/models/speech_model.dart';
 import 'package:comprehenzone_web/providers/verification_image_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +11,7 @@ import '../models/section_model.dart';
 import '../utils/color_util.dart';
 import '../utils/firebase_util.dart';
 import '../utils/go_router_util.dart';
+import '../utils/numbers_util.dart';
 import '../utils/string_util.dart';
 import 'custom_button_widgets.dart';
 import 'custom_padding_widgets.dart';
@@ -74,29 +76,11 @@ Widget loginFieldsContainer(BuildContext context, WidgetRef ref,
                   displayPrefixIcon: const Icon(Icons.lock)),
             ],
           )),
-          /*Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TextButton(
-                  onPressed: () =>
-                      GoRouter.of(context).goNamed(GoRoutes.forgotPassword),
-                  child: blackInterRegular('Forgot Password?',
-                      fontSize: 12, textDecoration: TextDecoration.underline))
-            ],
-          ),*/
           const Gap(30),
           loginButton(
               onPress: () => logInUser(context, ref,
                   emailController: emailController,
                   passwordController: passwordController)),
-          /*Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            blackInterRegular('Don\'t have an account?', fontSize: 12),
-            TextButton(
-                onPressed: () =>
-                    GoRouter.of(context).goNamed(GoRoutes.register),
-                child: blackInterRegular('REGISTER',
-                    fontSize: 12, textDecoration: TextDecoration.underline))
-          ])*/
         ],
       ));
 }
@@ -727,5 +711,34 @@ Widget quizResultEntry(BuildContext context,
         ),
       );
     },
+  );
+}
+
+Widget speechResultEntry(
+    BuildContext context, DocumentSnapshot speechResultDoc) {
+  final speechResultData = speechResultDoc.data() as Map<dynamic, dynamic>;
+  List<dynamic> speechResults =
+      speechResultData[SpeechResultFields.speechResults];
+  int speechIndex = speechResultData[SpeechResultFields.speechIndex];
+  return Container(
+    width: double.infinity,
+    decoration: BoxDecoration(border: Border.all()),
+    padding: EdgeInsets.all(10),
+    child: TextButton(
+      onPressed: () => GoRouter.of(context).goNamed(
+          GoRoutes.selectedSpeechResult,
+          pathParameters: {PathParameters.speechResultID: speechResultDoc.id}),
+      child: Row(
+        children: [
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            blackInterBold(getSpeeechByIndex(speechIndex)!.category,
+                fontSize: 20),
+            blackInterRegular(
+                '${calculateAverageConfidence(speechResults).toStringAsFixed(2)}%',
+                fontSize: 16)
+          ]),
+        ],
+      ),
+    ),
   );
 }

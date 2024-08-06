@@ -65,6 +65,12 @@ class _ViewStudentsScreenState extends ConsumerState<ViewStudentsScreen> {
               }
             });
           }
+          if (!userData.containsKey(UserFields.speechIndex)) {
+            await FirebaseFirestore.instance
+                .collection(Collections.users)
+                .doc(userDoc.id)
+                .update({UserFields.speechIndex: 1});
+          }
         }
         ref.read(loadingProvider).toggleLoading(false);
       } catch (error) {

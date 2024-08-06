@@ -495,7 +495,8 @@ Future addNewUser(BuildContext context, WidgetRef ref,
           'quarter2': {},
           'quarter3': {},
           'quarter4': {}
-        }
+        },
+      if (userType == UserTypes.student) UserFields.speechIndex: 1
     });
 
     //  Log-back in to admin account
@@ -1183,4 +1184,23 @@ Future<double?> getStudentGradeAverage(String studentID) async {
     sum += quizResultData[QuizResultFields.grade];
   }
   return sum / quizResults.length;
+}
+
+//==============================================================================
+//SPEECH RESULTS================================================================
+//==============================================================================
+Future<List<DocumentSnapshot>> getStudentSpeechResults(String studentID) async {
+  final speechResults = await FirebaseFirestore.instance
+      .collection(Collections.speechResults)
+      .where(SpeechResultFields.studentID, isEqualTo: studentID)
+      .get();
+
+  return speechResults.docs;
+}
+
+Future<DocumentSnapshot> getThisSpeechResult(String speechResultID) async {
+  return await FirebaseFirestore.instance
+      .collection(Collections.speechResults)
+      .doc(speechResultID)
+      .get();
 }

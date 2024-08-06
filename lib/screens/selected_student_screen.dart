@@ -27,6 +27,7 @@ class _SelectedStudentScreenState extends ConsumerState<SelectedStudentScreen> {
   String formattedName = '';
   String sectionName = '';
   List<DocumentSnapshot> quizResultDocs = [];
+  List<DocumentSnapshot> speechResultDocs = [];
   double averageGrade = 0;
   Map<dynamic, dynamic> moduleProgresses = {};
   @override
@@ -55,6 +56,13 @@ class _SelectedStudentScreenState extends ConsumerState<SelectedStudentScreen> {
           sum += quizResultData[QuizResultFields.grade];
         }
         averageGrade = (sum / quizResultDocs.length) * 10;
+        speechResultDocs = await getStudentSpeechResults(widget.studentID);
+        speechResultDocs.sort((a, b) {
+          final aData = a.data() as Map<dynamic, dynamic>;
+          final bData = b.data() as Map<dynamic, dynamic>;
+          return (aData[SpeechResultFields.speechIndex] as num)
+              .compareTo(bData[SpeechResultFields.speechIndex] as num);
+        });
         ref.read(loadingProvider).toggleLoading(false);
       } catch (error) {
         scaffoldMessenger.showSnackBar(SnackBar(
@@ -118,35 +126,53 @@ class _SelectedStudentScreenState extends ConsumerState<SelectedStudentScreen> {
             ],
           ),
           blackInterRegular(sectionName, fontSize: 24),
-          const Gap(20),
-          _studentScores(),
-          const Gap(24),
-          if (!ref.read(loadingProvider).isLoading) _studentModuleProgress()
+          _quizScores(),
+          _speechScores(),
+          const Gap(4),
+          if (!ref.read(loadingProvider).isLoading) _studentModuleProgress(),
         ],
       ),
     );
   }
 
-  Widget _studentScores() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        blackInterBold('SCORES', fontSize: 30),
-        quizResultDocs.isNotEmpty
-            ? Column(
-                children: quizResultDocs
-                    .map((quizResult) =>
-                        quizResultEntry(context, quizResultDoc: quizResult))
-                    .toList())
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+  Widget _quizScores() {
+    return vertical20Pix(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          blackInterBold('QUIZ SCORES', fontSize: 30),
+          quizResultDocs.isNotEmpty
+              ? Column(
+                  children: quizResultDocs
+                      .map((quizResult) =>
+                          quizResultEntry(context, quizResultDoc: quizResult))
+                      .toList())
+              : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   blackInterBold(
                       'This student has not yet answered any quizzes.')
-                ],
-              )
-      ],
+                ])
+        ],
+      ),
     );
+  }
+
+  Widget _speechScores() {
+    return vertical20Pix(
+        child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        blackInterBold('SPEECH SCORES', fontSize: 30),
+        speechResultDocs.isNotEmpty
+            ? Column(
+                children: speechResultDocs
+                    .map((speechResultDoc) =>
+                        speechResultEntry(context, speechResultDoc))
+                    .toList())
+            : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                blackInterBold('This student has not yet taken any oral tests.')
+              ])
+      ],
+    ));
   }
 
   Widget _studentModuleProgress() {

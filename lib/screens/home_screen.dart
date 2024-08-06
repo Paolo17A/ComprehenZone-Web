@@ -4,6 +4,7 @@ import 'package:comprehenzone_web/providers/loading_provider.dart';
 import 'package:comprehenzone_web/providers/user_type_provider.dart';
 import 'package:comprehenzone_web/utils/string_util.dart';
 import 'package:comprehenzone_web/widgets/custom_miscellaneous_widgets.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -34,6 +35,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   String formattedName = '';
   String sectionName = '';
   List<DocumentSnapshot> quizResultDocs = [];
+  List<DocumentSnapshot> speechResultDocs = [];
+
   double averageGrade = 0;
 
   @override
@@ -98,6 +101,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             sum += quizResultData[QuizResultFields.grade];
           }
           averageGrade = (sum / quizResultDocs.length) * 10;
+          speechResultDocs = await getStudentSpeechResults(
+              FirebaseAuth.instance.currentUser!.uid);
+          speechResultDocs.sort((a, b) {
+            final aData = a.data() as Map<dynamic, dynamic>;
+            final bData = b.data() as Map<dynamic, dynamic>;
+            return (aData[SpeechResultFields.speechIndex] as num)
+                .compareTo(bData[SpeechResultFields.speechIndex] as num);
+          });
         }
         ref.read(loadingProvider).toggleLoading(false);
       } catch (error) {
@@ -231,7 +242,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             blackInterRegular('Your Section: $sectionName', fontSize: 24),
             const Gap(20),
-            blackInterBold('SCORES', fontSize: 30),
+            blackInterBold('QUIZ SCORES', fontSize: 30),
             quizResultDocs.isNotEmpty
                 ? Column(
                     children: quizResultDocs
@@ -243,7 +254,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     children: [
                       blackInterBold('You have not yet answered any quizzes.')
                     ],
-                  )
+                  ),
+            vertical20Pix(
+                child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                blackInterBold('SPEECH SCORES', fontSize: 30),
+                speechResultDocs.isNotEmpty
+                    ? Column(
+                        children: speechResultDocs
+                            .map((speechResultDoc) =>
+                                speechResultEntry(context, speechResultDoc))
+                            .toList())
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                            blackInterBold(
+                                'This student has not yet taken any oral tests.')
+                          ])
+              ],
+            ))
           ],
         ),
       ),
