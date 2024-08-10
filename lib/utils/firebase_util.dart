@@ -49,15 +49,13 @@ Future logInUser(BuildContext context, WidgetRef ref,
           .doc(FirebaseAuth.instance.currentUser!.uid)
           .update({UserFields.password: passwordController.text});
     }
-    ref.read(userTypeProvider).setUserType(userData[UserFields.userType]);
-
-    /*if (userData[UserFields.userType] == UserTypes.student &&
-        !userData.containsKey(UserFields.gradeLevel)) {
+    if (userData[UserFields.email] != emailController.text) {
       await FirebaseFirestore.instance
           .collection(Collections.users)
           .doc(FirebaseAuth.instance.currentUser!.uid)
-          .update({UserFields.gradeLevel: '5'});
-    }*/
+          .update({UserFields.email: emailController.text});
+    }
+    ref.read(userTypeProvider).setUserType(userData[UserFields.userType]);
     ref.read(loadingProvider.notifier).toggleLoading(false);
     goRouter.goNamed(GoRoutes.home);
     goRouter.pushReplacementNamed(GoRoutes.home);
@@ -176,87 +174,6 @@ Future<List<DocumentSnapshot>> getAllStudentDocs() async {
   return users.docs.map((user) => user as DocumentSnapshot).toList();
 }
 
-/*Future approveThisUserRegistration(BuildContext context, WidgetRef ref,
-    {required String userID, required String userType}) async {
-  final scaffoldMessenger = ScaffoldMessenger.of(context);
-  try {
-    ref.read(loadingProvider).toggleLoading(true);
-    await FirebaseFirestore.instance
-        .collection(Collections.users)
-        .doc(userID)
-        .update({UserFields.isVerified: true});
-    scaffoldMessenger.showSnackBar(const SnackBar(
-        content: Text('Successfully approved this user\'s registration.')));
-    ref.read(usersProvider).setUserDocs(userType == UserTypes.teacher
-        ? await getAllTeacherDocs()
-        : await getAllStudentDocs());
-    ref.read(loadingProvider.notifier).toggleLoading(false);
-  } catch (error) {
-    scaffoldMessenger.showSnackBar(SnackBar(
-        content: Text('Error approving this user\'s registration.: $error')));
-    ref.read(loadingProvider).toggleLoading(false);
-  }
-}
-
-Future denyThisUserRegistration(BuildContext context, WidgetRef ref,
-    {required String userID, required String userType}) async {
-  final scaffoldMessenger = ScaffoldMessenger.of(context);
-  try {
-    ref.read(loadingProvider).toggleLoading(true);
-
-    //  Store admin's current data locally then sign out
-    final currentUser = await FirebaseFirestore.instance
-        .collection(Collections.users)
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .get();
-    final currentUserData = currentUser.data() as Map<dynamic, dynamic>;
-    String userEmail = currentUserData[UserFields.email];
-    String userPassword = currentUserData[UserFields.password];
-    await FirebaseAuth.instance.signOut();
-
-    //  Log-in to the collector account to be deleted
-    final collector = await FirebaseFirestore.instance
-        .collection(Collections.users)
-        .doc(userID)
-        .get();
-    final collectorData = collector.data() as Map<dynamic, dynamic>;
-    String collectorEmail = collectorData[UserFields.email];
-    String collectorPassword = collectorData[UserFields.password];
-    final collectorToDelete = await FirebaseAuth.instance
-        .signInWithEmailAndPassword(
-            email: collectorEmail, password: collectorPassword);
-    await collectorToDelete.user!.delete();
-
-    //  Log-back in to admin account
-    await FirebaseAuth.instance
-        .signInWithEmailAndPassword(email: userEmail, password: userPassword);
-
-    //  Delete valid IDs from Firebase Storage
-    await FirebaseStorage.instance
-        .ref()
-        .child(StorageFields.verificationImages)
-        .child(FirebaseAuth.instance.currentUser!.uid)
-        .child('${FirebaseAuth.instance.currentUser!.uid}.png')
-        .delete();
-
-    //  Delete collector document from users Firestore collection
-    await FirebaseFirestore.instance
-        .collection(Collections.users)
-        .doc(userID)
-        .delete();
-    scaffoldMessenger.showSnackBar(const SnackBar(
-        content: Text('Successfully denied this user\'s registration.')));
-    ref.read(usersProvider).setUserDocs(userType == UserTypes.teacher
-        ? await getAllTeacherDocs()
-        : await getAllStudentDocs());
-    ref.read(loadingProvider.notifier).toggleLoading(false);
-  } catch (error) {
-    scaffoldMessenger.showSnackBar(SnackBar(
-        content: Text('Error denying this user\'s registration: $error')));
-    ref.read(loadingProvider).toggleLoading(false);
-  }
-}*/
-
 Future<List<DocumentSnapshot>> getSectionStudentDocs(String sectionID) async {
   final students = await FirebaseFirestore.instance
       .collection(Collections.users)
@@ -357,10 +274,13 @@ Future<void> removeProfilePic(BuildContext context, WidgetRef ref) async {
 
 Future editClientProfile(BuildContext context, WidgetRef ref,
     {required TextEditingController firstNameController,
-    required TextEditingController lastNameController}) async {
+    required TextEditingController lastNameController,
+    required TextEditingController emailController}) async {
   final scaffoldMessenger = ScaffoldMessenger.of(context);
   final goRouter = GoRouter.of(context);
-  if (firstNameController.text.isEmpty || lastNameController.text.isEmpty) {
+  if (firstNameController.text.isEmpty ||
+      lastNameController.text.isEmpty ||
+      emailController.text.isEmpty) {
     scaffoldMessenger.showSnackBar(
         const SnackBar(content: Text('Please fill up all given fields.')));
     return;
@@ -374,6 +294,17 @@ Future editClientProfile(BuildContext context, WidgetRef ref,
       UserFields.firstName: firstNameController.text.trim(),
       UserFields.lastName: lastNameController.text.trim(),
     });
+
+    final userDoc = await getCurrentUserDoc();
+    final userData = userDoc.data() as Map<dynamic, dynamic>;
+    if (emailController.text != userData[UserFields.email]) {
+      await FirebaseAuth.instance.currentUser!
+          .verifyBeforeUpdateEmail(emailController.text.trim());
+
+      scaffoldMessenger.showSnackBar(SnackBar(
+          content: Text(
+              'A verification email has been sent to the new email address')));
+    }
     ref.read(loadingProvider.notifier).toggleLoading(false);
     goRouter.goNamed(GoRoutes.profile);
   } catch (error) {

@@ -22,6 +22,7 @@ class EditProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
+  final emailController = TextEditingController();
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
 
@@ -92,6 +93,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   ],
                                 ),
                                 _editProfileHeader(),
+                                _emailNameControllerWidget(),
                                 _firstNameControllerWidget(),
                                 _lasttNameControllerWidget(),
                               ],
@@ -100,7 +102,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 label: 'SAVE CHANGES',
                                 onPress: () => editClientProfile(context, ref,
                                     firstNameController: firstNameController,
-                                    lastNameController: lastNameController))
+                                    lastNameController: lastNameController,
+                                    emailController: emailController))
                           ],
                         ),
                       ),
@@ -117,21 +120,48 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     return blackInterBold('EDIT PROFILE', fontSize: 50);
   }
 
+  Widget _emailNameControllerWidget() {
+    return vertical20Pix(
+        child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        blackInterBold('Email Address', fontSize: 20),
+        CustomTextField(
+            text: 'Email Address',
+            controller: emailController,
+            textInputType: TextInputType.emailAddress,
+            displayPrefixIcon: const Icon(Icons.email)),
+      ],
+    ));
+  }
+
   Widget _firstNameControllerWidget() {
     return vertical20Pix(
-        child: CustomTextField(
+        child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        blackInterBold('First Name', fontSize: 20),
+        CustomTextField(
             text: 'First Name',
             controller: firstNameController,
             textInputType: TextInputType.name,
-            displayPrefixIcon: const Icon(Icons.person)));
+            displayPrefixIcon: const Icon(Icons.person)),
+      ],
+    ));
   }
 
   Widget _lasttNameControllerWidget() {
     return vertical20Pix(
-        child: CustomTextField(
+        child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        blackInterBold('Last Name', fontSize: 20),
+        CustomTextField(
             text: 'Last Name',
             controller: lastNameController,
             textInputType: TextInputType.name,
-            displayPrefixIcon: const Icon(Icons.person)));
+            displayPrefixIcon: const Icon(Icons.person)),
+      ],
+    ));
   }
 }

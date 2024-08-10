@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comprehenzone_web/providers/loading_provider.dart';
+import 'package:comprehenzone_web/providers/user_type_provider.dart';
 import 'package:comprehenzone_web/utils/go_router_util.dart';
 import 'package:comprehenzone_web/widgets/custom_miscellaneous_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_padding_widgets.dart';
@@ -28,6 +29,7 @@ class SelectedQuizResultScreen extends ConsumerStatefulWidget {
 class _SelectedQuizResultScreenState
     extends ConsumerState<SelectedQuizResultScreen> {
   num grade = 0;
+  String studentID = '';
   List<dynamic> userAnswers = [];
   String quizTitle = '';
   List<dynamic> quizQuestions = [];
@@ -45,6 +47,9 @@ class _SelectedQuizResultScreenState
           goRouter.goNamed(GoRoutes.home);
           return;
         }
+        final userDoc = await getCurrentUserDoc();
+        final userData = userDoc.data() as Map<dynamic, dynamic>;
+        ref.read(userTypeProvider).setUserType(userData[UserFields.userType]);
         final quizResult = await FirebaseFirestore.instance
             .collection(Collections.quizResults)
             .doc(widget.quizResultID)
@@ -52,6 +57,7 @@ class _SelectedQuizResultScreenState
         final quizResultData = quizResult.data() as Map<dynamic, dynamic>;
         grade = quizResultData[QuizResultFields.grade];
         userAnswers = quizResultData[QuizResultFields.answers];
+        studentID = quizResultData[QuizResultFields.studentID];
         String quizID = quizResultData[QuizResultFields.quizID];
 
         //  Get Quiz Data
@@ -75,6 +81,7 @@ class _SelectedQuizResultScreenState
   @override
   Widget build(BuildContext context) {
     ref.watch(loadingProvider);
+    ref.watch(userTypeProvider);
     return Scaffold(
         body: switchedLoadingContainer(
             ref.read(loadingProvider).isLoading,
@@ -100,7 +107,14 @@ class _SelectedQuizResultScreenState
     return Row(children: [
       all20Pix(
           child: ElevatedButton(
-              onPressed: () => GoRouter.of(context).goNamed(GoRoutes.quizzes),
+              onPressed: () {
+                if (ref.read(userTypeProvider).userType == UserTypes.student) {
+                  GoRouter.of(context).goNamed(GoRoutes.quizzes);
+                } else {
+                  GoRouter.of(context).goNamed(GoRoutes.selectedStudent,
+                      pathParameters: {PathParameters.studentID: studentID});
+                }
+              },
               style: ElevatedButton.styleFrom(
                   backgroundColor: CustomColors.midnightBlue),
               child: whiteInterBold('BACK')))

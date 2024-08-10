@@ -25,6 +25,7 @@ class SpeechResultScreen extends ConsumerStatefulWidget {
 
 class _SpeechResultScreenState extends ConsumerState<SpeechResultScreen> {
   String userType = UserTypes.admin;
+  String studentID = '';
   List<dynamic> sentenceResults = [];
   int speechIndex = 0;
   @override
@@ -38,12 +39,14 @@ class _SpeechResultScreenState extends ConsumerState<SpeechResultScreen> {
         final userDoc = await getCurrentUserDoc();
         final userData = userDoc.data() as Map<dynamic, dynamic>;
         userType = userData[UserFields.userType];
+
         final speechResultDoc =
             await getThisSpeechResult(widget.speechResultID);
         final speechResultData =
             speechResultDoc.data() as Map<dynamic, dynamic>;
         speechIndex = speechResultData[SpeechResultFields.speechIndex];
         sentenceResults = speechResultData[SpeechResultFields.speechResults];
+        studentID = speechResultData[SpeechResultFields.studentID];
         ref.read(loadingProvider).toggleLoading(false);
       } catch (error) {
         scaffoldMessenger.showSnackBar(
@@ -166,7 +169,15 @@ class _SpeechResultScreenState extends ConsumerState<SpeechResultScreen> {
   Widget _backButton() {
     return vertical10Pix(
       child: ElevatedButton(
-          onPressed: () => GoRouter.of(context).goNamed(GoRoutes.home),
+          onPressed: () {
+            if (userType == UserTypes.student) {
+              GoRouter.of(context).goNamed(GoRoutes.home);
+            } else {
+              GoRouter.of(context).goNamed(GoRoutes.selectedStudent,
+                  pathParameters: {PathParameters.studentID: studentID});
+            }
+            GoRouter.of(context).goNamed(GoRoutes.home);
+          },
           style: ElevatedButton.styleFrom(
               backgroundColor: CustomColors.midnightBlue),
           child: whiteInterBold('BACK')),

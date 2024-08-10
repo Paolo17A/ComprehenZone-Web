@@ -314,7 +314,6 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
           },
         )
       ], flex: 1),
-      //viewFlexActionsCell([viewEntryButton(context, onPress: () {})], flex: 2)
     ]);
   }
 
@@ -331,10 +330,6 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
         editEntryButton(context,
             onPress: () => GoRouter.of(context).goNamed(GoRoutes.editModule,
                 pathParameters: {PathParameters.moduleID: moduleDoc.id})),
-        /*deleteEntryButton(context,
-            onPress: () => displayDeleteEntryDialog(context,
-                message: 'Are you sure you wish to delete this module? ',
-                deleteEntry: () {}))*/
       ], flex: 2)
     ]);
   }

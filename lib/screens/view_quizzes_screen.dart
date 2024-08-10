@@ -179,13 +179,10 @@ class _ViewQuizzesScreenState extends ConsumerState<ViewQuizzesScreen> {
         onPressed: () {
           if (isDone) {
             print('VIEW RESULTS');
-            /*NavigatorRoutes.selectedQuizResult(context,
-                quizResultID: quizResultID);*/
             GoRouter.of(context).goNamed(GoRoutes.selectedQuizResult,
                 pathParameters: {PathParameters.quizResultID: quizResultID});
           } else {
             print('WILL ANSWER PALANG');
-            //NavigatorRoutes.answerQuiz(context, quizID: quizID);
             GoRouter.of(context).goNamed(GoRoutes.answerQuiz,
                 pathParameters: {PathParameters.quizID: quizID});
           }
