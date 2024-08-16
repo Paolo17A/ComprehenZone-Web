@@ -7,19 +7,19 @@ class ImagePaths {
 
 class DocumentPaths {
   static const grade5quarter1Lesson1 =
-      'assets/documents/Grade5Quarter1Lesson1.pdf';
+      'assets/images/modules/Grade5Quarter1Lesson1/';
   static const grade5quarter1Lesson2 =
-      'assets/documents/Grade5Quarter1Lesson2.pdf';
+      'assets/images/modules/Grade5Quarter1Lesson2/';
   static const grade5quarter1Lesson3 =
-      'assets/documents/Grade5Quarter1Lesson3.pdf';
+      'assets/images/modules/Grade5Quarter1Lesson3/';
   static const grade5quarter1Lesson4 =
-      'assets/documents/Grade5Quarter1Lesson4.pdf';
+      'assets/images/modules/Grade5Quarter1Lesson4/';
   static const grade6quarter2Lesson1 =
-      'assets/documents/Grade6Quarter2Lesson1.pdf';
+      'assets/images/modules/Grade6Quarter2Lesson1/';
   static const grade6quarter2Lesson2 =
-      'assets/documents/Grade6Quarter2Lesson2.pdf';
+      'assets/images/modules/Grade6Quarter2Lesson2/';
   static const grade6quarter2Lesson3 =
-      'assets/documents/Grade6Quarter2Lesson3.pdf';
+      'assets/images/modules/Grade6Quarter2Lesson3/';
 }
 
 class StorageFields {
@@ -144,4 +144,7 @@ class PathParameters {
   static const teacherID = 'teacherID';
   static const quizResultID = 'quizResultID';
   static const speechResultID = 'speechResultID';
+  static const quarter = 'quarter';
+  static const index = 'index';
+  static const documentPath = 'documentPath';
 }

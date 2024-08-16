@@ -9,6 +9,7 @@ import 'package:comprehenzone_web/screens/edit_quiz_screen.dart';
 import 'package:comprehenzone_web/screens/edit_selected_profile_screen.dart';
 import 'package:comprehenzone_web/screens/home_screen.dart';
 import 'package:comprehenzone_web/screens/profile_screen.dart';
+import 'package:comprehenzone_web/screens/selected_global_module_screen.dart';
 import 'package:comprehenzone_web/screens/selected_module_screen.dart';
 import 'package:comprehenzone_web/screens/selected_quiz_result_screen.dart';
 import 'package:comprehenzone_web/screens/selected_section_screen.dart';
@@ -40,6 +41,7 @@ class GoRoutes {
   static const addModule = 'addModule';
   static const editModule = 'editModule';
   static const selectedModule = 'selectedModule';
+  static const selectedGlobalModule = 'selectedGlobalModule';
   static const quizzes = 'quizzes';
   static const addQuiz = 'addQuiz';
   static const editQuiz = 'editQuiz';
@@ -141,6 +143,16 @@ final goRoutes = GoRouter(initialLocation: GoRoutes.home, routes: [
                 state,
                 SelectedModuleScreen(
                     moduleID: state.pathParameters[PathParameters.moduleID]!))),
+        GoRoute(
+            name: GoRoutes.selectedGlobalModule,
+            path:
+                '${GoRoutes.modules}/global/:${PathParameters.index}/:${PathParameters.quarter}',
+            pageBuilder: (context, state) => customTransition(
+                context,
+                state,
+                SelectedGlobalModuleScreen(
+                    index: state.pathParameters[PathParameters.index]!,
+                    quarter: state.pathParameters[PathParameters.quarter]!))),
         GoRoute(
             name: GoRoutes.quizzes,
             path: GoRoutes.quizzes,
