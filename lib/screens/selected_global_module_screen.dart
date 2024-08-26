@@ -73,15 +73,42 @@ class _SelectedGlobalModuleScreenState
               .update({UserFields.moduleProgresses: moduleProgresses});
         }
         ModulesModel? currentModel;
-
-        if (widget.quarter == '1') {
-          currentModel = Grade5Quarter1Modules.where(
-                  (element) => element.index.toString() == widget.index)
-              .firstOrNull;
-        } else if (widget.quarter == '2') {
-          currentModel = Grade6Quarter2Modules.where(
-                  (element) => element.index.toString() == widget.index)
-              .firstOrNull;
+        if (gradeLevel == '5') {
+          if (widget.quarter == '1') {
+            currentModel = Grade5Quarter1Modules.where(
+                    (element) => element.index.toString() == widget.index)
+                .firstOrNull;
+          } else if (widget.quarter == '2') {
+            currentModel = Grade5Quarter2Modules.where(
+                    (element) => element.index.toString() == widget.index)
+                .firstOrNull;
+          } else if (widget.quarter == '3') {
+            currentModel = Grade5Quarter3Modules.where(
+                    (element) => element.index.toString() == widget.index)
+                .firstOrNull;
+          } else if (widget.quarter == '4') {
+            currentModel = Grade5Quarter4Modules.where(
+                    (element) => element.index.toString() == widget.index)
+                .firstOrNull;
+          }
+        } else if (gradeLevel == '6') {
+          if (widget.quarter == '1') {
+            currentModel = Grade6Quarter1Modules.where(
+                    (element) => element.index.toString() == widget.index)
+                .firstOrNull;
+          } else if (widget.quarter == '2') {
+            currentModel = Grade6Quarter2Modules.where(
+                    (element) => element.index.toString() == widget.index)
+                .firstOrNull;
+          } else if (widget.quarter == '3') {
+            currentModel = Grade6Quarter3Modules.where(
+                    (element) => element.index.toString() == widget.index)
+                .firstOrNull;
+          } else if (widget.quarter == '4') {
+            currentModel = Grade6Quarter4Modules.where(
+                    (element) => element.index.toString() == widget.index)
+                .firstOrNull;
+          }
         }
 
         if (currentModel == null) {

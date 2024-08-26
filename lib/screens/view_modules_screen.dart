@@ -28,6 +28,7 @@ class ViewModulesScreen extends ConsumerStatefulWidget {
 }
 
 class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
+  String gradeLevel = '5';
   List<DocumentSnapshot> firstQuarterModuleDocs = [];
   List<DocumentSnapshot> secondQuarterModuleDocs = [];
   List<DocumentSnapshot> thirdQuarterModuleDocs = [];
@@ -64,6 +65,7 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
         } else {
           final user = await getCurrentUserDoc();
           final userData = user.data() as Map<dynamic, dynamic>;
+          gradeLevel = userData[UserFields.gradeLevel];
           List<dynamic> assignedSections =
               userData[UserFields.assignedSections];
           List<DocumentSnapshot> teacherDocs =
@@ -135,7 +137,8 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
     return _quarterModulesTemplate(
         label: '1ST QUARTER MODULES',
         quarterModuleDocs: firstQuarterModuleDocs,
-        moduleModels: Grade5Quarter1Modules,
+        moduleModels:
+            gradeLevel == '5' ? Grade5Quarter1Modules : Grade6Quarter1Modules,
         quarter: 1);
   }
 
@@ -143,7 +146,8 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
     return _quarterModulesTemplate(
         label: '2ND QUARTER MODULES',
         quarterModuleDocs: secondQuarterModuleDocs,
-        moduleModels: Grade6Quarter2Modules,
+        moduleModels:
+            gradeLevel == '5' ? Grade5Quarter2Modules : Grade6Quarter2Modules,
         quarter: 2);
   }
 
@@ -151,7 +155,8 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
     return _quarterModulesTemplate(
         label: '3RD QUARTER MODULES',
         quarterModuleDocs: thirdQuarterModuleDocs,
-        moduleModels: [],
+        moduleModels:
+            gradeLevel == '5' ? Grade5Quarter3Modules : Grade6Quarter3Modules,
         quarter: 3);
   }
 
@@ -159,7 +164,8 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
     return _quarterModulesTemplate(
         label: '4TH QUARTER MODULES',
         quarterModuleDocs: fourthQuarterModuleDocs,
-        moduleModels: [],
+        moduleModels:
+            gradeLevel == '5' ? Grade5Quarter4Modules : Grade5Quarter4Modules,
         quarter: 4);
   }
 

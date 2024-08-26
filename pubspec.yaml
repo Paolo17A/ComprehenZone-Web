@@ -84,9 +84,27 @@ flutter:
     - assets/images/modules/Grade5Quarter1Lesson2/
     - assets/images/modules/Grade5Quarter1Lesson3/
     - assets/images/modules/Grade5Quarter1Lesson4/
+    - assets/images/modules/Grade5Quarter2Lesson1/
+    - assets/images/modules/Grade5Quarter2Lesson2/
+    - assets/images/modules/Grade5Quarter2Lesson3/
+    - assets/images/modules/Grade5Quarter2Lesson4/
+    - assets/images/modules/Grade5Quarter2Lesson5/
+    - assets/images/modules/Grade5Quarter2Lesson6/
+    - assets/images/modules/Grade5Quarter3Lesson1/
+    - assets/images/modules/Grade5Quarter3Lesson2/
+    - assets/images/modules/Grade5Quarter3Lesson3/
+    - assets/images/modules/Grade5Quarter3Lesson4/
+    - assets/images/modules/Grade5Quarter4Lesson1/
+    - assets/images/modules/Grade5Quarter4Lesson2/
+
+    - assets/images/modules/Grade6Quarter1Lesson1/
     - assets/images/modules/Grade6Quarter2Lesson1/
     - assets/images/modules/Grade6Quarter2Lesson2/
     - assets/images/modules/Grade6Quarter2Lesson3/
+    - assets/images/modules/Grade6Quarter3Lesson1/
+    - assets/images/modules/Grade6Quarter3Lesson2/
+
+
 
   #   - images/a_dot_ham.jpeg
 

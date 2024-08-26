@@ -6,6 +6,7 @@ class ImagePaths {
 }
 
 class DocumentPaths {
+  //  GRADE 5
   static const grade5quarter1Lesson1 =
       'assets/images/modules/Grade5Quarter1Lesson1/';
   static const grade5quarter1Lesson2 =
@@ -14,12 +15,47 @@ class DocumentPaths {
       'assets/images/modules/Grade5Quarter1Lesson3/';
   static const grade5quarter1Lesson4 =
       'assets/images/modules/Grade5Quarter1Lesson4/';
+  static const grade5quarter2Lesson1 =
+      'assets/images/modules/Grade5Quarter2Lesson1/';
+  static const grade5quarter2Lesson2 =
+      'assets/images/modules/Grade5Quarter2Lesson2/';
+  static const grade5quarter2Lesson3 =
+      'assets/images/modules/Grade5Quarter2Lesson3/';
+  static const grade5quarter2Lesson4 =
+      'assets/images/modules/Grade5Quarter2Lesson4/';
+  static const grade5quarter2Lesson5 =
+      'assets/images/modules/Grade5Quarter2Lesson5/';
+  static const grade5quarter2Lesson6 =
+      'assets/images/modules/Grade5Quarter2Lesson6/';
+  static const grade5quarter3Lesson1 =
+      'assets/images/modules/Grade5Quarter3Lesson1/';
+  static const grade5quarter3Lesson2 =
+      'assets/images/modules/Grade5Quarter3Lesson2/';
+  static const grade5quarter3Lesson3 =
+      'assets/images/modules/Grade5Quarter3Lesson3/';
+  static const grade5quarter3Lesson4 =
+      'assets/images/modules/Grade5Quarter3Lesson4/';
+  static const grade5quarter4Lesson1 =
+      'assets/images/modules/Grade5Quarter4Lesson1/';
+  static const grade5quarter4Lesson2 =
+      'assets/images/modules/Grade5Quarter4Lesson2/';
+  static const grade5quarter4Lesson3 =
+      'assets/images/modules/Grade5Quarter4Lesson3/';
+  static const grade5quarter4Lesson4 =
+      'assets/images/modules/Grade5Quarter4Lesson4/';
+  static const grade5quarter4Lesson5 =
+      'assets/images/modules/Grade5Quarter4Lesson5/';
+  //  GRADE 6
   static const grade6quarter2Lesson1 =
       'assets/images/modules/Grade6Quarter2Lesson1/';
   static const grade6quarter2Lesson2 =
       'assets/images/modules/Grade6Quarter2Lesson2/';
   static const grade6quarter2Lesson3 =
       'assets/images/modules/Grade6Quarter2Lesson3/';
+  static const grade6quarter3Lesson1 =
+      'assets/images/modules/Grade6Quarter3Lesson1/';
+  static const grade6quarter3Lesson2 =
+      'assets/images/modules/Grade6Quarter3Lesson2/';
 }
 
 class StorageFields {
