@@ -120,7 +120,18 @@ final List<ModulesModel> Grade5Quarter4Modules = [
       pagesCount: 9),
 ];
 
-final List<ModulesModel> Grade6Quarter1Modules = [];
+final List<ModulesModel> Grade6Quarter1Modules = [
+  ModulesModel(
+      index: 1,
+      title: 'World of Reality and Fantasy',
+      documentPath: DocumentPaths.grade6quarter1Lesson1,
+      pagesCount: 12),
+  ModulesModel(
+      index: 2,
+      title: 'Connecting Lives',
+      documentPath: DocumentPaths.grade6quarter1Lesson2,
+      pagesCount: 16),
+];
 
 final List<ModulesModel> Grade6Quarter2Modules = [
   ModulesModel(

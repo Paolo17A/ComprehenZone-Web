@@ -96,8 +96,12 @@ flutter:
     - assets/images/modules/Grade5Quarter3Lesson4/
     - assets/images/modules/Grade5Quarter4Lesson1/
     - assets/images/modules/Grade5Quarter4Lesson2/
+    - assets/images/modules/Grade5Quarter4Lesson3/
+    - assets/images/modules/Grade5Quarter4Lesson4/
+    - assets/images/modules/Grade5Quarter4Lesson5/
 
     - assets/images/modules/Grade6Quarter1Lesson1/
+    - assets/images/modules/Grade6Quarter1Lesson2/
     - assets/images/modules/Grade6Quarter2Lesson1/
     - assets/images/modules/Grade6Quarter2Lesson2/
     - assets/images/modules/Grade6Quarter2Lesson3/

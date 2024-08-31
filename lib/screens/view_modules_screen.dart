@@ -9,7 +9,6 @@ import 'package:comprehenzone_web/widgets/custom_padding_widgets.dart';
 import 'package:comprehenzone_web/widgets/left_navigator_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
