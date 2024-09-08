@@ -95,17 +95,21 @@ class _SelectedSectionScreenState extends ConsumerState<SelectedSectionScreen> {
               ref.read(userTypeProvider).userType == UserTypes.admin
                   ? adminLeftNavigator(context, path: GoRoutes.sections)
                   : teacherLeftNavigator(context, path: GoRoutes.sections),
-              bodyGradientContainer(context,
+              bodyBlueBackgroundContainer(context,
                   child: SingleChildScrollView(
-                    child: all20Pix(
-                        child: Column(
+                    child: Column(
                       children: [
                         _backButton(),
-                        _newSectionHeader(),
-                        _sectionTeacherContainer(),
-                        _sectionStudentsContainer()
+                        horizontal5Percent(context,
+                            child: Column(
+                              children: [
+                                _newSectionHeader(),
+                                _sectionTeacherContainer(),
+                                _sectionStudentsContainer()
+                              ],
+                            )),
                       ],
-                    )),
+                    ),
                   ))
             ],
           )),
@@ -125,9 +129,9 @@ class _SelectedSectionScreenState extends ConsumerState<SelectedSectionScreen> {
         child: Container(
       width: MediaQuery.of(context).size.width * 0.6,
       decoration: BoxDecoration(
-          color: CustomColors.paleCyan, border: Border.all(width: 3)),
+          color: CustomColors.olympicBlue, border: Border.all(width: 3)),
       padding: const EdgeInsets.all(10),
-      child: blackInterBold(name, fontSize: 32),
+      child: blackInterBold(name, fontSize: 28),
     ));
   }
 
@@ -136,7 +140,7 @@ class _SelectedSectionScreenState extends ConsumerState<SelectedSectionScreen> {
         child: Container(
       width: MediaQuery.of(context).size.width * 0.6,
       decoration: BoxDecoration(
-          color: CustomColors.paleCyan, border: Border.all(width: 3)),
+          color: CustomColors.olympicBlue, border: Border.all(width: 3)),
       padding: const EdgeInsets.all(10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,11 +151,13 @@ class _SelectedSectionScreenState extends ConsumerState<SelectedSectionScreen> {
               SizedBox(
                   width: MediaQuery.of(context).size.width * 0.4,
                   child: blackInterBold('Section Teachers',
-                      fontSize: 32, textAlign: TextAlign.left)),
+                      fontSize: 28, textAlign: TextAlign.left)),
               if (ref.read(userTypeProvider).userType == UserTypes.admin)
-                ElevatedButton(
+                blueBorderElevatedButton(
+                    label: 'ASSIGN TEACHER', onPress: showAvailableTeachers)
+              /*ElevatedButton(
                     onPressed: showAvailableTeachers,
-                    child: blackInterBold('ASSIGN TEACHER'))
+                    child: blackInterBold('ASSIGN TEACHER'))*/
             ],
           ),
           const Divider(color: Colors.black, thickness: 3),
@@ -162,11 +168,11 @@ class _SelectedSectionScreenState extends ConsumerState<SelectedSectionScreen> {
                       .read(sectionsProvider)
                       .assignedTeacherNames
                       .map((teacher) => blackInterBold(teacher,
-                          fontSize: 28, textAlign: TextAlign.left))
+                          fontSize: 24, textAlign: TextAlign.left))
                       .toList(),
                 )
               : blackInterBold('No Assigned Teacher',
-                  textAlign: TextAlign.left, fontSize: 32),
+                  textAlign: TextAlign.left, fontSize: 24),
         ],
       ),
     ));
@@ -177,7 +183,7 @@ class _SelectedSectionScreenState extends ConsumerState<SelectedSectionScreen> {
         child: Container(
       width: MediaQuery.of(context).size.width * 0.6,
       decoration: BoxDecoration(
-          color: CustomColors.paleCyan, border: Border.all(width: 3)),
+          color: CustomColors.olympicBlue, border: Border.all(width: 3)),
       padding: const EdgeInsets.all(10),
       child: Column(
         children: [
@@ -188,7 +194,7 @@ class _SelectedSectionScreenState extends ConsumerState<SelectedSectionScreen> {
                 width: MediaQuery.of(context).size.width * 0.4,
                 child: blackInterBold(
                   'Section Students',
-                  fontSize: 32,
+                  fontSize: 28,
                   textAlign: TextAlign.left,
                 ),
               ),
@@ -211,7 +217,7 @@ class _SelectedSectionScreenState extends ConsumerState<SelectedSectionScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           //const Gap(20),
-                          blackInterBold(formattedName, fontSize: 28),
+                          blackInterBold(formattedName, fontSize: 24),
                           FutureBuilder(
                               future: getStudentGradeAverage(ref
                                   .read(sectionsProvider)
@@ -233,7 +239,7 @@ class _SelectedSectionScreenState extends ConsumerState<SelectedSectionScreen> {
                         ]);
                   },
                 )
-              : blackInterRegular('No Assigned Students', fontSize: 40)
+              : blackInterRegular('No Assigned Students', fontSize: 24)
         ],
       ),
     ));
@@ -267,8 +273,8 @@ class _SelectedSectionScreenState extends ConsumerState<SelectedSectionScreen> {
                                           userID: teacher.id),
                                       style: ElevatedButton.styleFrom(
                                           backgroundColor:
-                                              CustomColors.paleCyan),
-                                      child: blackInterBold(teacherName))),
+                                              CustomColors.backgroundBlue),
+                                      child: whiteInterBold(teacherName))),
                             );
                           }).toList(),
                         )
@@ -309,12 +315,12 @@ class _SelectedSectionScreenState extends ConsumerState<SelectedSectionScreen> {
                                           userID: student.id),
                                       style: ElevatedButton.styleFrom(
                                           backgroundColor:
-                                              CustomColors.paleCyan),
+                                              CustomColors.backgroundBlue),
                                       child: blackInterRegular(teacherName))),
                             );
                           }).toList(),
                         )
-                      : blackInterBold('No Students Available')
+                      : whiteInterBold('No Students Available')
                 ],
               )),
             ));

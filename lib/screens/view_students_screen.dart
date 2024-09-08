@@ -92,7 +92,7 @@ class _ViewStudentsScreenState extends ConsumerState<ViewStudentsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             adminLeftNavigator(context, path: GoRoutes.students),
-            bodyGradientContainer(
+            bodyBlueBackgroundContainer(
               context,
               child: SingleChildScrollView(
                 child: horizontal5Percent(context,
@@ -104,11 +104,13 @@ class _ViewStudentsScreenState extends ConsumerState<ViewStudentsScreen> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                              blackInterBold('STUDENT ACCOUNTS', fontSize: 40),
+                              borderedOlympicBlueContainer(
+                                  child: blackInterBold('STUDENT ACCOUNTS',
+                                      fontSize: 28)),
                               ElevatedButton(
                                   onPressed: () => GoRouter.of(context)
                                       .goNamed(GoRoutes.addStudent),
-                                  child: blackInterBold('ADD STUDENT'))
+                                  child: blackInterRegular('ADD STUDENT'))
                             ])),
                         viewContentContainer(context,
                             child: Column(

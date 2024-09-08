@@ -146,7 +146,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         adminLeftNavigator(context, path: GoRoutes.home),
-        bodyGradientContainer(context,
+        bodyBlueBackgroundContainer(context,
             child: SingleChildScrollView(
               child: horizontal5Percent(context,
                   child: Column(
@@ -179,7 +179,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         teacherLeftNavigator(context, path: GoRoutes.home),
-        bodyGradientContainer(context,
+        bodyBlueBackgroundContainer(context,
             child: SingleChildScrollView(
               child: horizontal5Percent(context,
                   child: Column(
@@ -213,7 +213,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget studentDashboard() {
     return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
       studentLeftNavigator(context, path: GoRoutes.home),
-      bodyGradientContainer(context,
+      bodyBlueBackgroundContainer(context,
           child: SingleChildScrollView(
             child: horizontal5Percent(context,
                 child: Column(children: [studentDataCyanContainer()])),
@@ -226,7 +226,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       child: Container(
         width: double.maxFinite,
         decoration: BoxDecoration(
-            color: CustomColors.paleCyan, border: Border.all(width: 5)),
+            color: CustomColors.olympicBlue, border: Border.all(width: 2)),
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -293,16 +293,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               image: DecorationImage(
                   image: AssetImage(ImagePaths.schoolBG), fit: BoxFit.fill)),
         ),
-        Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          color: Colors.greenAccent.withOpacity(0.2),
-        ),
         Positioned(
           right: 0,
-          child: loginFieldsContainer(context, ref,
-              emailController: emailController,
-              passwordController: passwordController),
+          child: Container(
+            decoration: BoxDecoration(boxShadow: [
+              BoxShadow(offset: Offset(-5, 5), spreadRadius: -10, blurRadius: 4)
+            ]),
+            child: loginFieldsContainer(context, ref,
+                emailController: emailController,
+                passwordController: passwordController),
+          ),
         )
       ],
     );

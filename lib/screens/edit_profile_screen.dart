@@ -1,6 +1,7 @@
 import 'package:comprehenzone_web/widgets/custom_text_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
 import '../providers/loading_provider.dart';
@@ -40,7 +41,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         }
         final userDoc = await getCurrentUserDoc();
         final userData = userDoc.data() as Map<dynamic, dynamic>;
-
+        emailController.text = userData[UserFields.email];
         firstNameController.text = userData[UserFields.firstName];
         lastNameController.text = userData[UserFields.lastName];
         ref.read(loadingProvider.notifier).toggleLoading(false);
@@ -69,10 +70,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ref.read(userTypeProvider).userType == UserTypes.admin
-                  ? adminLeftNavigator(context, path: GoRoutes.profile)
-                  : teacherLeftNavigator(context, path: GoRoutes.profile),
-              bodyGradientContainer(
+              if (ref.read(userTypeProvider).userType == UserTypes.admin)
+                adminLeftNavigator(context, path: GoRoutes.profile)
+              else if (ref.read(userTypeProvider).userType == UserTypes.teacher)
+                teacherLeftNavigator(context, path: GoRoutes.profile)
+              else if (ref.read(userTypeProvider).userType == UserTypes.student)
+                studentLeftNavigator(context, path: GoRoutes.profile),
+              bodyBlueBackgroundContainer(
                 context,
                 child: SingleChildScrollView(
                   child: Column(
@@ -93,17 +97,27 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   ],
                                 ),
                                 _editProfileHeader(),
-                                _emailNameControllerWidget(),
-                                _firstNameControllerWidget(),
-                                _lasttNameControllerWidget(),
+                                Gap(12),
+                                borderedOlympicBlueContainer(
+                                  child: Column(
+                                    children: [
+                                      _emailNameControllerWidget(),
+                                      _firstNameControllerWidget(),
+                                      _lasttNameControllerWidget(),
+                                      blueBorderElevatedButton(
+                                          label: 'SAVE CHANGES',
+                                          onPress: () => editClientProfile(
+                                              context, ref,
+                                              firstNameController:
+                                                  firstNameController,
+                                              lastNameController:
+                                                  lastNameController,
+                                              emailController: emailController))
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
-                            submitButton(context,
-                                label: 'SAVE CHANGES',
-                                onPress: () => editClientProfile(context, ref,
-                                    firstNameController: firstNameController,
-                                    lastNameController: lastNameController,
-                                    emailController: emailController))
                           ],
                         ),
                       ),
@@ -117,7 +131,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   }
 
   Widget _editProfileHeader() {
-    return blackInterBold('EDIT PROFILE', fontSize: 50);
+    return blackInterBold('EDIT PROFILE', fontSize: 28);
   }
 
   Widget _emailNameControllerWidget() {
@@ -130,7 +144,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             text: 'Email Address',
             controller: emailController,
             textInputType: TextInputType.emailAddress,
-            displayPrefixIcon: const Icon(Icons.email)),
+            displayPrefixIcon: const Icon(Icons.email),
+            textColor: Colors.black),
       ],
     ));
   }
@@ -145,7 +160,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             text: 'First Name',
             controller: firstNameController,
             textInputType: TextInputType.name,
-            displayPrefixIcon: const Icon(Icons.person)),
+            displayPrefixIcon: const Icon(Icons.person),
+            textColor: Colors.black),
       ],
     ));
   }
@@ -160,7 +176,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             text: 'Last Name',
             controller: lastNameController,
             textInputType: TextInputType.name,
-            displayPrefixIcon: const Icon(Icons.person)),
+            displayPrefixIcon: const Icon(Icons.person),
+            textColor: Colors.black),
       ],
     ));
   }

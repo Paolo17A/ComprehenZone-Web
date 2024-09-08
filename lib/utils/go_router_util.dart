@@ -27,7 +27,6 @@ import 'package:go_router/go_router.dart';
 
 class GoRoutes {
   static const home = '/';
-  //static const register = 'register';
   static const forgotPassword = 'forgotPassword';
   static const sections = 'sections';
   static const selectedSection = 'selectedSection';
@@ -60,11 +59,6 @@ final goRoutes = GoRouter(initialLocation: GoRoutes.home, routes: [
       pageBuilder: (context, state) =>
           customTransition(context, state, const HomeScreen()),
       routes: [
-        /*(GoRoute(
-            name: GoRoutes.register,
-            path: GoRoutes.register,
-            pageBuilder: (context, state) =>
-                customTransition(context, state, const RegisterScreen())),*/
         GoRoute(
             name: GoRoutes.sections,
             path: GoRoutes.sections,

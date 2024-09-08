@@ -35,13 +35,12 @@ Widget switchedLoadingContainer(bool isLoading, Widget child) {
   return isLoading ? const Center(child: CircularProgressIndicator()) : child;
 }
 
-Widget bodyGradientContainer(BuildContext context, {required Widget child}) {
+Widget bodyBlueBackgroundContainer(BuildContext context,
+    {required Widget child}) {
   return Container(
     width: MediaQuery.of(context).size.width * 0.8,
     height: MediaQuery.of(context).size.height,
-    decoration: const BoxDecoration(
-        image: DecorationImage(
-            image: AssetImage(ImagePaths.gradientBG), fit: BoxFit.cover)),
+    decoration: const BoxDecoration(color: CustomColors.backgroundBlue),
     child: child,
   );
 }
@@ -52,28 +51,49 @@ Widget loginFieldsContainer(BuildContext context, WidgetRef ref,
   return Container(
       width: MediaQuery.of(context).size.width * 0.2,
       height: MediaQuery.of(context).size.height,
-      decoration: const BoxDecoration(
-          image: DecorationImage(
-              image: AssetImage(ImagePaths.gradientBG), fit: BoxFit.cover)),
+      decoration: const BoxDecoration(color: CustomColors.navigatorBlue),
       padding: const EdgeInsets.all(20),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          blackInterBold('Login', fontSize: 40),
-          emailAddressTextField(emailController: emailController),
+          whiteInterBold('WELCOME!', fontSize: 40),
           all10Pix(
               child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              blackInterBold('Password', fontSize: 18),
-              CustomTextField(
-                  text: 'Password',
-                  controller: passwordController,
-                  textInputType: TextInputType.visiblePassword,
-                  onSearchPress: () => logInUser(context, ref,
-                      emailController: emailController,
-                      passwordController: passwordController),
-                  displayPrefixIcon: const Icon(Icons.lock)),
+              whiteInterBold('Email Address', fontSize: 18),
+              Container(
+                decoration: BoxDecoration(
+                    border: Border.all(color: CustomColors.dirtyPearl),
+                    borderRadius: BorderRadius.circular(30)),
+                child: CustomTextField(
+                    text: 'Email Address',
+                    controller: emailController,
+                    textInputType: TextInputType.emailAddress,
+                    displayPrefixIcon:
+                        const Icon(Icons.lock, color: CustomColors.dirtyPearl)),
+              ),
+            ],
+          )),
+          all10Pix(
+              child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              whiteInterBold('Password', fontSize: 18),
+              Container(
+                decoration: BoxDecoration(
+                    border: Border.all(color: CustomColors.dirtyPearl),
+                    borderRadius: BorderRadius.circular(30)),
+                child: CustomTextField(
+                    text: 'Password',
+                    controller: passwordController,
+                    textInputType: TextInputType.visiblePassword,
+                    onSearchPress: () => logInUser(context, ref,
+                        emailController: emailController,
+                        passwordController: passwordController),
+                    displayPrefixIcon:
+                        const Icon(Icons.lock, color: CustomColors.dirtyPearl)),
+              ),
             ],
           )),
           const Gap(30),
@@ -96,9 +116,7 @@ Widget registerFieldsContainer(BuildContext context, WidgetRef ref,
   return Container(
       width: MediaQuery.of(context).size.width * 0.2,
       height: MediaQuery.of(context).size.height,
-      decoration: const BoxDecoration(
-          image: DecorationImage(
-              image: AssetImage(ImagePaths.gradientBG), fit: BoxFit.cover)),
+      decoration: const BoxDecoration(color: CustomColors.backgroundBlue),
       child: SingleChildScrollView(
         child: all20Pix(
           child: Column(
@@ -144,7 +162,8 @@ Widget registerFieldsContainer(BuildContext context, WidgetRef ref,
       ));
 }
 
-Widget emailAddressTextField({required TextEditingController emailController}) {
+Widget emailAddressTextField(
+    {required TextEditingController emailController, Color? textColor}) {
   return all10Pix(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,7 +173,9 @@ Widget emailAddressTextField({required TextEditingController emailController}) {
             text: 'Email Address',
             controller: emailController,
             textInputType: TextInputType.emailAddress,
-            displayPrefixIcon: const Icon(Icons.email))
+            textColor: textColor,
+            displayPrefixIcon:
+                Icon(Icons.email, color: textColor ?? CustomColors.dirtyPearl))
       ],
     ),
   );
@@ -162,7 +183,8 @@ Widget emailAddressTextField({required TextEditingController emailController}) {
 
 Widget passwordTextField(
     {required String label,
-    required TextEditingController passwordController}) {
+    required TextEditingController passwordController,
+    Color? textColor}) {
   return all10Pix(
       child: Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,13 +194,17 @@ Widget passwordTextField(
           text: label,
           controller: passwordController,
           textInputType: TextInputType.visiblePassword,
-          displayPrefixIcon: const Icon(Icons.lock)),
+          textColor: textColor,
+          displayPrefixIcon:
+              Icon(Icons.lock, color: textColor ?? CustomColors.dirtyPearl)),
     ],
   ));
 }
 
 Widget regularTextField(
-    {required String label, required TextEditingController textController}) {
+    {required String label,
+    required TextEditingController textController,
+    Color? textColor}) {
   return all10Pix(
       child: Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,13 +214,16 @@ Widget regularTextField(
           text: label,
           controller: textController,
           textInputType: TextInputType.name,
+          textColor: textColor,
           displayPrefixIcon: null),
     ],
   ));
 }
 
 Widget numberTextField(
-    {required String label, required TextEditingController textController}) {
+    {required String label,
+    required TextEditingController textController,
+    Color? textColor}) {
   return all10Pix(
       child: Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,13 +233,16 @@ Widget numberTextField(
           text: label,
           controller: textController,
           textInputType: TextInputType.number,
+          textColor: textColor,
           displayPrefixIcon: null),
     ],
   ));
 }
 
 Widget multiLineTextField(
-    {required String label, required TextEditingController textController}) {
+    {required String label,
+    required TextEditingController textController,
+    Color? textColor}) {
   return all10Pix(
       child: Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,6 +252,7 @@ Widget multiLineTextField(
           text: label,
           controller: textController,
           textInputType: TextInputType.multiline,
+          textColor: textColor,
           displayPrefixIcon: null),
     ],
   ));
@@ -263,7 +296,7 @@ Container viewContentContainer(BuildContext context, {required Widget child}) {
   return Container(
       width: MediaQuery.of(context).size.width * 0.7,
       decoration: BoxDecoration(
-        color: CustomColors.paleCyan.withOpacity(0.5),
+        color: CustomColors.mediumSea,
         border: Border.all(color: Colors.black),
       ),
       child: child);
@@ -286,10 +319,10 @@ Widget viewContentEntryRow(BuildContext context,
 
 Widget viewFlexTextCell(String text,
     {required int flex,
-    backgroundColor = CustomColors.paleCyan,
+    backgroundColor = CustomColors.olympicBlue,
     Color textColor = Colors.black,
     Border customBorder =
-        const Border.symmetric(horizontal: BorderSide(width: 3)),
+        const Border.symmetric(horizontal: BorderSide(width: 1)),
     BorderRadius? customBorderRadius}) {
   return Flexible(
     flex: flex,
@@ -316,16 +349,16 @@ Widget viewFlexTextCell(String text,
 Widget viewFlexLabelTextCell(String text, int flex) {
   return viewFlexTextCell(text,
       flex: flex,
-      backgroundColor: CustomColors.paleCyan,
+      backgroundColor: CustomColors.olympicBlue,
       textColor: Colors.black);
 }
 
 Widget viewFlexActionsCell(List<Widget> children,
     {required int flex,
-    backgroundColor = CustomColors.paleCyan,
+    backgroundColor = CustomColors.olympicBlue,
     Color textColor = Colors.black,
     Border customBorder =
-        const Border.symmetric(horizontal: BorderSide(width: 3)),
+        const Border.symmetric(horizontal: BorderSide(width: 1)),
     BorderRadius? customBorderRadius}) {
   return Flexible(
       flex: flex,
@@ -633,23 +666,14 @@ Widget sectionsBarChart(BuildContext context,
                   minimum: 0,
                   interval: 5,
                   borderColor: Colors.black,
-                  labelStyle: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15),
+                  labelStyle: TextStyle(color: Colors.black, fontSize: 15),
                   title: AxisTitle(
                       text: 'Students',
-                      textStyle: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16))),
+                      textStyle: TextStyle(color: Colors.black, fontSize: 16))),
               title: const ChartTitle(
                   text: 'Section Student Count',
                   borderColor: Colors.black,
-                  textStyle: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 25)),
+                  textStyle: TextStyle(color: Colors.black, fontSize: 24)),
               series: <BarSeries<SectionModel, String>>[
                 BarSeries<SectionModel, String>(
                     color: CustomColors.midnightBlue,

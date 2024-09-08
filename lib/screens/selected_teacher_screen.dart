@@ -76,7 +76,7 @@ class _SelectedTeacherScreenState extends ConsumerState<SelectedTeacherScreen> {
           ref.read(loadingProvider).isLoading,
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             adminLeftNavigator(context, path: GoRoutes.teachers),
-            bodyGradientContainer(context,
+            bodyBlueBackgroundContainer(context,
                 child: SingleChildScrollView(
                   child: horizontal5Percent(context,
                       child: Column(
@@ -109,7 +109,7 @@ class _SelectedTeacherScreenState extends ConsumerState<SelectedTeacherScreen> {
     return Container(
       width: double.maxFinite,
       decoration: BoxDecoration(
-          color: CustomColors.paleCyan, border: Border.all(width: 5)),
+          color: CustomColors.olympicBlue, border: Border.all(width: 5)),
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

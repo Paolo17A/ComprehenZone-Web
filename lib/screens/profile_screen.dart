@@ -2,6 +2,7 @@ import 'package:comprehenzone_web/providers/loading_provider.dart';
 import 'package:comprehenzone_web/providers/user_type_provider.dart';
 import 'package:comprehenzone_web/utils/go_router_util.dart';
 import 'package:comprehenzone_web/utils/string_util.dart';
+import 'package:comprehenzone_web/widgets/custom_button_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_miscellaneous_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_padding_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_text_widgets.dart';
@@ -85,7 +86,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   : ref.read(userTypeProvider).userType == UserTypes.teacher
                       ? teacherLeftNavigator(context, path: GoRoutes.profile)
                       : studentLeftNavigator(context, path: GoRoutes.profile),
-              bodyGradientContainer(context,
+              bodyBlueBackgroundContainer(context,
                   child:
                       SingleChildScrollView(child: profileDetailsContainer()))
             ],
@@ -107,6 +108,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildProfileImage(
                             profileImageURL: ref
@@ -114,38 +116,27 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 .profileImageURL),
                         const Gap(20),
                         Column(children: [
-                          ElevatedButton(
-                              onPressed: _pickImage,
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: CustomColors.midnightBlue),
-                              child: whiteInterBold('SELECT\nPROFILE PIC',
-                                  fontSize: 16)),
+                          blueBorderElevatedButton(
+                              label: 'SELECT\nPROFILE PIC',
+                              onPress: _pickImage),
                           const Gap(10),
                           if (ref
                               .read(profileImageURLProvider)
                               .profileImageURL
                               .isNotEmpty)
-                            ElevatedButton(
-                                onPressed: () => removeProfilePic(context, ref),
-                                style: ElevatedButton.styleFrom(
-                                    backgroundColor: CustomColors.midnightBlue),
-                                child: whiteInterBold('REMOVE\nPROFILE PIC',
-                                    fontSize: 16))
+                            blueBorderElevatedButton(
+                                label: 'REMOVE\nPROFILE PIC',
+                                onPress: () => removeProfilePic(context, ref))
                         ])
                       ],
                     ),
                     blackInterBold(formattedName, fontSize: 40),
                   ],
                 ),
-                ElevatedButton(
-                    onPressed: () =>
-                        GoRouter.of(context).goNamed(GoRoutes.editProfile),
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: CustomColors.midnightBlue),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: whiteInterBold('EDIT PROFILE', fontSize: 24),
-                    ))
+                blueBorderElevatedButton(
+                    label: 'EDIT PROFILE',
+                    onPress: () =>
+                        GoRouter.of(context).goNamed(GoRoutes.editProfile))
               ],
             ),
             const Divider(color: CustomColors.midnightBlue),

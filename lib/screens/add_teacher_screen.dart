@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comprehenzone_web/providers/loading_provider.dart';
 import 'package:comprehenzone_web/utils/go_router_util.dart';
+import 'package:comprehenzone_web/widgets/custom_button_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_miscellaneous_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_padding_widgets.dart';
 import 'package:comprehenzone_web/widgets/left_navigator_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
 import '../utils/color_util.dart';
@@ -82,29 +84,15 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               adminLeftNavigator(context, path: GoRoutes.teachers),
-              bodyGradientContainer(context,
+              bodyBlueBackgroundContainer(context,
                   child: SingleChildScrollView(
                     child: horizontal5Percent(context,
                         child: Column(
                           children: [
                             _backButton(),
                             newTeacherHeader(),
+                            Gap(4),
                             userFieldsContainer(),
-                            all20Pix(
-                                child: ElevatedButton(
-                                    onPressed: () => addNewUser(context, ref,
-                                        userType: UserTypes.teacher,
-                                        emailController: emailController,
-                                        passwordController: passwordController,
-                                        confirmPasswordController:
-                                            confirmPasswordController,
-                                        firstNameController:
-                                            firstNameController,
-                                        lastNameController: lastNameController,
-                                        idNumberController: idNumberController,
-                                        sectionID: selectedSectionID,
-                                        gradeLevel: ''),
-                                    child: blackInterBold('ADD NEW TEACHER')))
                           ],
                         )),
                   )),
@@ -125,32 +113,57 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
   }
 
   Widget newTeacherHeader() {
-    return blackInterBold('NEW TEACHER', fontSize: 40);
+    return borderedOlympicBlueContainer(
+        child: SizedBox(
+            width: double.infinity,
+            child: blackInterBold('NEW TEACHER', fontSize: 28)));
   }
 
   Widget userFieldsContainer() {
     return Container(
       decoration: BoxDecoration(
-          color: CustomColors.midnightBlue.withOpacity(0.3),
-          border: Border.all(),
-          borderRadius: BorderRadius.circular(10)),
+          color: CustomColors.olympicBlue,
+          border: Border.all(width: 4, color: CustomColors.navigatorBlue)),
       padding: const EdgeInsets.all(10),
       child: Column(
         children: [
-          emailAddressTextField(emailController: emailController),
+          emailAddressTextField(
+              emailController: emailController, textColor: Colors.black),
           passwordTextField(
-              label: 'Password', passwordController: passwordController),
+              label: 'Password',
+              passwordController: passwordController,
+              textColor: Colors.black),
           passwordTextField(
               label: 'Confirm Password',
-              passwordController: confirmPasswordController),
+              passwordController: confirmPasswordController,
+              textColor: Colors.black),
           const Divider(color: Colors.black),
           regularTextField(
-              label: 'First Name', textController: firstNameController),
+              label: 'First Name',
+              textController: firstNameController,
+              textColor: Colors.black),
           regularTextField(
-              label: 'Last Name', textController: lastNameController),
+              label: 'Last Name',
+              textController: lastNameController,
+              textColor: Colors.black),
           numberTextField(
-              label: 'ID Number', textController: idNumberController),
-          sectionWidget()
+              label: 'ID Number',
+              textController: idNumberController,
+              textColor: Colors.black),
+          sectionWidget(),
+          all20Pix(
+              child: ElevatedButton(
+                  onPressed: () => addNewUser(context, ref,
+                      userType: UserTypes.teacher,
+                      emailController: emailController,
+                      passwordController: passwordController,
+                      confirmPasswordController: confirmPasswordController,
+                      firstNameController: firstNameController,
+                      lastNameController: lastNameController,
+                      idNumberController: idNumberController,
+                      sectionID: selectedSectionID,
+                      gradeLevel: ''),
+                  child: blackInterBold('ADD NEW TEACHER')))
         ],
       ),
     );
@@ -160,8 +173,11 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
     return all10Pix(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         blackInterBold('Section', fontSize: 20),
-        SizedBox(
+        Container(
           width: double.infinity,
+          decoration: BoxDecoration(
+              border: Border.all(width: 2),
+              borderRadius: BorderRadius.circular(30)),
           child: ElevatedButton(
               onPressed: () {
                 showDialog(

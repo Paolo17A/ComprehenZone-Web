@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comprehenzone_web/providers/loading_provider.dart';
 import 'package:comprehenzone_web/providers/sections_provider.dart';
-import 'package:comprehenzone_web/utils/color_util.dart';
 import 'package:comprehenzone_web/widgets/custom_miscellaneous_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_padding_widgets.dart';
 import 'package:flutter/material.dart';
@@ -88,7 +87,7 @@ class _ViewSectionsScreenState extends ConsumerState<ViewSectionsScreen> {
               ref.read(userTypeProvider).userType == UserTypes.admin
                   ? adminLeftNavigator(context, path: GoRoutes.sections)
                   : teacherLeftNavigator(context, path: GoRoutes.sections),
-              bodyGradientContainer(context,
+              bodyBlueBackgroundContainer(context,
                   child: SingleChildScrollView(
                       child: horizontal5Percent(context,
                           child: _sectionsContent())))
@@ -118,10 +117,12 @@ class _ViewSectionsScreenState extends ConsumerState<ViewSectionsScreen> {
   Widget _sectionsHeader() {
     return vertical20Pix(
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        blackInterBold('SECTIONS', fontSize: 40),
-        ElevatedButton(
-            onPressed: showAddSectionDialog,
-            child: blackInterBold('NEW SECTION'))
+        borderedOlympicBlueContainer(
+            child: blackInterBold('SECTIONS', fontSize: 28)),
+        if (ref.read(userTypeProvider).userType == UserTypes.admin)
+          ElevatedButton(
+              onPressed: showAddSectionDialog,
+              child: blackInterBold('ADD NEW SECTION'))
       ]),
     );
   }
@@ -187,13 +188,12 @@ class _ViewSectionsScreenState extends ConsumerState<ViewSectionsScreen> {
                         child: regularTextField(
                             label: 'Section Name',
                             textController: nameController)),
-                    vertical20Pix(
-                        child: ElevatedButton(
-                            onPressed: () => addNewSection(context, ref,
-                                nameController: nameController),
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor: CustomColors.paleCyan),
-                            child: blackInterBold('CREATE SECTION')))
+                    vertical10Pix(
+                      child: blueBorderElevatedButton(
+                          label: 'CREATE SECTION',
+                          onPress: () => addNewSection(context, ref,
+                              nameController: nameController)),
+                    )
                   ],
                 ),
               ),
@@ -218,20 +218,18 @@ class _ViewSectionsScreenState extends ConsumerState<ViewSectionsScreen> {
                                   onPressed: () => GoRouter.of(context).pop(),
                                   child: blackInterBold('X'))
                             ])),
-                    blackInterBold('NEW SECTION', fontSize: 40),
+                    blackInterBold('NEW SECTION', fontSize: 28),
                     SizedBox(
                         width: MediaQuery.of(context).size.width * 0.5,
                         child: regularTextField(
                             label: 'Section Name',
                             textController: nameController)),
                     vertical20Pix(
-                        child: ElevatedButton(
-                            onPressed: () => editThisSection(context, ref,
+                        child: blueBorderElevatedButton(
+                            label: 'EDIT SECTION',
+                            onPress: () => editThisSection(context, ref,
                                 sectionID: sectionDoc.id,
-                                nameController: nameController),
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor: CustomColors.paleCyan),
-                            child: blackInterBold('EDIT SECTION')))
+                                nameController: nameController)))
                   ],
                 ),
               ),

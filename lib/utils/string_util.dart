@@ -1,6 +1,6 @@
 class ImagePaths {
   static const comprehenzoneLogo = 'assets/images/COMPREHENZONE LOGO.png';
-  static const gradientBG = 'assets/images/FRONT PAGE BG.jpg';
+  //static const gradientBG = 'assets/images/FRONT PAGE BG.jpg';
   static const schoolBG = 'assets/images/school bg.jpg';
   static const schoolLogo = 'assets/images/school logo.jpg';
 }

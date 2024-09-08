@@ -7,16 +7,26 @@ import '../utils/go_router_util.dart';
 import 'custom_padding_widgets.dart';
 import 'custom_text_widgets.dart';
 
-Widget loginButton({required Function onPress}) {
+Widget blueBorderElevatedButton(
+    {required String label,
+    required Function onPress,
+    double? width,
+    double? height}) {
   return all10Pix(
-      child: Container(
-    width: double.infinity,
-    decoration: BoxDecoration(
-        border: Border.all(width: 3), borderRadius: BorderRadius.circular(10)),
-    child: TextButton(
-        onPressed: () => onPress(),
-        child: blackInterBold('LOG-IN', fontSize: 20)),
-  ));
+    child: Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: const Color.fromARGB(255, 28, 74, 145))),
+      child: ElevatedButton(
+          onPressed: () => onPress(), child: blackInterRegular(label)),
+    ),
+  );
+}
+
+Widget loginButton({required Function onPress}) {
+  return blueBorderElevatedButton(label: 'LOG-IN', onPress: () => onPress());
 }
 
 Widget registerButton({required Function onPress}) {
@@ -54,9 +64,10 @@ Widget backButton(BuildContext context, {required Function onPress}) {
   return ElevatedButton(
       onPressed: () => onPress(),
       style: ElevatedButton.styleFrom(
-          backgroundColor: CustomColors.midnightBlue,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+          backgroundColor: CustomColors.olympicBlue,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+              side: BorderSide(color: CustomColors.midnightBlue, width: 2))),
       child: whiteInterBold('BACK'));
 }
 
@@ -81,7 +92,7 @@ Widget restoreEntryButton(BuildContext context, {required Function onPress}) {
       onPressed: () {
         onPress();
       },
-      child: const Icon(Icons.restore, color: CustomColors.pearlWhite));
+      child: const Icon(Icons.restore, color: CustomColors.dirtyPearl));
 }
 
 Widget deleteEntryButton(BuildContext context, {required Function onPress}) {
@@ -102,48 +113,6 @@ Widget uploadImageButton(String label, Function selectImage) {
           padding: const EdgeInsets.all(7), child: whiteInterBold(label)));
 }
 
-Widget navigatorButtons(BuildContext context,
-    {required int pageNumber,
-    required Function? onPrevious,
-    required Function? onNext,
-    Color fontColor = Colors.black}) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 20),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        pageButton(context,
-            label: 'PREV', onPress: onPrevious, fontColor: fontColor),
-        Padding(
-          padding: const EdgeInsets.all(5.5),
-          child:
-              Text(pageNumber.toString(), style: TextStyle(color: fontColor)),
-        ),
-        pageButton(context,
-            label: 'NEXT', onPress: onNext, fontColor: fontColor)
-      ],
-    ),
-  );
-}
-
-Widget pageButton(BuildContext context,
-    {required Function? onPress,
-    required String label,
-    Color fontColor = Colors.black}) {
-  return Container(
-    decoration:
-        BoxDecoration(border: Border.all(color: CustomColors.midnightBlue)),
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: TextButton(
-          onPressed: onPress != null ? () => onPress() : null,
-          style: TextButton.styleFrom(
-              foregroundColor: fontColor, disabledForegroundColor: Colors.grey),
-          child: Text(label)),
-    ),
-  );
-}
-
 Widget logOutButton(BuildContext context) {
   return all20Pix(
       child: ElevatedButton(
@@ -155,4 +124,13 @@ Widget logOutButton(BuildContext context) {
           },
           style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
           child: whiteInterBold('LOG-OUT')));
+}
+
+Widget borderedOlympicBlueContainer({required Widget child}) {
+  return Container(
+      decoration: BoxDecoration(
+          color: CustomColors.olympicBlue,
+          border: Border.all(color: CustomColors.navigatorBlue, width: 4)),
+      padding: EdgeInsets.symmetric(vertical: 4, horizontal: 20),
+      child: child);
 }

@@ -82,7 +82,7 @@ class _SelectedStudentScreenState extends ConsumerState<SelectedStudentScreen> {
           ref.read(loadingProvider).isLoading,
           Row(children: [
             adminLeftNavigator(context, path: GoRoutes.students),
-            bodyGradientContainer(context,
+            bodyBlueBackgroundContainer(context,
                 child: SingleChildScrollView(
                   child: all20Pix(
                       child: Column(
@@ -111,7 +111,7 @@ class _SelectedStudentScreenState extends ConsumerState<SelectedStudentScreen> {
     return Container(
       width: double.maxFinite,
       decoration: BoxDecoration(
-          color: CustomColors.paleCyan, border: Border.all(width: 5)),
+          color: CustomColors.olympicBlue, border: Border.all(width: 5)),
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

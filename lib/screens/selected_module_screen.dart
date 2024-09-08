@@ -1,4 +1,5 @@
 import 'package:comprehenzone_web/providers/loading_provider.dart';
+import 'package:comprehenzone_web/widgets/custom_button_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_miscellaneous_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_padding_widgets.dart';
 import 'package:comprehenzone_web/widgets/left_navigator_widget.dart';
@@ -7,7 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../providers/user_type_provider.dart';
-import '../utils/color_util.dart';
 import '../utils/firebase_util.dart';
 import '../utils/go_router_util.dart';
 import '../utils/string_util.dart';
@@ -73,19 +73,25 @@ class _SelectedModuleScreenState extends ConsumerState<SelectedModuleScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               studentLeftNavigator(context, path: GoRoutes.modules),
-              SingleChildScrollView(
-                child: bodyGradientContainer(context,
-                    child: horizontal5Percent(context,
-                        child: Column(children: [
-                          _backButton(),
-                          _title(),
-                          _content(),
-                          if (additionalDocuments.isNotEmpty)
-                            _additionalDocuments(),
-                          if (additionalResources.isNotEmpty)
-                            _additionalResources()
-                        ]))),
-              )
+              bodyBlueBackgroundContainer(context,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        _backButton(),
+                        horizontal5Percent(context,
+                            child: borderedOlympicBlueContainer(
+                              child: Column(children: [
+                                _title(),
+                                _content(),
+                                if (additionalDocuments.isNotEmpty)
+                                  _additionalDocuments(),
+                                if (additionalResources.isNotEmpty)
+                                  _additionalResources()
+                              ]),
+                            )),
+                      ],
+                    ),
+                  ))
             ],
           )),
     );
@@ -94,11 +100,8 @@ class _SelectedModuleScreenState extends ConsumerState<SelectedModuleScreen> {
   Widget _backButton() {
     return Row(children: [
       all20Pix(
-          child: ElevatedButton(
-              onPressed: () => GoRouter.of(context).goNamed(GoRoutes.modules),
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: CustomColors.midnightBlue),
-              child: whiteInterBold('BACK')))
+          child: backButton(context,
+              onPress: () => GoRouter.of(context).goNamed(GoRoutes.modules)))
     ]);
   }
 
@@ -133,18 +136,15 @@ class _SelectedModuleScreenState extends ConsumerState<SelectedModuleScreen> {
             children: additionalDocuments.map((document) {
               Map<dynamic, dynamic> externalDocument =
                   document as Map<dynamic, dynamic>;
-              return vertical10Pix(
+              return Padding(
+                padding: EdgeInsets.symmetric(vertical: 4),
                 child: SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
-                        onPressed: () => launchThisURL(externalDocument[
-                            AdditionalResourcesFields.downloadLink]),
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: CustomColors.midnightBlue),
-                        child: whiteInterBold(
-                            externalDocument[
-                                AdditionalResourcesFields.fileName],
-                            fontSize: 15))),
+                    child: blueBorderElevatedButton(
+                        label: externalDocument[
+                            AdditionalResourcesFields.fileName],
+                        onPress: () => launchThisURL(externalDocument[
+                            AdditionalResourcesFields.downloadLink]))),
               );
             }).toList(),
           )
@@ -167,15 +167,11 @@ class _SelectedModuleScreenState extends ConsumerState<SelectedModuleScreen> {
               return vertical10Pix(
                 child: SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
-                        onPressed: () async => launchThisURL(externalResource[
-                            AdditionalResourcesFields.downloadLink]),
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: CustomColors.midnightBlue),
-                        child: whiteInterBold(
-                            externalResource[
-                                AdditionalResourcesFields.fileName],
-                            fontSize: 15))),
+                    child: blueBorderElevatedButton(
+                        label: externalResource[
+                            AdditionalResourcesFields.fileName],
+                        onPress: () async => launchThisURL(externalResource[
+                            AdditionalResourcesFields.downloadLink]))),
               );
             }).toList(),
           )

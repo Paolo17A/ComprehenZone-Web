@@ -9,7 +9,6 @@ import 'package:comprehenzone_web/widgets/custom_padding_widgets.dart';
 import 'package:comprehenzone_web/widgets/left_navigator_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
 import '../utils/go_router_util.dart';
@@ -95,7 +94,7 @@ class _ViewQuizzesScreenState extends ConsumerState<ViewQuizzesScreen> {
                   : ref.read(userTypeProvider).userType == UserTypes.teacher
                       ? teacherLeftNavigator(context, path: GoRoutes.quizzes)
                       : studentLeftNavigator(context, path: GoRoutes.quizzes),
-              bodyGradientContainer(context,
+              bodyBlueBackgroundContainer(context,
                   child: SingleChildScrollView(
                     child: horizontal5Percent(context,
                         child: ref.read(userTypeProvider).userType ==
@@ -111,25 +110,23 @@ class _ViewQuizzesScreenState extends ConsumerState<ViewQuizzesScreen> {
   Widget _studentQuizzes() {
     return Column(
       children: [
-        vertical20Pix(child: blackInterBold('ASSIGNED QUIZZES', fontSize: 32)),
         vertical20Pix(
-          child: Container(
-              width: double.maxFinite,
-              decoration: BoxDecoration(border: Border.all(width: 2)),
-              padding: const EdgeInsets.all(10),
-              child: quizDocs.isNotEmpty
-                  ? Center(
-                      child: Wrap(
-                        runSpacing: 10,
-                        spacing: 10,
-                        children: quizDocs
-                            .map((quizDoc) => _quizEntryFutureBuilder(quizDoc))
-                            .toList(),
-                      ),
-                    )
-                  : all20Pix(
-                      child: blackInterBold(
-                          'You have no assigned quizzes to take.'))),
+            child: borderedOlympicBlueContainer(
+                child: blackInterBold('ASSIGNED QUIZZES', fontSize: 32))),
+        vertical20Pix(
+          child: borderedOlympicBlueContainer(
+            child: quizDocs.isNotEmpty
+                ? Center(
+                    child: Column(
+                      children: quizDocs
+                          .map((quizDoc) => _quizEntryFutureBuilder(quizDoc))
+                          .toList(),
+                    ),
+                  )
+                : all20Pix(
+                    child: blackInterBold(
+                        'You have no assigned quizzes to take.')),
+          ),
         ),
       ],
     );
@@ -138,32 +135,36 @@ class _ViewQuizzesScreenState extends ConsumerState<ViewQuizzesScreen> {
   Widget _quizEntryFutureBuilder(DocumentSnapshot quizDoc) {
     final quizData = quizDoc.data() as Map<dynamic, dynamic>;
     String title = quizData[QuizFields.title];
-    return Container(
-      width: MediaQuery.of(context).size.width * 0.3,
-      decoration: BoxDecoration(
-          color: CustomColors.pearlWhite, border: Border.all(width: 2)),
-      padding: const EdgeInsets.all(10),
-      child: FutureBuilder(
-        future: getQuizResult(quizDoc.id),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return blackInterRegular('Error getting quiz status');
-          } else if (!snapshot.hasData) {
-            return _quizEntryWidget(
-                quizID: quizDoc.id, title: title, isDone: false);
-          }
-          final quizResult = snapshot.data!.id;
-          final quizResultData = snapshot.data!.data() as Map<dynamic, dynamic>;
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.6,
+        decoration: BoxDecoration(
+            color: CustomColors.dirtyPearl, border: Border.all(width: 2)),
+        padding: const EdgeInsets.all(10),
+        child: FutureBuilder(
+          future: getQuizResult(quizDoc.id),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return blackInterRegular('Error getting quiz status');
+            } else if (!snapshot.hasData) {
+              return _quizEntryWidget(
+                  quizID: quizDoc.id, title: title, isDone: false);
+            }
+            final quizResult = snapshot.data!.id;
+            final quizResultData =
+                snapshot.data!.data() as Map<dynamic, dynamic>;
 
-          return _quizEntryWidget(
-              quizID: quizDoc.id,
-              title: title,
-              isDone: true,
-              quizResultID: quizResult,
-              grade: quizResultData[QuizResultFields.grade]);
-        },
+            return _quizEntryWidget(
+                quizID: quizDoc.id,
+                title: title,
+                isDone: true,
+                quizResultID: quizResult,
+                grade: quizResultData[QuizResultFields.grade]);
+          },
+        ),
       ),
     );
   }
@@ -193,13 +194,15 @@ class _ViewQuizzesScreenState extends ConsumerState<ViewQuizzesScreen> {
               isDone ? MainAxisAlignment.spaceBetween : MainAxisAlignment.start,*/
           children: [
             blackInterBold(title,
-                fontSize: 28,
+                fontSize: 24,
                 textAlign: TextAlign.left,
                 overflow: TextOverflow.ellipsis),
             if (isDone)
-              SizedBox(height: 16, child: blackInterBold('$grade/10'))
+              SizedBox(height: 16, child: blackInterBold('Grade: $grade/10'))
             else
-              Gap(16)
+              SizedBox(
+                  height: 16,
+                  child: blackInterBold('You have not taken this quiz yet.'))
           ],
         ),
       ),
@@ -227,11 +230,12 @@ class _ViewQuizzesScreenState extends ConsumerState<ViewQuizzesScreen> {
   Widget _quizzesHeader() {
     return vertical20Pix(
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        blackInterBold('QUIZZES', fontSize: 40),
+        borderedOlympicBlueContainer(
+            child: blackInterBold('QUIZZES', fontSize: 28)),
         //if (ref.read(userTypeProvider).userType == UserTypes.teacher)
         ElevatedButton(
             onPressed: () => GoRouter.of(context).goNamed(GoRoutes.addQuiz),
-            child: blackInterBold('NEW QUIZ'))
+            child: blackInterRegular('NEW QUIZ'))
       ]),
     );
   }
@@ -292,7 +296,7 @@ class _ViewQuizzesScreenState extends ConsumerState<ViewQuizzesScreen> {
         if (isGlobal)
           editEntryButton(context,
               onPress: () => GoRouter.of(context).goNamed(GoRoutes.editQuiz,
-                  pathParameters: {PathParameters.quizID: quizDoc.id})),
+                  pathParameters: {PathParameters.quizID: quizDoc.id}))
       ], flex: 1)
     ]);
   }

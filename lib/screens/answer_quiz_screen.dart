@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:comprehenzone_web/providers/user_type_provider.dart';
 import 'package:comprehenzone_web/utils/go_router_util.dart';
+import 'package:comprehenzone_web/widgets/custom_button_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_padding_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_text_widgets.dart';
 import 'package:comprehenzone_web/widgets/left_navigator_widget.dart';
@@ -160,20 +161,23 @@ class _AnswerQuizScreenState extends ConsumerState<AnswerQuizScreen> {
           Row(
             children: [
               studentLeftNavigator(context, path: GoRoutes.quizzes),
-              bodyGradientContainer(context,
+              bodyBlueBackgroundContainer(context,
                   child: SingleChildScrollView(
-                    child: horizontal5Percent(
-                      context,
-                      child: Column(
-                        children: [
-                          _backButton(),
-                          _quizTitle(),
-                          if (!ref.read(loadingProvider).isLoading &&
-                              quizQuestions.isNotEmpty)
-                            _quizQuestionWidgets(),
-                          _bottomNavigatorButtons()
-                        ],
-                      ),
+                    child: Column(
+                      children: [
+                        _backButton(),
+                        horizontal5Percent(
+                          context,
+                          child: Column(
+                            children: [
+                              _quizTitle(),
+                              if (!ref.read(loadingProvider).isLoading &&
+                                  quizQuestions.isNotEmpty)
+                                _quizQuestionWidgets(),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ))
             ],
@@ -183,27 +187,23 @@ class _AnswerQuizScreenState extends ConsumerState<AnswerQuizScreen> {
 
   Widget _backButton() {
     return Row(children: [
-      vertical20Pix(
-          child: ElevatedButton(
-              onPressed: () => GoRouter.of(context).goNamed(GoRoutes.quizzes),
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: CustomColors.midnightBlue),
-              child: whiteInterBold('BACK')))
+      all20Pix(
+          child: backButton(context,
+              onPress: () => GoRouter.of(context).goNamed(GoRoutes.quizzes)))
     ]);
   }
 
   Widget _quizTitle() {
     return vertical20Pix(
-        child: blackInterBold(title, fontSize: 28, textAlign: TextAlign.left));
+        child: borderedOlympicBlueContainer(
+            child: SizedBox(
+      width: MediaQuery.of(context).size.width * 0.7,
+      child: blackInterBold(title, fontSize: 28, textAlign: TextAlign.left),
+    )));
   }
 
   Widget _quizQuestionWidgets() {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-          color: CustomColors.midnightBlue.withOpacity(0.3),
-          borderRadius: BorderRadius.circular(30)),
-      padding: const EdgeInsets.all(15),
+    return borderedOlympicBlueContainer(
       child: Column(
         children: [
           _questionContainer(
@@ -214,8 +214,10 @@ class _AnswerQuizScreenState extends ConsumerState<AnswerQuizScreen> {
               answer: '${option.key}) ${option.value}',
               onTap: () => _answerQuestion(option.key),
               isSelected: _checkIfSelected(option.key),
+              color: CustomColors.getLetterColor(option.key),
             );
-          }).toList()
+          }).toList(),
+          _bottomNavigatorButtons()
         ],
       ),
     );
@@ -237,16 +239,11 @@ class _AnswerQuizScreenState extends ConsumerState<AnswerQuizScreen> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              TextButton(
-                  onPressed: _previousQuestion,
-                  child: blackInterBold('< PREV',
-                      textDecoration: TextDecoration.underline)),
-              TextButton(
-                  onPressed: _nextQuestion,
-                  child: blackInterBold('NEXT >',
-                      textDecoration: TextDecoration.underline))
+              blueBorderElevatedButton(
+                  label: '< PREV', onPress: _previousQuestion),
+              blueBorderElevatedButton(label: 'NEXT >', onPress: _nextQuestion)
             ],
           ),
         ],

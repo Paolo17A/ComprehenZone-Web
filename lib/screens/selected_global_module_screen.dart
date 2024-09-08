@@ -143,7 +143,7 @@ class _SelectedGlobalModuleScreenState
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             studentLeftNavigator(context, path: GoRoutes.modules),
             SingleChildScrollView(
-                child: bodyGradientContainer(context,
+                child: bodyBlueBackgroundContainer(context,
                     child: horizontal5Percent(context,
                         child: Column(children: [
                           _backButton(),

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comprehenzone_web/providers/loading_provider.dart';
 import 'package:comprehenzone_web/providers/user_type_provider.dart';
 import 'package:comprehenzone_web/utils/go_router_util.dart';
+import 'package:comprehenzone_web/widgets/custom_button_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_miscellaneous_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_padding_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_text_widgets.dart';
@@ -89,15 +90,24 @@ class _SelectedQuizResultScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 studentLeftNavigator(context, path: GoRoutes.quizzes),
-                bodyGradientContainer(context,
+                bodyBlueBackgroundContainer(context,
                     child: SingleChildScrollView(
-                      child: horizontal5Percent(context,
-                          child: Column(children: [
-                            _backButton(),
-                            _quizTitle(),
-                            _quizScore(),
-                            _questionsAndAnswers()
-                          ])),
+                      child: Column(
+                        children: [
+                          _backButton(),
+                          horizontal5Percent(context,
+                              child: Column(children: [
+                                _quizTitle(),
+                                borderedOlympicBlueContainer(
+                                    child: Column(
+                                  children: [
+                                    _quizScore(),
+                                    _questionsAndAnswers()
+                                  ],
+                                ))
+                              ])),
+                        ],
+                      ),
                     ))
               ],
             )));
@@ -106,35 +116,52 @@ class _SelectedQuizResultScreenState
   Widget _backButton() {
     return Row(children: [
       all20Pix(
-          child: ElevatedButton(
-              onPressed: () {
-                if (ref.read(userTypeProvider).userType == UserTypes.student) {
-                  GoRouter.of(context).goNamed(GoRoutes.quizzes);
-                } else {
-                  GoRouter.of(context).goNamed(GoRoutes.selectedStudent,
-                      pathParameters: {PathParameters.studentID: studentID});
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: CustomColors.midnightBlue),
-              child: whiteInterBold('BACK')))
+          child: backButton(context, onPress: () {
+        if (ref.read(userTypeProvider).userType == UserTypes.student) {
+          GoRouter.of(context).goNamed(GoRoutes.quizzes);
+        } else {
+          GoRouter.of(context).goNamed(GoRoutes.selectedStudent,
+              pathParameters: {PathParameters.studentID: studentID});
+        }
+      }))
     ]);
   }
 
   Widget _quizTitle() {
-    return vertical20Pix(child: blackInterBold(quizTitle, fontSize: 28));
+    return vertical20Pix(
+        child: borderedOlympicBlueContainer(
+            child: blackInterBold(quizTitle, fontSize: 28)));
   }
 
   Widget _quizScore() {
     return Container(
-      width: double.infinity,
+      width: MediaQuery.of(context).size.width * 0.7,
       decoration: BoxDecoration(
+          color: CustomColors.dirtyPearl,
           border: Border.all(width: 3),
-          borderRadius: BorderRadius.circular(10)),
-      padding: const EdgeInsets.all(4),
-      child: blackInterBold(
-          'You got ${grade.toString()} out of ${quizQuestions.length.toString()} items correct.',
-          fontSize: 20),
+          borderRadius: BorderRadius.circular(20)),
+      child: Stack(
+        children: [
+          Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              child: Container(
+                width: ((MediaQuery.of(context).size.width * 0.7) / 10) * grade,
+                decoration: BoxDecoration(
+                    color: CustomColors.correctGreen,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                          offset: Offset(1, 0), spreadRadius: 1, blurRadius: 4)
+                    ]),
+              )),
+          Center(
+              child: blackInterBold(
+                  'You got ${grade.toString()} out of ${quizQuestions.length.toString()} items correct.',
+                  fontSize: 20)),
+        ],
+      ),
     );
   }
 
@@ -165,7 +192,6 @@ class _SelectedQuizResultScreenState
               return vertical10Pix(
                 child: Container(
                   decoration: BoxDecoration(
-                      color: CustomColors.grass.withOpacity(0.5),
                       border: Border.all(width: 2),
                       borderRadius: BorderRadius.circular(5)),
                   padding: const EdgeInsets.all(5),
@@ -177,7 +203,9 @@ class _SelectedQuizResultScreenState
                       Container(
                         width: MediaQuery.of(context).size.width * 0.8,
                         decoration: BoxDecoration(
-                            color: CustomColors.pearlWhite,
+                            color: isCorrect
+                                ? CustomColors.correctGreen
+                                : CustomColors.wrongRed,
                             border: Border.all(width: 2),
                             borderRadius: BorderRadius.circular(5)),
                         padding: const EdgeInsets.all(4),
@@ -185,13 +213,12 @@ class _SelectedQuizResultScreenState
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             interText(yourAnswer,
-                                color:
-                                    isCorrect ? CustomColors.grass : Colors.red,
+                                color: Colors.black,
                                 fontWeight: FontWeight.bold),
                             if (!isCorrect)
                               interText(correctAnswer,
                                   fontWeight: FontWeight.bold,
-                                  color: CustomColors.grass)
+                                  color: Colors.black)
                           ],
                         ),
                       ),

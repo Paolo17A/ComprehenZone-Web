@@ -1,3 +1,4 @@
+import 'package:comprehenzone_web/widgets/custom_button_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_miscellaneous_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_padding_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_text_field_widget.dart';
@@ -182,31 +183,37 @@ class _AddQuizScreenState extends ConsumerState<AddQuizScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              teacherLeftNavigator(context, path: GoRoutes.quizzes),
-              bodyGradientContainer(context,
+              ref.read(userTypeProvider).userType == UserTypes.admin
+                  ? adminLeftNavigator(context, path: GoRoutes.quizzes)
+                  : teacherLeftNavigator(context, path: GoRoutes.quizzes),
+              bodyBlueBackgroundContainer(context,
                   child: SingleChildScrollView(
-                    child: horizontal5Percent(context,
-                        child: Column(
-                          children: [
-                            _backButton(),
-                            newQuizHeader(),
-                            Container(
-                              decoration: BoxDecoration(
-                                  color: CustomColors.midnightBlue
-                                      .withOpacity(0.3),
-                                  border: Border.all(),
-                                  borderRadius: BorderRadius.circular(10)),
-                              padding: const EdgeInsets.all(10),
-                              child: Column(
-                                children: [
-                                  _quizTitle(),
-                                  _quizInputContainer(),
-                                  _navigatorButtons()
-                                ],
-                              ),
-                            ),
-                          ],
-                        )),
+                    child: Column(
+                      children: [
+                        _backButton(),
+                        horizontal5Percent(context,
+                            child: Column(
+                              children: [
+                                newQuizHeader(),
+                                Container(
+                                  decoration: BoxDecoration(
+                                      color: CustomColors.olympicBlue,
+                                      border: Border.all(
+                                          width: 4,
+                                          color: CustomColors.navigatorBlue)),
+                                  padding: const EdgeInsets.all(10),
+                                  child: Column(
+                                    children: [
+                                      _quizTitle(),
+                                      _quizInputContainer(),
+                                      _navigatorButtons()
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            )),
+                      ],
+                    ),
                   ))
             ],
           )),
@@ -214,18 +221,21 @@ class _AddQuizScreenState extends ConsumerState<AddQuizScreen> {
   }
 
   Widget _backButton() {
-    return Row(children: [
-      all20Pix(
-          child: ElevatedButton(
-              onPressed: () => GoRouter.of(context).goNamed(GoRoutes.quizzes),
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: CustomColors.midnightBlue),
-              child: whiteInterBold('BACK')))
-    ]);
+    return all20Pix(
+      child: Row(
+        children: [
+          backButton(context,
+              onPress: () => GoRouter.of(context).goNamed(GoRoutes.quizzes)),
+        ],
+      ),
+    );
   }
 
   Widget newQuizHeader() {
-    return blackInterBold('NEW QUIZ', fontSize: 40);
+    return vertical20Pix(
+      child: borderedOlympicBlueContainer(
+          child: blackInterBold('NEW QUIZ', fontSize: 28)),
+    );
   }
 
   Widget _quizTitle() {
@@ -236,32 +246,29 @@ class _AddQuizScreenState extends ConsumerState<AddQuizScreen> {
             text: 'Quiz Title',
             controller: _titleController,
             textInputType: TextInputType.text,
-            displayPrefixIcon: null),
+            displayPrefixIcon: null,
+            textColor: Colors.black),
       ]),
     );
   }
 
   Widget _quizInputContainer() {
-    return Container(
-      decoration: BoxDecoration(
-          border: Border.all(), borderRadius: BorderRadius.circular(10)),
-      padding: const EdgeInsets.all(10),
-      child: Column(
-        children: [
-          Row(children: [
-            interText('Question #${currentQuestion + 1}',
-                fontWeight: FontWeight.bold)
-          ]),
-          const Gap(5),
-          CustomTextField(
-              text: 'Question',
-              controller: _questionController,
-              textInputType: TextInputType.text,
-              displayPrefixIcon: null),
-          const SizedBox(height: 15),
-          _multipleChoiceQuestionInput(),
-        ],
-      ),
+    return Column(
+      children: [
+        Row(children: [
+          interText('Question #${currentQuestion + 1}',
+              fontWeight: FontWeight.bold)
+        ]),
+        const Gap(5),
+        CustomTextField(
+            text: 'Question',
+            controller: _questionController,
+            textInputType: TextInputType.text,
+            displayPrefixIcon: null,
+            textColor: Colors.black),
+        const SizedBox(height: 15),
+        _multipleChoiceQuestionInput(),
+      ],
     );
   }
 
@@ -286,7 +293,8 @@ class _AddQuizScreenState extends ConsumerState<AddQuizScreen> {
                             text: 'Choice',
                             controller: _choicesControllers[index],
                             textInputType: TextInputType.text,
-                            displayPrefixIcon: null),
+                            displayPrefixIcon: null,
+                            textColor: Colors.black),
                       )
                     ]),
               );
@@ -313,10 +321,10 @@ class _AddQuizScreenState extends ConsumerState<AddQuizScreen> {
         child:
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
       ElevatedButton(
-          onPressed: previousQuestion, child: blackInterBold('PREVIOUS')),
+          onPressed: previousQuestion, child: blackInterRegular('PREVIOUS')),
       ElevatedButton(
           onPressed: nextQuestion,
-          child: blackInterBold(currentQuestion == 9 ? 'SUBMIT' : 'NEXT'))
+          child: blackInterRegular(currentQuestion == 9 ? 'SUBMIT' : 'NEXT'))
     ]));
   }
 }

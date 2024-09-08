@@ -104,7 +104,7 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
                   : ref.read(userTypeProvider).userType == UserTypes.teacher
                       ? teacherLeftNavigator(context, path: GoRoutes.modules)
                       : studentLeftNavigator(context, path: GoRoutes.modules),
-              bodyGradientContainer(context,
+              bodyBlueBackgroundContainer(context,
                   child: SingleChildScrollView(
                     child: horizontal5Percent(context,
                         child: ref.read(userTypeProvider).userType ==
@@ -177,7 +177,7 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
       child: Container(
           width: double.infinity,
           decoration: BoxDecoration(
-              border: Border.all(width: 2), color: CustomColors.paleCyan),
+              border: Border.all(width: 2), color: CustomColors.olympicBlue),
           padding: const EdgeInsets.all(10),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -264,7 +264,8 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                  border: Border.all(width: 2), color: CustomColors.pearlWhite),
+                  border: Border.all(width: 2),
+                  color: CustomColors.getQuarterColor(quarter.toString())),
               padding: EdgeInsets.all(4),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -282,13 +283,15 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
   Widget moduleEntry(DocumentSnapshot moduleDoc) {
     final moduleData = moduleDoc.data() as Map<dynamic, dynamic>;
     String title = moduleData[ModuleFields.title];
+    num quarter = moduleData[ModuleFields.quarter];
     return InkWell(
       onTap: () => GoRouter.of(context).goNamed(GoRoutes.selectedModule,
           pathParameters: {PathParameters.moduleID: moduleDoc.id}),
       child: Container(
         width: MediaQuery.of(context).size.width * 0.3,
         decoration: BoxDecoration(
-            color: CustomColors.pearlWhite, border: Border.all(width: 2)),
+            color: CustomColors.getQuarterColor(quarter.toString()),
+            border: Border.all(width: 2)),
         padding: const EdgeInsets.all(10),
         child: blackInterBold(title),
       ),
@@ -320,11 +323,12 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
   Widget _modulesHeader() {
     return vertical20Pix(
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        blackInterBold('MODULES', fontSize: 40),
+        borderedOlympicBlueContainer(
+            child: blackInterBold('MODULES', fontSize: 28)),
         if (ref.read(userTypeProvider).userType == UserTypes.teacher)
           ElevatedButton(
               onPressed: () => GoRouter.of(context).goNamed(GoRoutes.addModule),
-              child: blackInterBold('NEW MODULE'))
+              child: blackInterRegular('ADD NEW MODULE'))
       ]),
     );
   }

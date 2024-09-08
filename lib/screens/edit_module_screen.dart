@@ -1,6 +1,6 @@
 import 'package:comprehenzone_web/providers/loading_provider.dart';
-import 'package:comprehenzone_web/utils/color_util.dart';
 import 'package:comprehenzone_web/utils/go_router_util.dart';
+import 'package:comprehenzone_web/widgets/custom_button_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_miscellaneous_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_padding_widgets.dart';
 import 'package:comprehenzone_web/widgets/custom_text_field_widget.dart';
@@ -9,6 +9,7 @@ import 'package:comprehenzone_web/widgets/left_navigator_widget.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
 import '../providers/user_type_provider.dart';
@@ -112,43 +113,44 @@ class _EditModuleScreenState extends ConsumerState<EditModuleScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               teacherLeftNavigator(context, path: GoRoutes.modules),
-              bodyGradientContainer(context,
+              bodyBlueBackgroundContainer(context,
                   child: SingleChildScrollView(
-                    child: horizontal5Percent(context,
-                        child: Column(children: [
-                          _backButton(),
-                          newLessonHeader(),
-                          Container(
-                            decoration: BoxDecoration(
-                                color:
-                                    CustomColors.midnightBlue.withOpacity(0.3),
-                                border: Border.all(),
-                                borderRadius: BorderRadius.circular(10)),
-                            padding: const EdgeInsets.all(10),
-                            child: Column(
-                              children: [
-                                _lessonTitle(),
-                                _lessonContent(),
-                                _additionalDocuments(),
-                                _additionalResources(),
-                                _quarterDropdown()
-                              ],
-                            ),
-                          ),
-                          all20Pix(
-                              child: ElevatedButton(
-                                  onPressed: () => editThisModule(context, ref,
-                                      moduleID: widget.moduleID,
-                                      titleController: titleController,
-                                      contentController: contentController,
-                                      documentFiles: documentFiles,
-                                      documentNames: documentNames,
-                                      fileNameControllers: fileNameControllers,
-                                      downloadLinkControllers:
-                                          downloadLinkControllers,
-                                      selectedQuarter: selectedQuarter),
-                                  child: blackInterBold('EDIT MODULE')))
-                        ])),
+                    child: Column(
+                      children: [
+                        _backButton(),
+                        horizontal5Percent(context,
+                            child: Column(children: [
+                              newLessonHeader(),
+                              Gap(4),
+                              borderedOlympicBlueContainer(
+                                child: Column(
+                                  children: [
+                                    _lessonTitle(),
+                                    _lessonContent(),
+                                    _additionalDocuments(),
+                                    _additionalResources(),
+                                    _quarterDropdown()
+                                  ],
+                                ),
+                              ),
+                              all20Pix(
+                                  child: ElevatedButton(
+                                      onPressed: () => editThisModule(
+                                          context, ref,
+                                          moduleID: widget.moduleID,
+                                          titleController: titleController,
+                                          contentController: contentController,
+                                          documentFiles: documentFiles,
+                                          documentNames: documentNames,
+                                          fileNameControllers:
+                                              fileNameControllers,
+                                          downloadLinkControllers:
+                                              downloadLinkControllers,
+                                          selectedQuarter: selectedQuarter),
+                                      child: blackInterBold('EDIT MODULE')))
+                            ])),
+                      ],
+                    ),
                   ))
             ],
           )),
@@ -158,16 +160,14 @@ class _EditModuleScreenState extends ConsumerState<EditModuleScreen> {
   Widget _backButton() {
     return Row(children: [
       all20Pix(
-          child: ElevatedButton(
-              onPressed: () => GoRouter.of(context).goNamed(GoRoutes.modules),
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: CustomColors.midnightBlue),
-              child: whiteInterBold('BACK')))
+          child: backButton(context,
+              onPress: () => GoRouter.of(context).goNamed(GoRoutes.modules)))
     ]);
   }
 
   Widget newLessonHeader() {
-    return blackInterBold('EDIT MODULE', fontSize: 40);
+    return borderedOlympicBlueContainer(
+        child: blackInterBold('EDIT MODULE', fontSize: 28));
   }
 
   Widget _lessonTitle() {
@@ -180,7 +180,8 @@ class _EditModuleScreenState extends ConsumerState<EditModuleScreen> {
               text: 'Module Title',
               controller: titleController,
               textInputType: TextInputType.text,
-              displayPrefixIcon: null),
+              displayPrefixIcon: null,
+              textColor: Colors.black),
         ],
       ),
     );
@@ -196,7 +197,8 @@ class _EditModuleScreenState extends ConsumerState<EditModuleScreen> {
               text: 'Module Content',
               controller: contentController,
               textInputType: TextInputType.multiline,
-              displayPrefixIcon: null),
+              displayPrefixIcon: null,
+              textColor: Colors.black),
         ],
       ),
     );
@@ -318,14 +320,16 @@ class _EditModuleScreenState extends ConsumerState<EditModuleScreen> {
                                         text: 'Name',
                                         controller: fileNameControllers[index],
                                         textInputType: TextInputType.text,
-                                        displayPrefixIcon: null),
+                                        displayPrefixIcon: null,
+                                        textColor: Colors.black),
                                     const SizedBox(height: 10),
                                     CustomTextField(
                                         text: 'URL',
                                         controller:
                                             downloadLinkControllers[index],
                                         textInputType: TextInputType.url,
-                                        displayPrefixIcon: null),
+                                        displayPrefixIcon: null,
+                                        textColor: Colors.black),
                                   ]),
                             ),
                             ElevatedButton(

@@ -1,5 +1,4 @@
 import 'package:comprehenzone_web/utils/string_util.dart';
-import 'package:comprehenzone_web/widgets/custom_padding_widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -12,17 +11,16 @@ Widget adminLeftNavigator(BuildContext context, {required String path}) {
   return Container(
     width: MediaQuery.of(context).size.width * 0.2,
     height: MediaQuery.of(context).size.height,
-    decoration: BoxDecoration(
-        color: CustomColors.pearlWhite,
-        border: Border.all(color: CustomColors.paleCyan, width: 5)),
+    decoration: BoxDecoration(color: CustomColors.navigatorBlue),
     child: Column(
       children: [
         Flexible(
             child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            vertical20Pix(
-                child: Image.asset(ImagePaths.comprehenzoneLogo, height: 100)),
+            Container(
+                color: CustomColors.grimGrey,
+                child: Image.asset(ImagePaths.comprehenzoneLogo, height: 200)),
             listTile(context,
                 label: 'Dashboard', thisPath: GoRoutes.home, currentPath: path),
             listTile(context,
@@ -72,17 +70,16 @@ Widget teacherLeftNavigator(BuildContext context, {required String path}) {
   return Container(
     width: MediaQuery.of(context).size.width * 0.2,
     height: MediaQuery.of(context).size.height,
-    decoration: BoxDecoration(
-        color: CustomColors.pearlWhite,
-        border: Border.all(color: CustomColors.paleCyan, width: 5)),
+    decoration: BoxDecoration(color: CustomColors.navigatorBlue),
     child: Column(
       children: [
         Flexible(
             child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            vertical20Pix(
-                child: Image.asset(ImagePaths.comprehenzoneLogo, height: 100)),
+            Container(
+                color: CustomColors.grimGrey,
+                child: Image.asset(ImagePaths.comprehenzoneLogo, height: 200)),
             listTile(context,
                 label: 'Dashboard', thisPath: GoRoutes.home, currentPath: path),
             listTile(context,
@@ -127,17 +124,16 @@ Widget studentLeftNavigator(BuildContext context, {required String path}) {
   return Container(
     width: MediaQuery.of(context).size.width * 0.2,
     height: MediaQuery.of(context).size.height,
-    decoration: BoxDecoration(
-        color: CustomColors.pearlWhite,
-        border: Border.all(color: CustomColors.paleCyan, width: 5)),
+    decoration: BoxDecoration(color: CustomColors.navigatorBlue),
     child: Column(
       children: [
         Flexible(
             child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            vertical20Pix(
-                child: Image.asset(ImagePaths.comprehenzoneLogo, height: 100)),
+            Container(
+                color: CustomColors.grimGrey,
+                child: Image.asset(ImagePaths.comprehenzoneLogo, height: 200)),
             listTile(context,
                 label: 'Dashboard', thisPath: GoRoutes.home, currentPath: path),
             listTile(context,
@@ -182,15 +178,25 @@ Widget listTile(BuildContext context,
     bool isBold = true}) {
   return Container(
       decoration: BoxDecoration(
-          color: thisPath == currentPath ? CustomColors.paleCyan : null),
+          color: thisPath == currentPath ? CustomColors.olympicBlue : null,
+          border: thisPath == currentPath
+              ? Border.all(color: CustomColors.navigatorBlue, width: 2)
+              : null,
+          boxShadow: thisPath == currentPath
+              ? [
+                  BoxShadow(
+                      color: CustomColors.grimGrey,
+                      offset: Offset(0, 1),
+                      spreadRadius: 1,
+                      blurRadius: 1)
+                ]
+              : null),
       child: ListTile(
           title: Text(label,
               style: GoogleFonts.martelSans(
                   textStyle: TextStyle(
                       fontSize: 14,
-                      color: thisPath == currentPath
-                          ? CustomColors.pearlWhite
-                          : Colors.black,
+                      color: Colors.black,
                       fontWeight:
                           isBold ? FontWeight.bold : FontWeight.normal))),
           onTap: () {

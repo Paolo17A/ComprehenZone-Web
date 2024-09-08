@@ -1,6 +1,7 @@
 import 'package:comprehenzone_web/widgets/custom_text_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
 import '../providers/loading_provider.dart';
@@ -81,7 +82,7 @@ class _EditSelectedProfileScreenState
                   path: thisUserType == UserTypes.teacher
                       ? GoRoutes.teachers
                       : GoRoutes.students),
-              bodyGradientContainer(
+              bodyBlueBackgroundContainer(
                 context,
                 child: SingleChildScrollView(
                   child: Column(
@@ -90,32 +91,45 @@ class _EditSelectedProfileScreenState
                         context,
                         child: Column(
                           children: [
-                            Column(
+                            Row(
                               children: [
-                                Row(
-                                  children: [
-                                    vertical20Pix(
-                                      child: backButton(context,
-                                          onPress: () => GoRouter.of(context)
-                                              .goNamed(thisUserType ==
-                                                      UserTypes.teacher
+                                vertical20Pix(
+                                  child: backButton(context,
+                                      onPress: () => GoRouter.of(context)
+                                          .goNamed(
+                                              thisUserType == UserTypes.teacher
                                                   ? GoRoutes.teachers
                                                   : GoRoutes.students)),
-                                    ),
-                                  ],
                                 ),
-                                _editProfileHeader(),
-                                _firstNameControllerWidget(),
-                                _lasttNameControllerWidget(),
                               ],
                             ),
-                            submitButton(context,
-                                label: 'SAVE CHANGES',
-                                onPress: () => editThisProfile(context, ref,
-                                    userID: widget.userID,
-                                    userType: thisUserType,
-                                    firstNameController: firstNameController,
-                                    lastNameController: lastNameController))
+                            _editProfileHeader(),
+                            Gap(4),
+                            borderedOlympicBlueContainer(
+                                child: Column(
+                              children: [
+                                regularTextField(
+                                    label: 'First Name',
+                                    textController: firstNameController,
+                                    textColor: Colors.black),
+                                regularTextField(
+                                    label: 'Last Name',
+                                    textController: lastNameController,
+                                    textColor: Colors.black),
+                                vertical20Pix(
+                                  child: blueBorderElevatedButton(
+                                      label: 'Save Changes',
+                                      onPress: () => editThisProfile(
+                                          context, ref,
+                                          userID: widget.userID,
+                                          userType: thisUserType,
+                                          firstNameController:
+                                              firstNameController,
+                                          lastNameController:
+                                              lastNameController)),
+                                ),
+                              ],
+                            ))
                           ],
                         ),
                       ),
@@ -129,7 +143,10 @@ class _EditSelectedProfileScreenState
   }
 
   Widget _editProfileHeader() {
-    return blackInterBold('EDIT PROFILE', fontSize: 50);
+    return borderedOlympicBlueContainer(
+        child: SizedBox(
+            width: double.infinity,
+            child: blackInterBold('EDIT PROFILE', fontSize: 28)));
   }
 
   Widget _firstNameControllerWidget() {

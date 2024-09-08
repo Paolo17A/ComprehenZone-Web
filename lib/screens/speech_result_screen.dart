@@ -72,7 +72,7 @@ class _SpeechResultScreenState extends ConsumerState<SpeechResultScreen> {
               teacherLeftNavigator(context, path: GoRoutes.sections)
             else if (userType == UserTypes.student)
               studentLeftNavigator(context, path: GoRoutes.home),
-            bodyGradientContainer(
+            bodyBlueBackgroundContainer(
               context,
               child: SingleChildScrollView(
                 child: horizontal5Percent(

@@ -11,6 +11,7 @@ class CustomTextField extends StatefulWidget {
   final bool hasSearchButton;
   final Function? onSearchPress;
   final Color? fillColor;
+  final Color? textColor;
   const CustomTextField(
       {super.key,
       required this.text,
@@ -20,7 +21,8 @@ class CustomTextField extends StatefulWidget {
       this.enabled = true,
       this.hasSearchButton = false,
       this.onSearchPress,
-      this.fillColor});
+      this.fillColor,
+      this.textColor});
 
   @override
   State<CustomTextField> createState() => _LiliwECommerceTextFieldState();
@@ -41,26 +43,29 @@ class _LiliwECommerceTextFieldState extends State<CustomTextField> {
         enabled: widget.enabled,
         controller: widget.controller,
         obscureText: isObscured,
-        cursorColor: CustomColors.midnightBlue,
+        cursorColor: Colors.white,
         onSubmitted: (value) {
           if (widget.onSearchPress != null &&
               widget.controller.text.isNotEmpty) {
             widget.onSearchPress!();
           }
         },
-        style: const TextStyle(color: Colors.black),
+        style: TextStyle(color: widget.textColor ?? Colors.white),
         decoration: InputDecoration(
             alignLabelWithHint: true,
             labelText: widget.text,
             labelStyle: TextStyle(
-                color: Colors.black.withOpacity(0.5),
+                color: widget.textColor != null
+                    ? widget.textColor!.withOpacity(0.5)
+                    : Colors.white.withOpacity(0.5),
                 fontStyle: FontStyle.italic),
             filled: true,
             floatingLabelBehavior: FloatingLabelBehavior.never,
             fillColor: widget.fillColor ?? Colors.transparent,
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(width: 20)),
+                borderRadius: BorderRadius.circular(30),
+                borderSide: const BorderSide(
+                    width: 10, color: CustomColors.dirtyPearl)),
             contentPadding:
                 const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
             prefixIcon: widget.displayPrefixIcon,
@@ -72,9 +77,8 @@ class _LiliwECommerceTextFieldState extends State<CustomTextField> {
                       });
                     },
                     icon: Icon(
-                      isObscured ? Icons.visibility : Icons.visibility_off,
-                      color: Colors.black,
-                    ))
+                        isObscured ? Icons.visibility : Icons.visibility_off,
+                        color: CustomColors.dirtyPearl))
                 : widget.hasSearchButton && widget.onSearchPress != null
                     ? Transform.scale(
                         scale: 0.95,
@@ -83,8 +87,8 @@ class _LiliwECommerceTextFieldState extends State<CustomTextField> {
                               if (widget.controller.text.isEmpty) return;
                               widget.onSearchPress!();
                             },
-                            child:
-                                const Icon(Icons.search, color: Colors.white)),
+                            child: const Icon(Icons.search,
+                                color: CustomColors.dirtyPearl)),
                       )
                     : null),
         keyboardType: widget.textInputType,
