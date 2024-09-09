@@ -471,7 +471,7 @@ Widget analyticReportWidget(BuildContext context,
                   width: 150,
                   height: 45,
                   decoration: BoxDecoration(
-                      color: CustomColors.grass, border: Border.all()),
+                      color: CustomColors.olympicBlue, border: Border.all()),
                   child: TextButton(
                     onPressed: onPress != null ? () => onPress() : null,
                     child: Center(
