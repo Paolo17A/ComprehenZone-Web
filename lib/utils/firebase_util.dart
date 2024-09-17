@@ -85,8 +85,8 @@ Future logInUser(BuildContext context, WidgetRef ref,
           );
           break;
         default:
-          scaffoldMessenger.showSnackBar(
-              SnackBar(content: Text('Error logging in: $error')));
+          scaffoldMessenger
+              .showSnackBar(SnackBar(content: Text('Invalid credentials')));
           break;
       }
     } else {
