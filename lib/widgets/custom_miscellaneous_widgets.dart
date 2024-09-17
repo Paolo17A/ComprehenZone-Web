@@ -56,7 +56,7 @@ Widget loginFieldsContainer(BuildContext context, WidgetRef ref,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          whiteInterBold('WELCOME!', fontSize: 40),
+          whiteInterBold('WELCOME!', fontSize: 36),
           all10Pix(
               child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -691,9 +691,7 @@ Widget sectionsBarChart(BuildContext context,
           child: Text(
             'No sections available',
             style: TextStyle(
-                color: CustomColors.midnightBlue,
-                fontWeight: FontWeight.bold,
-                fontSize: 30),
+                color: Colors.black, fontWeight: FontWeight.bold, fontSize: 30),
           ),
         );
 }

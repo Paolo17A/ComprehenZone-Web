@@ -16,6 +16,8 @@ import 'package:comprehenzone_web/screens/selected_section_screen.dart';
 import 'package:comprehenzone_web/screens/selected_student_screen.dart';
 import 'package:comprehenzone_web/screens/selected_teacher_screen.dart';
 import 'package:comprehenzone_web/screens/speech_result_screen.dart';
+import 'package:comprehenzone_web/screens/speech_select_screen.dart';
+import 'package:comprehenzone_web/screens/speech_sentence_screen.dart';
 import 'package:comprehenzone_web/screens/view_modules_screen.dart';
 import 'package:comprehenzone_web/screens/view_quizzes_screen.dart';
 import 'package:comprehenzone_web/screens/view_sections_screen.dart';
@@ -49,6 +51,8 @@ class GoRoutes {
   static const editSelectedProfile = 'editSelectedProfile';
   static const answerQuiz = 'answerQuiz';
   static const selectedQuizResult = 'selectedQuizResult';
+  static const speechSelect = 'speechSelect';
+  static const selectedSpeech = 'selectedSpeech';
   static const selectedSpeechResult = 'selectedSpeechResult';
 }
 
@@ -193,6 +197,19 @@ final goRoutes = GoRouter(initialLocation: GoRoutes.home, routes: [
                 SelectedQuizResultScreen(
                     quizResultID:
                         state.pathParameters[PathParameters.quizResultID]!))),
+        GoRoute(
+            name: GoRoutes.speechSelect,
+            path: GoRoutes.speechSelect,
+            pageBuilder: (context, state) =>
+                customTransition(context, state, const SpeechSelectScreen())),
+        GoRoute(
+            name: GoRoutes.selectedSpeech,
+            path: '${GoRoutes.selectedSpeech}/:${PathParameters.index}',
+            pageBuilder: (context, state) => customTransition(
+                context,
+                state,
+                SpeechSentenceScreen(
+                    speechIndex: state.pathParameters[PathParameters.index]!))),
         GoRoute(
             name: GoRoutes.selectedSpeechResult,
             path:

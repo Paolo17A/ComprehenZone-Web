@@ -1,3 +1,4 @@
+import 'package:comprehenzone_web/utils/color_util.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -53,6 +54,21 @@ Text blackInterBold(String label,
       style: GoogleFonts.inter(
           fontSize: fontSize,
           color: Colors.black,
+          decoration: textDecoration,
+          fontWeight: FontWeight.bold));
+}
+
+Text midnightBlueInterBold(String label,
+    {double? fontSize,
+    TextAlign textAlign = TextAlign.center,
+    TextOverflow? overflow,
+    TextDecoration? textDecoration}) {
+  return Text(label,
+      textAlign: textAlign,
+      overflow: overflow,
+      style: GoogleFonts.inter(
+          fontSize: fontSize,
+          color: CustomColors.midnightBlue,
           decoration: textDecoration,
           fontWeight: FontWeight.bold));
 }

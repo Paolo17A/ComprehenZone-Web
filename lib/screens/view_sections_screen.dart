@@ -59,9 +59,13 @@ class _ViewSectionsScreenState extends ConsumerState<ViewSectionsScreen> {
           //  Get Section-wide Data
           final user = await getCurrentUserDoc();
           final userData = user.data() as Map<dynamic, dynamic>;
-          await getTheseSectionDocs(userData[UserFields.assignedSections]);
-          ref.read(sectionsProvider).setSectionDocs(
-              await getTheseSectionDocs(userData[UserFields.assignedSections]));
+          List<dynamic> assignedSections =
+              userData[UserFields.assignedSections];
+          if (assignedSections.isNotEmpty) {
+            await getTheseSectionDocs(userData[UserFields.assignedSections]);
+            ref.read(sectionsProvider).setSectionDocs(await getTheseSectionDocs(
+                userData[UserFields.assignedSections]));
+          }
         }
         ref.read(loadingProvider).toggleLoading(false);
       } catch (error) {

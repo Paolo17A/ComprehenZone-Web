@@ -71,7 +71,7 @@ class _SpeechResultScreenState extends ConsumerState<SpeechResultScreen> {
             else if (userType == UserTypes.teacher)
               teacherLeftNavigator(context, path: GoRoutes.sections)
             else if (userType == UserTypes.student)
-              studentLeftNavigator(context, path: GoRoutes.home),
+              studentLeftNavigator(context, path: GoRoutes.speechSelect),
             bodyBlueBackgroundContainer(
               context,
               child: SingleChildScrollView(

@@ -122,7 +122,8 @@ class _SelectedStudentScreenState extends ConsumerState<SelectedStudentScreen> {
               blackInterBold(formattedName, fontSize: 40),
               if (quizResultDocs.isNotEmpty)
                 blackInterBold(
-                    'Average Grade: ${averageGrade.toStringAsFixed(1)}%')
+                    'Average Grade: ${averageGrade.toStringAsFixed(1)}%',
+                    fontSize: 32)
             ],
           ),
           blackInterRegular(sectionName, fontSize: 24),

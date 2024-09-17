@@ -288,7 +288,7 @@ class _ViewModulesScreenState extends ConsumerState<ViewModulesScreen> {
       onTap: () => GoRouter.of(context).goNamed(GoRoutes.selectedModule,
           pathParameters: {PathParameters.moduleID: moduleDoc.id}),
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.3,
+        width: double.infinity,
         decoration: BoxDecoration(
             color: CustomColors.getQuarterColor(quarter.toString()),
             border: Border.all(width: 2)),

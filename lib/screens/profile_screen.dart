@@ -115,26 +115,29 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 .read(profileImageURLProvider)
                                 .profileImageURL),
                         const Gap(20),
-                        Column(children: [
-                          blueBorderElevatedButton(
-                              label: 'SELECT\nPROFILE PIC',
-                              onPress: _pickImage),
-                          const Gap(10),
-                          if (ref
-                              .read(profileImageURLProvider)
-                              .profileImageURL
-                              .isNotEmpty)
-                            blueBorderElevatedButton(
-                                label: 'REMOVE\nPROFILE PIC',
-                                onPress: () => removeProfilePic(context, ref))
-                        ])
+                        Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              blueBorderElevatedButton(
+                                  label: 'SELECT\nPROFILE PICTURE',
+                                  onPress: _pickImage),
+                              const Gap(10),
+                              if (ref
+                                  .read(profileImageURLProvider)
+                                  .profileImageURL
+                                  .isNotEmpty)
+                                blueBorderElevatedButton(
+                                    label: 'REMOVE\nPROFILE PICTURE',
+                                    onPress: () =>
+                                        removeProfilePic(context, ref))
+                            ])
                       ],
                     ),
                     blackInterBold(formattedName, fontSize: 40),
                   ],
                 ),
                 blueBorderElevatedButton(
-                    label: 'EDIT PROFILE',
+                    label: 'EDIT PROFILE PICTURE',
                     onPress: () =>
                         GoRouter.of(context).goNamed(GoRoutes.editProfile))
               ],

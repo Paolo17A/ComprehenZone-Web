@@ -70,19 +70,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             sectionModels.add(SectionModel(
                 section.id, sectionData[SectionFields.name], students.length));
           }
-        } else if (ref.read(userTypeProvider).userType == UserTypes.teacher) {
+        }
+        //  TEACHER
+        else if (ref.read(userTypeProvider).userType == UserTypes.teacher) {
           //  Get Section-wide Data
           final user = await getCurrentUserDoc();
           final userData = user.data() as Map<dynamic, dynamic>;
-          final sections =
-              await getTheseSectionDocs(userData[UserFields.assignedSections]);
-          for (var section in sections) {
-            final sectionData = section.data() as Map<dynamic, dynamic>;
-            final students = await getSectionStudentDocs(section.id);
-            sectionModels.add(SectionModel(
-                section.id, sectionData[SectionFields.name], students.length));
+          List<dynamic> sections = userData[UserFields.assignedSections];
+          if (sections.isNotEmpty) {
+            List<dynamic> sectionDocs = await getTheseSectionDocs(
+                userData[UserFields.assignedSections]);
+            for (var section in sectionDocs) {
+              final sectionData = section.data() as Map<dynamic, dynamic>;
+              final students = await getSectionStudentDocs(section.id);
+              sectionModels.add(SectionModel(section.id,
+                  sectionData[SectionFields.name], students.length));
+            }
+            print('made it here');
           }
-        } else {
+        }
+        //  STUDENT
+        else {
           final user = await getCurrentUserDoc();
           final userData = user.data() as Map<dynamic, dynamic>;
           formattedName =
@@ -112,6 +120,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         }
         ref.read(loadingProvider).toggleLoading(false);
       } catch (error) {
+        print(error);
         Fluttertoast.showToast(msg: 'Error initializing home screen: $error');
         ref.read(loadingProvider).toggleLoading(false);
       }

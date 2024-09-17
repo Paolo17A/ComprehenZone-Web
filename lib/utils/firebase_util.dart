@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../models/speech_model.dart';
 import '../providers/loading_provider.dart';
 import '../providers/profile_image_url_provider.dart';
 import '../providers/user_type_provider.dart';
@@ -60,8 +61,39 @@ Future logInUser(BuildContext context, WidgetRef ref,
     goRouter.goNamed(GoRoutes.home);
     goRouter.pushReplacementNamed(GoRoutes.home);
   } catch (error) {
-    scaffoldMessenger
-        .showSnackBar(SnackBar(content: Text('Error logging in: $error')));
+    if (error is FirebaseException) {
+      switch (error.code) {
+        case 'wrong-password':
+          scaffoldMessenger.showSnackBar(
+            const SnackBar(
+                content: Text('Incorrect password, please try again.')),
+          );
+          break;
+        case 'user-not-found':
+          scaffoldMessenger.showSnackBar(
+            const SnackBar(content: Text('No user found for this email.')),
+          );
+          break;
+        case 'invalid-email':
+          scaffoldMessenger.showSnackBar(
+            const SnackBar(content: Text('Invalid email address.')),
+          );
+          break;
+        case 'invalid-credential':
+          scaffoldMessenger.showSnackBar(
+            const SnackBar(content: Text('Invalid password.')),
+          );
+          break;
+        default:
+          scaffoldMessenger.showSnackBar(
+              SnackBar(content: Text('Error logging in: $error')));
+          break;
+      }
+    } else {
+      scaffoldMessenger
+          .showSnackBar(SnackBar(content: Text('Error logging in: $error')));
+    }
+
     ref.read(loadingProvider.notifier).toggleLoading(false);
   }
 }
@@ -1120,6 +1152,40 @@ Future<double?> getStudentGradeAverage(String studentID) async {
 //==============================================================================
 //SPEECH RESULTS================================================================
 //==============================================================================
+Future submitSpeechAnswers(BuildContext context, WidgetRef ref,
+    {required int speechIndex,
+    required List<dynamic> sentenceData,
+    required SpeechModel speechModel}) async {
+  final goRouter = GoRouter.of(context);
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  try {
+    ref.read(loadingProvider).toggleLoading(true);
+
+    //  Create speech result entry
+    final speechResultReference = await FirebaseFirestore.instance
+        .collection(Collections.speechResults)
+        .add({
+      SpeechResultFields.studentID: FirebaseAuth.instance.currentUser!.uid,
+      SpeechResultFields.speechIndex: speechIndex,
+      SpeechResultFields.speechResults: sentenceData
+    });
+
+    await FirebaseFirestore.instance
+        .collection(Collections.users)
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .update({UserFields.speechIndex: speechIndex + 1});
+    //  Once all the asynchronouse functions are done, we go to the QuizResults Screen and pass all necessary parameters
+    ref.read(loadingProvider).toggleLoading(false);
+    goRouter.goNamed(GoRoutes.selectedSpeechResult, pathParameters: {
+      PathParameters.speechResultID: speechResultReference.id
+    });
+  } catch (error) {
+    ref.read(loadingProvider).toggleLoading(false);
+    scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('Error submitting speech answers: $error')));
+  }
+}
+
 Future<List<DocumentSnapshot>> getStudentSpeechResults(String studentID) async {
   final speechResults = await FirebaseFirestore.instance
       .collection(Collections.speechResults)
@@ -1134,4 +1200,17 @@ Future<DocumentSnapshot> getThisSpeechResult(String speechResultID) async {
       .collection(Collections.speechResults)
       .doc(speechResultID)
       .get();
+}
+
+Future<String> getThisSpeechResultIDByIndex(int index) async {
+  final speechResultDocs = await FirebaseFirestore.instance
+      .collection(Collections.speechResults)
+      .where(SpeechResultFields.speechIndex, isEqualTo: index)
+      .where(SpeechResultFields.studentID,
+          isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+      .get();
+  if (speechResultDocs.docs.isNotEmpty) {
+    return speechResultDocs.docs.first.id;
+  }
+  return '';
 }

@@ -312,7 +312,7 @@ class _ViewQuizzesScreenState extends ConsumerState<ViewQuizzesScreen> {
         editEntryButton(context,
             onPress: () => GoRouter.of(context).goNamed(GoRoutes.editQuiz,
                 pathParameters: {PathParameters.quizID: quizDoc.id})),
-      ], flex: 2)
+      ], flex: 1)
     ]);
   }
 }

@@ -117,7 +117,7 @@ class _SelectedSectionScreenState extends ConsumerState<SelectedSectionScreen> {
   }
 
   Widget _backButton() {
-    return vertical20Pix(
+    return all20Pix(
         child: Row(children: [
       backButton(context,
           onPress: () => GoRouter.of(context).goNamed(GoRoutes.sections))

@@ -54,8 +54,11 @@ class _SelectedTeacherScreenState extends ConsumerState<SelectedTeacherScreen> {
         final userData = user.data() as Map<dynamic, dynamic>;
         formattedName =
             '${userData[UserFields.firstName]} ${userData[UserFields.lastName]}';
-        sectionDocs =
-            await getTheseSectionDocs(userData[UserFields.assignedSections]);
+        List<dynamic> assignedSections = userData[UserFields.assignedSections];
+        if (assignedSections.isNotEmpty) {
+          sectionDocs = await getTheseSectionDocs(assignedSections);
+        }
+
         moduleDocs = await getTeacherModuleDocs(widget.teacherID);
         quizDocs = await getAllTeacherQuizDocs(widget.teacherID);
         ref.read(loadingProvider).toggleLoading(false);
